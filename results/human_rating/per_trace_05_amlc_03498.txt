@@ -1,0 +1,47 @@
+=== Trace #05 (rate this one) ===
+
+Trace ID:         amlc_03498
+LLM model:        GPT-OSS-20B
+Method / dataset: ICL-FS / HI-Small (seed 42)
+Ground truth:     label=illicit, typology=stack
+LLM said:         illicit=True, typology=fan-out
+Outcome class:    correct_illicit
+
+───────────────── Reasoning trace (LLM thinking) ─────────────────
+
+We need to conclude if transaction is suspicious or not based on subgraph pattern amongst examples. Here we see huge set of accounts and many transfers from 100428660 (an account). This appears like a big hub with many outgoing transfers to many others. Edge pattern: 100428660 transfers to many accounts: account 813454380, 8064569A0? Actually 100428660 to many accounts. Many edges: to various accounts. Many high transaction amounts, many in/out. Looks like a large hub. This could be a funnel? But it's a typical "bolt" of money to many accounts, maybe a layered laundering pattern? But suspicious patterns include: fan-out, fan-in, scatter-gather, gather-scatter, cycle, plot: stack, bipartite. The pattern with 100428660 having huge out-degree and connected to many accounts: The max out-degree is 594, the node is bank_070 (000?). The pattern resembles "gather-scatter"? Let's recall: gather-scatter pattern had a central node that receives many inbound and then redistributes. But here node 100428660 appears to send to many accounts, but there is no evidence of receiving back.
+
+In examples, the suspicious gather-scatter case had central node with high out-degree and high in-degree. The example includes sim header: "Max out-degree: 37 (node: 0214615_8075AC7C0)". In our subgraph, max out-degree is 594 for node 070_100428660. That's huge. But look at overall pattern: there's huge volume 240 million. Many nodes are high, many transfers from 100428660 to many other accounts: it may be a funnel/masher or layering. It probably indicates a funneling of funds into many accounts for layering or distribution. There is no other strong structuring in example suspicious patterns? The included 'pump and dump' patterns? We didn't see this exact pattern but the described 'scatter-gather' pattern showed central node with large in/out. There is also scenario of "stack" or "bipartite"? The 'bipartite' example had many accounts but each connected to just a few others. Not like this.
+
+This looks like a typical high-volume distribution from a suspicious central account. Pattern might be a "fan-out" or "splitting" pattern: one account (100428660) sending to many accounts, but we lack inbound data showing receiving. If it's only out, but many inbound from many accounts? but not here. But the example suspicious like "fan-out" had a central account with many out-transfers to others, but the pattern was "fast in same time window." Our data has many timestamps over 733 units -> not a single short window. However still suspicious? There are many notes of the same account sending large amounts to many accounts across time. The scenario could be a known laundering technique: "piggyback" using many downstream accounts. So it's suspicious.
+
+Thus conclusion: Suspicious.
+
+Observed Pattern: "Large fan-out" or "massive distribution" (could be 'scatter-gather' but no inbound). Might call it "massive fan-out" typical of money-laundering networks.
+
+Let's produce answer.
+
+───────────────── Final answer (LLM structured output) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** A single account (100428660) serves as a massive out‑going hub, sending hundreds of distinct high‑value transactions to dozens of different accounts over a long period. This key‑account structure, combined with the enormous volume and high out‑degree, is characteristic of laundering tactics such as a large‑scale fan‑out or distribution layer.  
+- **Observed Pattern:** Mass fan‑out / distribution layer.
+
+───────────────── Full text (header + reasoning + final answer, raw) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** A single account (100428660) serves as a massive out‑going hub, sending hundreds of distinct high‑value transactions to dozens of different accounts over a long period. This key‑account structure, combined with the enormous volume and high out‑degree, is characteristic of laundering tactics such as a large‑scale fan‑out or distribution layer.  
+- **Observed Pattern:** Mass fan‑out / distribution layer.
+
+───────────────── Your rating ─────────────────
+Mark each step ✓ or ✗ (write 1 or 0 in traces.csv). The four steps:
+  Parse    — Did the trace correctly read the graph (hub, edges, key features)?
+  Recall   — Did the trace enumerate ≥2 typology candidates BEFORE concluding?
+  Match    — If the verdict was 'Suspicious', did the trace cite ≥2 structural
+             markers (cycle, identical amounts, temporal regularity, layering)?
+             If the verdict was 'Not Suspicious', this step is automatically ✓.
+  Conclude — Compare GT typology vs the LLM said typology in the header.
+
+Rate Match using the ≥80%-confidence rule (see rubric_guide.md): if you
+are not at least 80% sure the trace cites two genuine structural markers
+(not volume/degree restated), mark Match = 0.

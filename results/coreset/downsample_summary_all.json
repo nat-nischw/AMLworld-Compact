@@ -1,0 +1,504 @@
+{
+  "n_cpu": 96,
+  "workers": 76,
+  "datasets": [
+    "HI-Small",
+    "LI-Small"
+  ],
+  "summaries": {
+    "HI-Small": {
+      "dataset": "HI-Small",
+      "n_total": 1015669,
+      "n_illicit": 1251,
+      "illicit_rate": 0.001231700485098984,
+      "n_raters": 15,
+      "methods": [
+        "LightGBM+GFP",
+        "XGBoost+GFP",
+        "GCPAL+GFP"
+      ],
+      "seeds": [
+        42,
+        123,
+        456,
+        789,
+        1011
+      ],
+      "ensemble_f1_full": 0.7086848635235732,
+      "ensemble_threshold": 0.8000000000000002,
+      "serializer": {
+        "avg_edges_per_case": 45,
+        "display_format": "edge_list",
+        "tokens_per_case": {
+          "edge_list": 877,
+          "adjacency": 612,
+          "structured": 1484,
+          "json": 2017
+        },
+        "chars_per_case": {
+          "edge_list": 3509,
+          "adjacency": 2448,
+          "structured": 5936,
+          "json": 8068
+        }
+      },
+      "irt_full": {
+        "n_illicit": 1251,
+        "beta_mean": -1.187493207018434,
+        "beta_std": 4.102910301629207,
+        "alpha_mean": 0.9455837756790415,
+        "alpha_std": 0.040477159341502485
+      },
+      "best_f1_size": 1015669,
+      "best_irt_size": 40594,
+      "optuna": {
+        "n_total": 699033,
+        "n_illicit": 861,
+        "n_typology_classes": 8,
+        "irt_level": "GOOD",
+        "irt_diff_std": 0.21045805111619362,
+        "kl_typology": 0.03441024739222383,
+        "kl_difficulty": 0.005946193955573725,
+        "subset_f1": 0.7519110493398193,
+        "delta_f1": 0.043226185816246154,
+        "n_trials": 1000,
+        "n_feasible": 360,
+        "kl_typ_thresh": 0.2,
+        "kl_dif_thresh": 0.15,
+        "f1_tol": 0.05,
+        "context": {
+          "n_context_graphs": 699033,
+          "est_edges_total": 31456485,
+          "est_tokens_total": 613051941,
+          "est_tokens_per_case": 877,
+          "serializer_fmt": "edge_list",
+          "all_fmt_tokens": {
+            "edge_list": 613051941,
+            "adjacency": 427808196,
+            "structured": 1037364972,
+            "json": 1409949561
+          }
+        },
+        "best_trial_number": 306,
+        "indices_path": "outputs/eval_subsets/HI-Small/subset_HI-Small_optuna_best.npy"
+      },
+      "sizes": [
+        {
+          "size": 40594,
+          "n_illicit": 50,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0012317091195743213,
+          "kl_typology": 0.12533911140013754,
+          "kl_difficulty": 0.06841871879589366,
+          "subset_f1": 0.7857142857142857,
+          "delta_f1": 0.07702942219071252,
+          "f1_ok": false,
+          "irt_level": "WEAK",
+          "irt_diff_std": 0.17260370992740162,
+          "irt_issues": [],
+          "n_context_graphs": 40594,
+          "tokens_by_format": {
+            "edge_list": 35600938,
+            "adjacency": 24843528,
+            "structured": 60241496,
+            "json": 81878098
+          }
+        },
+        {
+          "size": 64138,
+          "n_illicit": 79,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.001231719105678381,
+          "kl_typology": 0.1914091866725979,
+          "kl_difficulty": 0.0683051493889881,
+          "subset_f1": 0.8226950354609929,
+          "delta_f1": 0.11401017193741969,
+          "f1_ok": false,
+          "irt_level": "WEAK",
+          "irt_diff_std": 0.22794907316642846,
+          "irt_issues": [],
+          "n_context_graphs": 64138,
+          "tokens_by_format": {
+            "edge_list": 56249026,
+            "adjacency": 39252456,
+            "structured": 95180792,
+            "json": 129366346
+          }
+        },
+        {
+          "size": 101485,
+          "n_illicit": 125,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0012317091195743213,
+          "kl_typology": 0.14546368156728087,
+          "kl_difficulty": 0.028696230910112325,
+          "subset_f1": 0.8310502283105022,
+          "delta_f1": 0.12236536478692905,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.21006901623405572,
+          "irt_issues": [],
+          "n_context_graphs": 101485,
+          "tokens_by_format": {
+            "edge_list": 89002345,
+            "adjacency": 62108820,
+            "structured": 150603740,
+            "json": 204695245
+          }
+        },
+        {
+          "size": 161565,
+          "n_illicit": 199,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.001231702410794417,
+          "kl_typology": 0.15932693290598288,
+          "kl_difficulty": 0.026793353427933625,
+          "subset_f1": 0.8314606741573034,
+          "delta_f1": 0.12277581063373022,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.23197883969787617,
+          "irt_issues": [],
+          "n_context_graphs": 161565,
+          "tokens_by_format": {
+            "edge_list": 141692505,
+            "adjacency": 98877780,
+            "structured": 239762460,
+            "json": 325876605
+          }
+        },
+        {
+          "size": 255743,
+          "n_illicit": 315,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.001231705266615313,
+          "kl_typology": 0.14565655590973858,
+          "kl_difficulty": 0.01559225181700527,
+          "subset_f1": 0.8383658969804618,
+          "delta_f1": 0.12968103345688864,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.23053032701244117,
+          "irt_issues": [],
+          "n_context_graphs": 255743,
+          "tokens_by_format": {
+            "edge_list": 224286611,
+            "adjacency": 156514716,
+            "structured": 379522612,
+            "json": 515833631
+          }
+        },
+        {
+          "size": 405130,
+          "n_illicit": 499,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0012317034038456791,
+          "kl_typology": 0.08403094193340746,
+          "kl_difficulty": 0.012496374285830263,
+          "subset_f1": 0.8145620022753128,
+          "delta_f1": 0.10587713875173965,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.21802937618003418,
+          "irt_issues": [],
+          "n_context_graphs": 405130,
+          "tokens_by_format": {
+            "edge_list": 355299010,
+            "adjacency": 247939560,
+            "structured": 601212920,
+            "json": 817147210
+          }
+        },
+        {
+          "size": 641389,
+          "n_illicit": 790,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0012317018221391386,
+          "kl_typology": 0.03654742358380551,
+          "kl_difficulty": 0.006739981065674267,
+          "subset_f1": 0.7840825350036846,
+          "delta_f1": 0.07539767148011145,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.20311747703902908,
+          "irt_issues": [],
+          "n_context_graphs": 641389,
+          "tokens_by_format": {
+            "edge_list": 562498153,
+            "adjacency": 392530068,
+            "structured": 951821276,
+            "json": 1293681613
+          }
+        },
+        {
+          "size": 1015669,
+          "n_illicit": 1251,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.001231700485098984,
+          "kl_typology": 0.0,
+          "kl_difficulty": 0.0,
+          "subset_f1": 0.7086848635235732,
+          "delta_f1": 0.0,
+          "f1_ok": true,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.19981550034605805,
+          "irt_issues": [],
+          "n_context_graphs": 1015669,
+          "tokens_by_format": {
+            "edge_list": 890741713,
+            "adjacency": 621589428,
+            "structured": 1507252796,
+            "json": 2048604373
+          }
+        }
+      ]
+    },
+    "LI-Small": {
+      "dataset": "LI-Small",
+      "n_total": 1384810,
+      "n_illicit": 756,
+      "illicit_rate": 0.0005459232674518526,
+      "n_raters": 15,
+      "methods": [
+        "LightGBM+GFP",
+        "XGBoost+GFP",
+        "GCPAL+GFP"
+      ],
+      "seeds": [
+        42,
+        123,
+        456,
+        789,
+        1011
+      ],
+      "ensemble_f1_full": 0.29567053854276665,
+      "ensemble_threshold": 0.4800000000000001,
+      "serializer": {
+        "avg_edges_per_case": 45,
+        "display_format": "edge_list",
+        "tokens_per_case": {
+          "edge_list": 877,
+          "adjacency": 612,
+          "structured": 1484,
+          "json": 2017
+        },
+        "chars_per_case": {
+          "edge_list": 3509,
+          "adjacency": 2448,
+          "structured": 5936,
+          "json": 8068
+        }
+      },
+      "irt_full": {
+        "n_illicit": 756,
+        "beta_mean": 3.098668260120406,
+        "beta_std": 3.010608378757329,
+        "alpha_mean": 0.9174625325256396,
+        "alpha_std": 0.06989573708034819
+      },
+      "best_f1_size": 1384810,
+      "best_irt_size": 91587,
+      "optuna": {
+        "n_total": 1141186,
+        "n_illicit": 623,
+        "n_typology_classes": 8,
+        "irt_level": "GOOD",
+        "irt_diff_std": 0.20807004931908626,
+        "kl_typology": 0.0,
+        "kl_difficulty": 0.0033883888274342925,
+        "subset_f1": 0.3448275862068966,
+        "delta_f1": 0.04915704766412993,
+        "n_trials": 1000,
+        "n_feasible": 458,
+        "kl_typ_thresh": 0.2,
+        "kl_dif_thresh": 0.15,
+        "f1_tol": 0.05,
+        "context": {
+          "n_context_graphs": 1141186,
+          "est_edges_total": 51353370,
+          "est_tokens_total": 1000820122,
+          "est_tokens_per_case": 877,
+          "serializer_fmt": "edge_list",
+          "all_fmt_tokens": {
+            "edge_list": 1000820122,
+            "adjacency": 698405832,
+            "structured": 1693520024,
+            "json": 2301772162
+          }
+        },
+        "best_trial_number": 961,
+        "indices_path": "outputs/eval_subsets/LI-Small/subset_LI-Small_optuna_best.npy"
+      },
+      "sizes": [
+        {
+          "size": 91587,
+          "n_illicit": 50,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459290073918788,
+          "kl_typology": 0.05399925553425444,
+          "kl_difficulty": 0.14559571905141266,
+          "subset_f1": 0.6216216216216216,
+          "delta_f1": 0.32595108307885495,
+          "f1_ok": false,
+          "irt_level": "WEAK",
+          "irt_diff_std": 0.21393081908549968,
+          "irt_issues": [],
+          "n_context_graphs": 91587,
+          "tokens_by_format": {
+            "edge_list": 80321799,
+            "adjacency": 56051244,
+            "structured": 135915108,
+            "json": 184730979
+          }
+        },
+        {
+          "size": 135550,
+          "n_illicit": 74,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459240132792328,
+          "kl_typology": 0.07044491060445043,
+          "kl_difficulty": 0.12373048431603872,
+          "subset_f1": 0.631578947368421,
+          "delta_f1": 0.33590840882565437,
+          "f1_ok": false,
+          "irt_level": "WEAK",
+          "irt_diff_std": 0.22436097659783485,
+          "irt_issues": [],
+          "n_context_graphs": 135550,
+          "tokens_by_format": {
+            "edge_list": 118877350,
+            "adjacency": 82956600,
+            "structured": 201156200,
+            "json": 273404350
+          }
+        },
+        {
+          "size": 199661,
+          "n_illicit": 109,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459253434571599,
+          "kl_typology": 0.05383360776609857,
+          "kl_difficulty": 0.0988817325273888,
+          "subset_f1": 0.5853658536585366,
+          "delta_f1": 0.2896953151157699,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.23447972946188858,
+          "irt_issues": [],
+          "n_context_graphs": 199661,
+          "tokens_by_format": {
+            "edge_list": 175102697,
+            "adjacency": 122192532,
+            "structured": 296296924,
+            "json": 402716237
+          }
+        },
+        {
+          "size": 293081,
+          "n_illicit": 160,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459241643095253,
+          "kl_typology": 0.035056212772365404,
+          "kl_difficulty": 0.09492825508465907,
+          "subset_f1": 0.5957446808510638,
+          "delta_f1": 0.30007414230829715,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.24533337164234068,
+          "irt_issues": [],
+          "n_context_graphs": 293081,
+          "tokens_by_format": {
+            "edge_list": 257032037,
+            "adjacency": 179365572,
+            "structured": 434932204,
+            "json": 591144377
+          }
+        },
+        {
+          "size": 432295,
+          "n_illicit": 236,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.000545923501312761,
+          "kl_typology": 0.023949814304215274,
+          "kl_difficulty": 0.05247173848442896,
+          "subset_f1": 0.5356125356125356,
+          "delta_f1": 0.239941997069769,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.22559449699872972,
+          "irt_issues": [],
+          "n_context_graphs": 432295,
+          "tokens_by_format": {
+            "edge_list": 379122715,
+            "adjacency": 264564540,
+            "structured": 641525780,
+            "json": 871939015
+          }
+        },
+        {
+          "size": 637452,
+          "n_illicit": 348,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459234577662318,
+          "kl_typology": 0.006372847216765967,
+          "kl_difficulty": 0.036115724181572884,
+          "subset_f1": 0.47560975609756095,
+          "delta_f1": 0.1799392175547943,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.2314236229295744,
+          "irt_issues": [],
+          "n_context_graphs": 637452,
+          "tokens_by_format": {
+            "edge_list": 559045404,
+            "adjacency": 390120624,
+            "structured": 945978768,
+            "json": 1285740684
+          }
+        },
+        {
+          "size": 939692,
+          "n_illicit": 513,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459235579317478,
+          "kl_typology": 0.0003294247171279057,
+          "kl_difficulty": 0.013708492859597576,
+          "subset_f1": 0.40233236151603496,
+          "delta_f1": 0.10666182297326832,
+          "f1_ok": false,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.2211212556163181,
+          "irt_issues": [],
+          "n_context_graphs": 939692,
+          "tokens_by_format": {
+            "edge_list": 824109884,
+            "adjacency": 575091504,
+            "structured": 1394502928,
+            "json": 1895358764
+          }
+        },
+        {
+          "size": 1384810,
+          "n_illicit": 756,
+          "n_typology_classes": 8,
+          "illicit_rate": 0.0005459232674518526,
+          "kl_typology": 0.0,
+          "kl_difficulty": 0.0,
+          "subset_f1": 0.29567053854276665,
+          "delta_f1": 0.0,
+          "f1_ok": true,
+          "irt_level": "GOOD",
+          "irt_diff_std": 0.19421990710574702,
+          "irt_issues": [],
+          "n_context_graphs": 1384810,
+          "tokens_by_format": {
+            "edge_list": 1214478370,
+            "adjacency": 847503720,
+            "structured": 2055058040,
+            "json": 2793161770
+          }
+        }
+      ]
+    }
+  }
+}

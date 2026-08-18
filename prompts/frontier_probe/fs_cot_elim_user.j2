@@ -1,0 +1,28 @@
+
+Task: Given this flagged transaction's surrounding subgraph, determine whether the flagged transaction is suspicious, or not suspicious.
+Test Case:
+STRUCTURAL ANALYSIS (computed):
+  Cycles: {{ graph_text }}0
+
+## STEP-BY-STEP ELIMINATION (required)
+
+For EACH of the 8 illicit typologies below, in this fixed order, write ONE line stating either:
+- REJECT: <structural reason citing specific features> — if the structure does NOT match.
+- CONSIDER: <structural reason> — if the structure could plausibly match.
+
+Eliminate in this fixed order:
+1. fan-out (one source distributing to many; HIGH max_out_degree, LOW max_in_degree):
+2. fan-in (many sources to one collector; HIGH max_in_degree, LOW max_out_degree):
+3. cycle (closed loops; n_cycles_3plus_nodes >= 1 OR HIGH reciprocity):
+4. scatter-gather (two-hub pattern; n_hubs >= 2, longest_chain_hops >= 2):
+5. gather-scatter (single dominant hub doing both gathering and scattering; HIGH hub_dominance):
+6. random (moderate uniform degree distribution, no dominant pattern):
+7. bipartite (two distinct groups, edges only between; is_bipartite=yes, n_hubs <= 1):
+8. stack (high edge multiplicity on same pairs; small n_nodes, repeated transfers):
+
+Decision rule: if 0 typologies survive (all REJECT), classify as Not Suspicious. If 1 typology survives, classify as that. If 2+ survive, pick the one with the strongest structural evidence and explain the trade-off in your final Explanation.
+
+## FINAL ANSWER (required — exact format):
+- Conclusion: Suspicious or Not Suspicious
+- Explanation: 2-3 sentences citing the surviving typology's structural support (or why all were rejected).
+- Observed Pattern: must be EXACTLY one of [fan-out, fan-in, cycle, scatter-gather, gather-scatter, random, bipartite, stack, legitimate]. Use lowercase, hyphenated form. Use "legitimate" if Conclusion is "Not Suspicious".

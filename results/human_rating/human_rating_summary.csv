@@ -1,0 +1,5 @@
+step,NLP,Jr.,Sr.,mean,fleiss_kappa,expected_agreement,unanimous_items,n_items,ceiling
+parse,100.0,100.0,96.4,98.8,-0.012048192771086328,0.9764739229024944,27,28,True
+recall,100.0,100.0,100.0,100.0,1.0,1.0,28,28,True
+match,53.6,96.4,67.9,72.6,0.1019244476122589,0.6023242630385488,13,28,False
+conclude,21.4,21.4,21.4,21.4,1.0,0.6632653061224489,28,28,False

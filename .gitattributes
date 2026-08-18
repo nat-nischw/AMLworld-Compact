@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.npy   binary
+*.npz   binary
+*.pt    binary
+*.pdf   binary
+*.png   binary
+*.parquet binary
+
+# Vendored prompt templates are the executed prompts; keep them byte-exact.
+prompts/** -text

@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Installed as `amlcompact`, the name the paper uses; imported as `amlc`, which is
+# short enough not to be confused with the repository directory. Same distinction
+# scikit-learn/sklearn makes. The importable package is `amlc/` and there is no other.
+name = "amlcompact"
+version = "1.0.0"
+description = "HT-Coreset compression of AMLworld and an in-context evaluation of thinking-mode LLMs on transaction-graph AML detection"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Natapong Nitarach" },
+  { name = "Phume Ngampornsukswadi" },
+  { name = "Pittawat Taveekitworachai" },
+  { name = "Surapon Nonesung" },
+  { name = "Warit Sirichotedumrong" },
+  { name = "Duncan Halverson" },
+  { name = "Kunat Pipatanakul" },
+]
+keywords = ["anti-money-laundering", "graph-reasoning", "llm-evaluation", "coreset", "horvitz-thompson"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Enough to load the released coreset, score a model and rebuild every table.
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "pyarrow>=14",
+  "scipy>=1.11",
+  "scikit-learn>=1.3",
+  "jinja2>=3.1",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Downloading AMLworld and building the transaction graph. networkx and tqdm are
+# imported at module level by amlc/data/loader.py, so anything that touches the
+# data layer needs this extra; three modules in the package need more than the
+# core dependencies to import at all, and two of those are the figure style.
+data = ["kagglehub>=0.3", "networkx>=3.1", "tqdm>=4.66"]
+# Retraining the supervised baselines from AMLworld.
+ml = ["lightgbm>=4.1", "xgboost>=2.0", "optuna>=3.4", "snapml>=1.14", "polars>=0.20", "tqdm>=4.66"]
+# The GCPAL graph neural baseline.
+gnn = ["torch>=2.1", "torch-geometric>=2.4"]
+# Running the LLM evaluation against a vLLM server or a frontier API.
+llm = ["openai>=1.10", "tiktoken>=0.5", "anthropic>=0.18", "google-genai>=0.3"]
+# Figures and the paper artefacts.
+figures = ["matplotlib>=3.8", "seaborn>=0.13"]
+# Fetching the released dataset and weights.
+hub = ["huggingface-hub>=0.20", "datasets>=2.16"]
+# Everything the test suite imports. The smoke test walks every module in the
+# package, so it needs the two extras that carry module-level imports; without
+# them `make test` fails on a clean install rather than skipping.
+dev = ["amlcompact[data,figures,hub]", "pytest>=7.4", "ruff>=0.1"]
+
+[project.urls]
+Repository = "https://github.com/nat-nischw/AMLCompact"
+Dataset = "https://huggingface.co/datasets/natnitaract/amlcompact-eval"
+Paper = "https://openreview.net/forum?id=VouFZFf8Ph"
+
+[tool.setuptools.packages.find]
+include = ["amlc*"]
+
+# config.yaml is not an optional extra: amlc.config reads it at import time, so
+# an install without it cannot import the package at all.
+[tool.setuptools.package-data]
+amlc = ["config.yaml"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+# The scripts and the test suite prepend the repository root to sys.path so a
+# fresh clone can run them before `pip install -e .`. That puts their imports
+# after a statement, which is E402. It is deliberate and it is the same in every
+# one of those files, so it is stated here once rather than as a `# noqa` on each
+# import line.
+[tool.ruff.lint.per-file-ignores]
+"scripts/**" = ["E402"]
+"tests/**" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

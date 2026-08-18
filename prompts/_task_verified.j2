@@ -1,0 +1,12 @@
+
+Task: Given a transaction (edge) with Transaction ID <ID>, along with its surrounding subgraph, determine whether the transaction is suspicious, or not suspicious. Your reasoning should be based on whether the surrounding subgraph resembles any of the suspicious typologies provided in the examples.
+Test Example:
+{{ graph_text }}
+Verification step (perform before concluding):
+1. If the subgraph shows a hub account with recurring fixed-amount transfers to many recipients with regular timestamps (e.g., monthly/biweekly), this pattern is consistent with payroll/salary disbursement and is NOT suspicious. Do not select fan-out, gather-scatter, or stack solely on degree and volume features.
+2. If the only observed signal is high transaction volume, identify at least one additional structural marker - cycles, identical amounts crossing reporting thresholds, or rapid layering across multiple counterparties - before classifying as suspicious.
+3. If you cannot identify a specific structural marker matching one of the 8 typologies, classify the transaction as Not Suspicious.
+Answer Format:
+- Conclusion: Suspicious or Not Suspicious
+- Explanation: (2-3 sentences reasoning, must reference at least one structural marker if Suspicious)
+- Observed Pattern: (e.g., gather-scatter)

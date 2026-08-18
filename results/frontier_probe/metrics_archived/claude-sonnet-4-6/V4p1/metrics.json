@@ -1,0 +1,13 @@
+{
+  "model": "claude-sonnet-4-6",
+  "variant": "V4p1",
+  "n": 198,
+  "n_per_class": 22,
+  "n_errors": 0,
+  "detection_accuracy": 0.6919191919191919,
+  "predicted_suspicious_rate": 0.6818181818181818,
+  "typology_accuracy_9class": 0.21717171717171718,
+  "total_input_tokens": 585075,
+  "total_output_tokens": 593698,
+  "timestamp": "2026-05-07T19:19:05.200948+00:00"
+}

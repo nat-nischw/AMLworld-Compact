@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "max_depth": 12,
+    "learning_rate": 0.011720211102112705,
+    "reg_lambda": 0.2924194013191885,
+    "scale_pos_weight": 4.755316822242896,
+    "colsample_bytree": 0.5668553852998093,
+    "subsample": 0.6931116165361604,
+    "n_estimators": 871
+  },
+  "best_score": 0.35269709543568467,
+  "best_threshold": 0.5,
+  "n_candidates": 50,
+  "n_trials_completed": 50,
+  "n_pruned": 0,
+  "n_failed": 0,
+  "tuning_time_s": 438.8,
+  "actual_n_rounds": 870
+}

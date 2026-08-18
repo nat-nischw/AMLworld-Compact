@@ -1,0 +1,32 @@
+# amlc-bench: ML training, evaluation, and downsampling.
+# CPU + 1 GPU sufficient (used for LightGBM, XGBoost, GCPAL training and
+# bench tools: the coreset, subset-eval and Doubt Triage stages).
+name: amlc-bench
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch::pytorch=2.7.*
+  - pytorch::torchvision
+  - pytorch::pytorch-cuda=12.4
+  - pip:
+      - lightgbm==4.5.0
+      - xgboost==2.1.4
+      - scikit-learn==1.5.2
+      - numpy==1.26.4
+      - pandas==2.2.3
+      - scipy==1.14.1
+      - optuna==4.0.0
+      - tqdm==4.67.1
+      - matplotlib==3.9.4
+      - seaborn==0.13.2
+      - networkx==3.3
+      - dgl==2.1.0                       # GCPAL line-graph + GIN
+      - torch_geometric==2.5.3            # alternative graph layer
+      - openai==1.50.0                    # DeepSeek API for rubric annotator
+      - python-dotenv==1.0.1
+      - jupyter

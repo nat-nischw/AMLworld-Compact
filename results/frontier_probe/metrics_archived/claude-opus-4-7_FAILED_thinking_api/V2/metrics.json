@@ -1,0 +1,13 @@
+{
+  "model": "claude-opus-4-7",
+  "variant": "V2",
+  "n": 198,
+  "n_per_class": 22,
+  "n_errors": 198,
+  "detection_accuracy": 0.1111111111111111,
+  "predicted_suspicious_rate": 0.0,
+  "typology_accuracy_9class": 0.0,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0,
+  "timestamp": "2026-05-07T18:13:20.158825+00:00"
+}

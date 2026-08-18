@@ -1,0 +1,29 @@
+# amlc-vllm: GPU vLLM serving for thinking-mode LLMs.
+# Used to host: GPT-OSS-20B/120B, Qwen3.5-27B/35B-A3B/397B-A17B, Kimi-K2-Thinking.
+# Requires CUDA 12.4+ and 4 GPUs minimum (8 for 120B+ models).
+name: amlc-vllm
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch::pytorch=2.7.*
+  - pytorch::pytorch-cuda=12.4
+  - pip:
+      - vllm==0.20.0                     # NB: triton 3.6.0 patch needed for GPT-OSS MXFP4
+                                          # see slurm/host_vllm_gpt_oss.sh notes
+      - transformers==4.46.3
+      - tokenizers==0.21.0
+      - sentence-transformers==3.3.1
+      - flashinfer-python==0.2.1
+      - bitsandbytes==0.44.1
+      - accelerate==1.13.0
+      - openai==1.50.0
+      - anthropic==0.94.0
+      - numpy==1.26.4
+      - pandas==2.2.3
+      - tqdm
+      - python-dotenv

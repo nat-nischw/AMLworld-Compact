@@ -1,0 +1,131 @@
+# Every constant this project treats as configuration, in one file.
+#
+# Two kinds of value live here and the distinction matters when you edit them.
+#
+#   Facts about the published run. Split sizes, coreset sizes, decision
+#   thresholds, seeds, the sampling parameters each model was served with.
+#   These appear in the paper. Changing one does not reconfigure anything, it
+#   makes the code describe a run that did not happen. They are here so a
+#   reader can check them against the paper in one place instead of grepping
+#   seven modules.
+#
+#   Addresses and knobs. Where the dataset lives, where a vLLM server is, which
+#   judge model to call. These are yours to change, and most also take an
+#   environment variable so you do not have to edit a file that ships in the
+#   package. The variable name is given next to each one.
+#
+# Loaded by amlc/config.py, which exposes every key below as a module-level
+# name and applies the environment overrides. Nothing else reads this file.
+
+# ── where things come from ───────────────────────────────────────────────
+sources:
+  # The published evaluation set. Override: AMLC_DATASET
+  dataset_repo: natnitaract/amlcompact-eval
+  # A local build of the coreset, used instead of downloading. Override: AMLC_CORESET_DIR
+  coreset_dir: null
+  # AMLworld itself, which is not redistributed. CDLA-Sharing-1.0, fetch under
+  # your own Kaggle account. Override: AMLC_KAGGLE_DATASET
+  kaggle_dataset: ealtman2019/ibm-transactions-for-anti-money-laundering-aml
+  # The code and the paper record, used in citations and error messages.
+  code_repo: https://github.com/nat-nischw/AMLCompact
+  paper: https://openreview.net/forum?id=VouFZFf8Ph
+  # The per-split arrays hub.load_coreset needs. This is the dataset's layout
+  # contract: rename one on the Hub and the loader must be told here.
+  coreset_arrays:
+    - ht_subset_indices.npy
+    - ht_weights.npy
+    - labels.npy
+    - typologies.npy
+
+# ── the two AMLworld splits we evaluate ──────────────────────────────────
+datasets: [HI-Small, LI-Small]
+
+# Full temporal test split sizes. The HT weights sum to these by construction,
+# and hub.load_coreset refuses to return a weight vector that does not.
+n_test_full:
+  HI-Small: 1015669
+  LI-Small: 1384810
+
+# Released coreset sizes.
+n_coreset:
+  HI-Small: 3753
+  LI-Small: 2268
+
+# Supervised ensemble decision thresholds. See docs/known_issues.md: the paper
+# describes these as validation-tuned but the archived code computed them on
+# the full test split.
+ml_thresholds:
+  HI-Small: 0.80
+  LI-Small: 0.48
+
+seeds: [42, 123, 456, 789, 1011]
+
+ensemble_members: [LightGBM+GFP, XGBoost+GFP, GCPAL+GFP]
+
+promptings: [ICL-FS, ICL-ZS, ICL-V]
+
+# The released coreset, and the separate same-size re-draw retained only to
+# reproduce the numbers in the ARR submission. They are not interchangeable:
+# see docs/known_issues.md.
+coreset_draws: [ht-coreset, ablation-redraw]
+
+# ── context-graph construction, Section 3 ────────────────────────────────
+serialisation:
+  k_hop: 2
+  max_neighbours_per_hop: 50
+
+# ── coreset construction, Section 3 ──────────────────────────────────────
+coreset:
+  benign_multiplier: 2.0        # the 1:2 illicit-to-benign design ratio
+  hard_neg_ratio: 0.3           # share of the benign budget spent on hard negatives
+  hard_neg_threshold_frac: 0.5  # a benign edge is hard if p_ens >= this * tau
+
+# ── four-step audit rubric ───────────────────────────────────────────────
+rubric:
+  steps: [parse, recall, match, conclude]
+  n_traces: 1000
+  seed: 42
+
+# ── the evaluated open-weight models ─────────────────────────────────────
+# Sampling parameters are the ones each vendor recommends for thinking mode and
+# are Table 7 of the paper; they are not tuning knobs. top_k is omitted where
+# the vendor does not recommend one, and the loader turns that into vLLM's -1.
+# max_tokens was 32,768 for every run.
+llm:
+  max_tokens: 32768
+  # Override: VLLM_BASE_URL
+  vllm_base_url: http://localhost:8000/v1
+  # Override: VLLM_API_KEY
+  vllm_api_key: EMPTY
+  models:
+    GPT-OSS-20B:           {temperature: 1.0, top_p: 1.00}
+    Qwen3.5-27B:           {temperature: 1.0, top_p: 0.95, top_k: 20}
+    Nemotron-3-Nano-30B:   {temperature: 1.0, top_p: 0.95}
+    Qwen3.5-35B-A3B:       {temperature: 0.6, top_p: 0.95, top_k: 20}
+    GPT-OSS-120B:          {temperature: 1.0, top_p: 1.00}
+    Nemotron-3-Super-120B: {temperature: 1.0, top_p: 0.95}
+    Qwen3.5-397B-A17B:     {temperature: 0.6, top_p: 0.95, top_k: 20}
+
+# ── the four rubric annotators ───────────────────────────────────────────
+# One regex heuristic plus three frontier APIs. The model ids are the ones that
+# produced the released annotations; point them elsewhere and you get your own
+# annotations, not ours. Override each with AMLC_JUDGE_MODEL_<PROVIDER>.
+judges:
+  providers: [deepseek, opus, gemini]
+  models:
+    deepseek: deepseek-v4-pro
+    opus: claude-opus-4-7
+    gemini: gemini-3-pro-preview
+  column_prefix:
+    deepseek: ds_
+    opus: op_
+    gemini: gm_
+  # Override: DEEPSEEK_BASE_URL
+  deepseek_base_url: https://api.deepseek.com/v1
+  # Environment variables searched for each provider's key, in order.
+  api_key_env:
+    deepseek: [DEEPSEEK_API_KEY]
+    opus: [ANTHROPIC_API_KEY]
+    gemini: [GOOGLE_API_KEY, GEMINI_API_KEY]
+  max_trace_chars: 8000   # reasoning trace shown to a judge; longer is cut
+  max_attempts: 3         # per trace, with exponential backoff

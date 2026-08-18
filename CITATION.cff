@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software or dataset, please cite the paper."
+title: "AMLCompact: Bias-Free Downsampling Makes AMLworld Tractable for LLM Evaluation"
+authors:
+  - family-names: Nitarach
+    given-names: Natapong
+    affiliation: "SCB DataX, SCBX Group"
+  - family-names: Ngampornsukswadi
+    given-names: Phume
+    affiliation: "AML AI Research, Scotiabank"
+  - family-names: Taveekitworachai
+    given-names: Pittawat
+    affiliation: "SCB DataX, SCBX Group"
+  - family-names: Nonesung
+    given-names: Surapon
+    affiliation: "SCB DataX, SCBX Group"
+  - family-names: Sirichotedumrong
+    given-names: Warit
+    affiliation: "SCB DataX, SCBX Group"
+  - family-names: Halverson
+    given-names: Duncan
+    affiliation: "AML AI Research, Scotiabank"
+  - family-names: Pipatanakul
+    given-names: Kunat
+    affiliation: "SCB DataX, SCBX Group"
+year: 2026
+# Conference metadata is filled in at camera-ready.
+repository-code: "https://github.com/nat-nischw/AMLCompact"
+url: "https://openreview.net/forum?id=VouFZFf8Ph"

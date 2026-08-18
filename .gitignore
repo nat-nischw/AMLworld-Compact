@@ -1,0 +1,46 @@
+# The released artefacts under data/ and results/ are tracked on purpose. This
+# file must never exclude them: an earlier version of this repo carried a
+# blanket *.npy rule that silently dropped the HT weights and the GFP tensors,
+# which are the point of the release. Check with:
+#     git check-ignore -v data/coreset/HI-Small/ht_weights.npy
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Credentials. Never commit; copy .env.example instead.
+.env
+*.pem
+*.key
+
+# The archived run directory is not part of this repo.
+outputs/
+upstream/
+
+# Cluster job output.
+slurm/logs/*
+!slurm/logs/.gitkeep
+
+# Local scratch.
+.ipynb_checkpoints/
+.DS_Store
+*.swp
+
+# Build artefacts. The released coreset is published, not vendored.
+build/
+
+# AMLworld itself is never committed. It is CDLA-Sharing-1.0, it is 1.1 GB, and
+# `make download` drops it right here, so a later `git add -A` would commit it
+# without anyone deciding to. The SHA256 manifest beside it is tracked, because
+# that is what the downloader verifies against.
+data/*_Trans.csv
+data/*_Patterns.txt
+data/gfp_cache/
+data/elliptic/
+!data/checksums/
+!data/checksums/*.txt
+.ruff_cache/

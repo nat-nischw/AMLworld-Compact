@@ -1,0 +1,13 @@
+{
+  "model": "deepseek-v4-pro",
+  "variant": "V4p1",
+  "n": 198,
+  "n_per_class": 22,
+  "n_errors": 0,
+  "detection_accuracy": 0.4393939393939394,
+  "predicted_suspicious_rate": 0.398989898989899,
+  "typology_accuracy_9class": 0.21717171717171718,
+  "total_input_tokens": 510872,
+  "total_output_tokens": 1050272,
+  "timestamp": "2026-05-07T16:05:12.118733+00:00"
+}

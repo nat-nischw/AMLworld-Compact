@@ -1,0 +1,247 @@
+{
+  "dataset": "LI-Small",
+  "n_total": 1384810,
+  "n_illicit": 756,
+  "illicit_rate": 0.0005459232674518526,
+  "n_raters": 15,
+  "methods": [
+    "LightGBM+GFP",
+    "XGBoost+GFP",
+    "GCPAL+GFP"
+  ],
+  "seeds": [
+    42,
+    123,
+    456,
+    789,
+    1011
+  ],
+  "ensemble_f1_full": 0.29567053854276665,
+  "ensemble_threshold": 0.4800000000000001,
+  "serializer": {
+    "avg_edges_per_case": 45,
+    "display_format": "edge_list",
+    "tokens_per_case": {
+      "edge_list": 877,
+      "adjacency": 612,
+      "structured": 1484,
+      "json": 2017
+    },
+    "chars_per_case": {
+      "edge_list": 3509,
+      "adjacency": 2448,
+      "structured": 5936,
+      "json": 8068
+    }
+  },
+  "irt_full": {
+    "n_illicit": 756,
+    "beta_mean": 3.098668260120406,
+    "beta_std": 3.010608378757329,
+    "alpha_mean": 0.9174625325256396,
+    "alpha_std": 0.06989573708034819
+  },
+  "best_f1_size": 1384810,
+  "best_irt_size": 91587,
+  "optuna": {
+    "n_total": 1141186,
+    "n_illicit": 623,
+    "n_typology_classes": 8,
+    "irt_level": "GOOD",
+    "irt_diff_std": 0.20807004931908626,
+    "kl_typology": 0.0,
+    "kl_difficulty": 0.0033883888274342925,
+    "subset_f1": 0.3448275862068966,
+    "delta_f1": 0.04915704766412993,
+    "n_trials": 1000,
+    "n_feasible": 458,
+    "kl_typ_thresh": 0.2,
+    "kl_dif_thresh": 0.15,
+    "f1_tol": 0.05,
+    "context": {
+      "n_context_graphs": 1141186,
+      "est_edges_total": 51353370,
+      "est_tokens_total": 1000820122,
+      "est_tokens_per_case": 877,
+      "serializer_fmt": "edge_list",
+      "all_fmt_tokens": {
+        "edge_list": 1000820122,
+        "adjacency": 698405832,
+        "structured": 1693520024,
+        "json": 2301772162
+      }
+    },
+    "best_trial_number": 961,
+    "indices_path": "outputs/eval_subsets/LI-Small/subset_LI-Small_optuna_best.npy"
+  },
+  "sizes": [
+    {
+      "size": 91587,
+      "n_illicit": 50,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459290073918788,
+      "kl_typology": 0.05399925553425444,
+      "kl_difficulty": 0.14559571905141266,
+      "subset_f1": 0.6216216216216216,
+      "delta_f1": 0.32595108307885495,
+      "f1_ok": false,
+      "irt_level": "WEAK",
+      "irt_diff_std": 0.21393081908549968,
+      "irt_issues": [],
+      "n_context_graphs": 91587,
+      "tokens_by_format": {
+        "edge_list": 80321799,
+        "adjacency": 56051244,
+        "structured": 135915108,
+        "json": 184730979
+      }
+    },
+    {
+      "size": 135550,
+      "n_illicit": 74,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459240132792328,
+      "kl_typology": 0.07044491060445043,
+      "kl_difficulty": 0.12373048431603872,
+      "subset_f1": 0.631578947368421,
+      "delta_f1": 0.33590840882565437,
+      "f1_ok": false,
+      "irt_level": "WEAK",
+      "irt_diff_std": 0.22436097659783485,
+      "irt_issues": [],
+      "n_context_graphs": 135550,
+      "tokens_by_format": {
+        "edge_list": 118877350,
+        "adjacency": 82956600,
+        "structured": 201156200,
+        "json": 273404350
+      }
+    },
+    {
+      "size": 199661,
+      "n_illicit": 109,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459253434571599,
+      "kl_typology": 0.05383360776609857,
+      "kl_difficulty": 0.0988817325273888,
+      "subset_f1": 0.5853658536585366,
+      "delta_f1": 0.2896953151157699,
+      "f1_ok": false,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.23447972946188858,
+      "irt_issues": [],
+      "n_context_graphs": 199661,
+      "tokens_by_format": {
+        "edge_list": 175102697,
+        "adjacency": 122192532,
+        "structured": 296296924,
+        "json": 402716237
+      }
+    },
+    {
+      "size": 293081,
+      "n_illicit": 160,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459241643095253,
+      "kl_typology": 0.035056212772365404,
+      "kl_difficulty": 0.09492825508465907,
+      "subset_f1": 0.5957446808510638,
+      "delta_f1": 0.30007414230829715,
+      "f1_ok": false,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.24533337164234068,
+      "irt_issues": [],
+      "n_context_graphs": 293081,
+      "tokens_by_format": {
+        "edge_list": 257032037,
+        "adjacency": 179365572,
+        "structured": 434932204,
+        "json": 591144377
+      }
+    },
+    {
+      "size": 432295,
+      "n_illicit": 236,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.000545923501312761,
+      "kl_typology": 0.023949814304215274,
+      "kl_difficulty": 0.05247173848442896,
+      "subset_f1": 0.5356125356125356,
+      "delta_f1": 0.239941997069769,
+      "f1_ok": false,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.22559449699872972,
+      "irt_issues": [],
+      "n_context_graphs": 432295,
+      "tokens_by_format": {
+        "edge_list": 379122715,
+        "adjacency": 264564540,
+        "structured": 641525780,
+        "json": 871939015
+      }
+    },
+    {
+      "size": 637452,
+      "n_illicit": 348,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459234577662318,
+      "kl_typology": 0.006372847216765967,
+      "kl_difficulty": 0.036115724181572884,
+      "subset_f1": 0.47560975609756095,
+      "delta_f1": 0.1799392175547943,
+      "f1_ok": false,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.2314236229295744,
+      "irt_issues": [],
+      "n_context_graphs": 637452,
+      "tokens_by_format": {
+        "edge_list": 559045404,
+        "adjacency": 390120624,
+        "structured": 945978768,
+        "json": 1285740684
+      }
+    },
+    {
+      "size": 939692,
+      "n_illicit": 513,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459235579317478,
+      "kl_typology": 0.0003294247171279057,
+      "kl_difficulty": 0.013708492859597576,
+      "subset_f1": 0.40233236151603496,
+      "delta_f1": 0.10666182297326832,
+      "f1_ok": false,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.2211212556163181,
+      "irt_issues": [],
+      "n_context_graphs": 939692,
+      "tokens_by_format": {
+        "edge_list": 824109884,
+        "adjacency": 575091504,
+        "structured": 1394502928,
+        "json": 1895358764
+      }
+    },
+    {
+      "size": 1384810,
+      "n_illicit": 756,
+      "n_typology_classes": 8,
+      "illicit_rate": 0.0005459232674518526,
+      "kl_typology": 0.0,
+      "kl_difficulty": 0.0,
+      "subset_f1": 0.29567053854276665,
+      "delta_f1": 0.0,
+      "f1_ok": true,
+      "irt_level": "GOOD",
+      "irt_diff_std": 0.19421990710574702,
+      "irt_issues": [],
+      "n_context_graphs": 1384810,
+      "tokens_by_format": {
+        "edge_list": 1214478370,
+        "adjacency": 847503720,
+        "structured": 2055058040,
+        "json": 2793161770
+      }
+    }
+  ]
+}

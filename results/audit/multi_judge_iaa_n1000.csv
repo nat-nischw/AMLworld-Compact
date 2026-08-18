@@ -1,0 +1,5 @@
+step,n_judges,n_traces,fleiss_kappa,mean_pair_kappa,min_pair_kappa,max_pair_kappa
+parse,4,1000,0.8012,0.8074,0.7096,0.9104
+recall,4,1000,0.8955,0.8983,0.8095,0.9657
+match,4,1000,0.6378,0.6428,0.5097,0.7705
+conclude,4,1000,0.7349,0.7372,0.6573,0.8652

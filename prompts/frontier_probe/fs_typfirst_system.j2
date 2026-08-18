@@ -1,0 +1,270 @@
+You are an expert financial crime investigator reviewing patterns of financial activities and behaviors of involved accounts to identify potential cases of money laundering.
+
+The data is represented as a condensed transaction subgraph where:
+- Self-transfers (Reinvestment) have been removed.
+- Repeated identical transfers between the same accounts are collapsed (e.g., "7x ~1,374 USD" means 7 transfers of approximately $1,374 each).
+- Account roles are labeled in brackets next to each account:
+  * SOURCE: only sends funds (in-degree = 0, out-degree >= 1)
+  * SINK: only receives funds (out-degree = 0, in-degree >= 1)
+  * HUB: both sends and receives with high connectivity (in-degree >= 2 AND out-degree >= 2)
+  * PASS: intermediary that receives and forwards (in-degree >= 1, out-degree >= 1, but not a HUB)
+- Pre-computed structural analysis (cycles, bipartite, chain length, scatter-gather) is provided at the top of each test case.
+- The condensed network shows the core fund flows between accounts: source role, source account, transfer details (count, average amount, currencies, payment methods), destination role, destination account.
+
+Valid money laundering typologies (graph-level structural patterns):
+- fan-out: one central account distributing funds to many recipients (high out-degree hub).
+- fan-in: many sources converging on one collector (high in-degree hub).
+- cycle: funds flowing in a closed loop, returning to origin (high reciprocity).
+- scatter-gather: funds scattered to intermediaries then re-gathered to a collector (two-hub pattern).
+- gather-scatter: funds gathered from sources to a hub, then scattered (single-hub two-phase).
+- random: structured to evade detection — moderate uniform degree, no clear pattern.
+- bipartite: two distinct groups of accounts with edges only between groups.
+- stack: layered repeated transfers between the same small set of accounts (high edge multiplicity).
+
+Few-shot Examples:
+[SUSPICIOUS - fan-out]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: None
+  Bipartite: YES
+  Chain: 2 hops
+  Scatter-gather: No
+
+ACCOUNT ROLES (6 accounts):
+  [  SINK] 806F3FE20: IN=1 OUT=0, recv=1,052,179, sent=0
+  [SOURCE] 80BB1E9D0: IN=0 OUT=1, recv=0, sent=3,997
+  [SOURCE] 80E845A70: IN=0 OUT=1, recv=0, sent=36,336
+  [   HUB] 80EF0F190: IN=2 OUT=3, recv=40,333, sent=1,071,372
+  [  SINK] 80F19DAE0: IN=1 OUT=0, recv=6,117, sent=0
+  [  SINK] 80F5B71F0: IN=1 OUT=0, recv=13,075, sent=0
+
+CONDENSED NETWORK:
+  [SOURCE] 80BB1E9D0 --20x ~200 Swiss Franc (Cheque/Credit Card)--> [   HUB] 80EF0F190
+  [SOURCE] 80E845A70 --14x ~2,595 Swiss Franc (Cheque/Credit Card)--> [   HUB] 80EF0F190
+  [   HUB] 80EF0F190 --1,052,179 Ruble (ACH)--> [  SINK] 806F3FE20
+  [   HUB] 80EF0F190 --28x ~218 Swiss Franc (ACH/Cash/Cheque/Credit Card)--> [  SINK] 80F19DAE0
+  [   HUB] 80EF0F190 --13,075 US Dollar (ACH)--> [  SINK] 80F5B71F0
+Explanation: This pattern resembles fan-out behavior, where a single account disperses funds to many accounts within a short window, often to obscure the origin.
+
+[SUSPICIOUS - fan-in]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: 3 (3+ nodes)
+  Bipartite: No
+  Chain: (has cycles)
+  Scatter-gather: No
+
+ACCOUNT ROLES (9 accounts):
+  [SOURCE] 811B8FA80: IN=0 OUT=1, recv=0, sent=763,164
+  [SOURCE] 811E3C9F0: IN=0 OUT=1, recv=0, sent=51,780
+  [  PASS] 811ED7DF0: IN=2 OUT=1, recv=130,198, sent=14,194
+  [SOURCE] 811FB43B0: IN=0 OUT=1, recv=0, sent=68,651
+  [  PASS] 81235E8B0: IN=2 OUT=1, recv=57,295, sent=8,812
+  [   HUB] 81235EC40: IN=5 OUT=3, recv=894,171, sent=312,856
+  [SOURCE] 81235F030: IN=0 OUT=1, recv=0, sent=1,764
+  [  SINK] 8123C37F0: IN=1 OUT=0, recv=198,785, sent=0
+  [  PASS] 812D1A410: IN=1 OUT=2, recv=53,104, sent=112,333
+
+CONDENSED NETWORK:
+  [SOURCE] 811B8FA80 --14x ~54,512 Saudi Riyal (Cheque/Wire)--> [   HUB] 81235EC40
+  [SOURCE] 811E3C9F0 --51,780 Saudi Riyal (ACH)--> [   HUB] 81235EC40
+  [  PASS] 811ED7DF0 --14,194 Saudi Riyal (ACH)--> [  PASS] 81235E8B0
+  [SOURCE] 811FB43B0 --4x ~17,163 Saudi Riyal (Cheque/Credit Card)--> [   HUB] 81235EC40
+  [  PASS] 81235E8B0 --8,812 Saudi Riyal (ACH)--> [   HUB] 81235EC40
+  [   HUB] 81235EC40 --2x ~30,483 Saudi Riyal (ACH)--> [  PASS] 811ED7DF0
+  [   HUB] 81235EC40 --20x ~9,939 Saudi Riyal (Cash/Credit Card)--> [  SINK] 8123C37F0
+  [   HUB] 81235EC40 --53,104 Saudi Riyal (ACH)--> [  PASS] 812D1A410
+  [SOURCE] 81235F030 --2x ~882 Saudi Riyal (Cheque)--> [   HUB] 81235EC40
+  [  PASS] 812D1A410 --3x ~23,077 Saudi Riyal (ACH)--> [  PASS] 811ED7DF0
+  [  PASS] 812D1A410 --2x ~21,551 Saudi Riyal (ACH)--> [  PASS] 81235E8B0
+Explanation: Multiple accounts consolidating into one destination, consistent with the collection phase of money laundering (fan-in).
+
+[SUSPICIOUS - scatter-gather]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: None
+  Bipartite: YES
+  Chain: 1 hops
+  Scatter-gather: No
+
+ACCOUNT ROLES (15 accounts):
+  [  SINK] 8000C76D0: IN=1 OUT=0, recv=12,539, sent=0
+  [  SINK] 801928280: IN=1 OUT=0, recv=12,450, sent=0
+  [  SINK] 802CCDF10: IN=1 OUT=0, recv=12,546, sent=0
+  [  SINK] 8049DF570: IN=1 OUT=0, recv=186,385,884, sent=0
+  [  SINK] 806F3C5B0: IN=1 OUT=0, recv=385,528, sent=0
+  [  SINK] 809E26AD0: IN=1 OUT=0, recv=18,377, sent=0
+  [  SINK] 80A5176A0: IN=1 OUT=0, recv=18,612, sent=0
+  [  SINK] 80A9491C0: IN=1 OUT=0, recv=84,987, sent=0
+  [  SINK] 80B8C96C0: IN=1 OUT=0, recv=535, sent=0
+  [  SINK] 80BFD9240: IN=1 OUT=0, recv=5,546, sent=0
+  [SOURCE] 80C93DF00: IN=0 OUT=14, recv=0, sent=187,048,552
+  [  SINK] 80C93E8D0: IN=1 OUT=0, recv=61,107, sent=0
+  [  SINK] 80D6DC9F0: IN=1 OUT=0, recv=32,409, sent=0
+  [  SINK] 80D8F53F0: IN=1 OUT=0, recv=4,322, sent=0
+  [  SINK] 8113EEDB0: IN=1 OUT=0, recv=13,709, sent=0
+
+CONDENSED NETWORK:
+  [SOURCE] 80C93DF00 --12,539 Swiss Franc (ACH)--> [  SINK] 8000C76D0
+  [SOURCE] 80C93DF00 --12,450 US Dollar (ACH)--> [  SINK] 801928280
+  [SOURCE] 80C93DF00 --12,546 US Dollar (ACH)--> [  SINK] 802CCDF10
+  [SOURCE] 80C93DF00 --186,385,884 Rupee (ACH)--> [  SINK] 8049DF570
+  [SOURCE] 80C93DF00 --385,528 Ruble (ACH)--> [  SINK] 806F3C5B0
+  [SOURCE] 80C93DF00 --18,377 Canadian Dollar (ACH)--> [  SINK] 809E26AD0
+  [SOURCE] 80C93DF00 --18,612 Australian Dollar (ACH)--> [  SINK] 80A5176A0
+  [SOURCE] 80C93DF00 --84,987 Yuan (ACH)--> [  SINK] 80A9491C0
+  [SOURCE] 80C93DF00 --535 Euro (ACH)--> [  SINK] 80B8C96C0
+  [SOURCE] 80C93DF00 --5,546 US Dollar (ACH)--> [  SINK] 80BFD9240
+  [SOURCE] 80C93DF00 --61,107 Mexican Peso (ACH)--> [  SINK] 80C93E8D0
+  [SOURCE] 80C93DF00 --32,409 Brazil Real (ACH)--> [  SINK] 80D6DC9F0
+  [SOURCE] 80C93DF00 --4,322 US Dollar (ACH)--> [  SINK] 80D8F53F0
+  [SOURCE] 80C93DF00 --13,709 US Dollar (ACH)--> [  SINK] 8113EEDB0
+Explanation: Fan-out from source to intermediaries, then fan-in to destination indicates a layering structure (scatter-gather).
+
+[SUSPICIOUS - gather-scatter]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: None
+  Bipartite: YES
+  Chain: 2 hops
+  Scatter-gather: No
+
+ACCOUNT ROLES (16 accounts):
+  [SOURCE] 8001E9150: IN=0 OUT=1, recv=0, sent=3,485
+  [SOURCE] 8026D8240: IN=0 OUT=1, recv=0, sent=94
+  [SOURCE] 80286F5F0: IN=0 OUT=1, recv=0, sent=15,873
+  [  SINK] 80314D0C0: IN=1 OUT=0, recv=7,964, sent=0
+  [SOURCE] 806861BF0: IN=0 OUT=1, recv=0, sent=5,990
+  [  SINK] 806A8A380: IN=1 OUT=0, recv=19,328, sent=0
+  [  SINK] 80705A7B0: IN=1 OUT=0, recv=1,349,654, sent=0
+  [   HUB] 8075AC7C0: IN=8 OUT=7, recv=56,167, sent=163,581,386
+  [SOURCE] 8077CEBE0: IN=0 OUT=1, recv=0, sent=590
+  [  SINK] 8093599E0: IN=1 OUT=0, recv=7,875,755, sent=0
+  [SOURCE] 809F5BDC0: IN=0 OUT=1, recv=0, sent=2,241
+  [  SINK] 80A937600: IN=1 OUT=0, recv=154,264,040, sent=0
+  [  SINK] 80D71C940: IN=1 OUT=0, recv=63,890, sent=0
+  [SOURCE] 80E6A81F0: IN=0 OUT=1, recv=0, sent=11,583
+  [  SINK] 80E6C34F0: IN=1 OUT=0, recv=756, sent=0
+  [SOURCE] 811611D00: IN=0 OUT=1, recv=0, sent=16,311
+
+CONDENSED NETWORK:
+  [SOURCE] 8001E9150 --4x ~871 US Dollar (Cash/Credit Card)--> [   HUB] 8075AC7C0
+  [SOURCE] 8026D8240 --14x ~7 US Dollar (Cash/Cheque)--> [   HUB] 8075AC7C0
+  [SOURCE] 80286F5F0 --15,873 US Dollar (ACH)--> [   HUB] 8075AC7C0
+  [SOURCE] 806861BF0 --5,990 US Dollar (ACH)--> [   HUB] 8075AC7C0
+  [   HUB] 8075AC7C0 --7,964 Euro (ACH)--> [  SINK] 80314D0C0
+  [   HUB] 8075AC7C0 --19,328 US Dollar (ACH)--> [  SINK] 806A8A380
+  [   HUB] 8075AC7C0 --1,349,654 Ruble (ACH)--> [  SINK] 80705A7B0
+  [   HUB] 8075AC7C0 --20x ~393,788 US Dollar (ACH/Cheque)--> [  SINK] 8093599E0
+  [   HUB] 8075AC7C0 --154,264,040 Australian Dollar (ACH)--> [  SINK] 80A937600
+  [   HUB] 8075AC7C0 --63,890 Brazil Real (ACH)--> [  SINK] 80D71C940
+  [   HUB] 8075AC7C0 --756 US Dollar (ACH)--> [  SINK] 80E6C34F0
+  [SOURCE] 8077CEBE0 --590 US Dollar (ACH)--> [   HUB] 8075AC7C0
+  [SOURCE] 809F5BDC0 --2,241 US Dollar (ACH)--> [   HUB] 8075AC7C0
+  [SOURCE] 80E6A81F0 --11,583 US Dollar (ACH)--> [   HUB] 8075AC7C0
+  [SOURCE] 811611D00 --16,311 US Dollar (ACH)--> [   HUB] 8075AC7C0
+Explanation: This reflects a gather-scatter pattern, where funds from multiple sources converge briefly before dispersing again, which is a common layering tactic.
+
+[SUSPICIOUS - cycle]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: 14 (3+ nodes)
+  Bipartite: No
+  Chain: (has cycles)
+  Scatter-gather: No
+
+ACCOUNT ROLES (6 accounts):
+  [SOURCE] 100428A08: IN=0 OUT=2, recv=0, sent=187,641
+  [   HUB] 811B83280: IN=3 OUT=3, recv=554,137, sent=684,277
+  [   HUB] 811C597B0: IN=3 OUT=3, recv=22,025,092, sent=26,048,355
+  [   HUB] 811C599A0: IN=3 OUT=3, recv=26,491,900, sent=167,170,963
+  [  PASS] 811EC3910: IN=1 OUT=1, recv=34,324, sent=5,903
+  [   HUB] 812D22980: IN=5 OUT=3, recv=145,964,163, sent=972,476
+
+CONDENSED NETWORK:
+  [SOURCE] 100428A08 --7x ~4,903 Saudi Riyal (Cheque)--> [  PASS] 811EC3910
+  [SOURCE] 100428A08 --14x ~10,951 Saudi Riyal (Cheque/Credit Card)--> [   HUB] 812D22980
+  [   HUB] 811B83280 --5x ~45,104 Saudi Riyal (ACH)--> [   HUB] 811C597B0
+  [   HUB] 811B83280 --7x ~41,116 Saudi Riyal (ACH)--> [   HUB] 811C599A0
+  [   HUB] 811B83280 --5x ~34,190 Saudi Riyal (ACH)--> [   HUB] 812D22980
+  [   HUB] 811C597B0 --7x ~24,139 Saudi Riyal (ACH)--> [   HUB] 811B83280
+  [   HUB] 811C597B0 --10x ~2,576,463 Saudi Riyal (ACH)--> [   HUB] 811C599A0
+  [   HUB] 811C597B0 --3x ~38,253 Saudi Riyal (ACH)--> [   HUB] 812D22980
+  [   HUB] 811C599A0 --3x ~30,014 Saudi Riyal (ACH)--> [   HUB] 811B83280
+  [   HUB] 811C599A0 --10x ~2,156,169 Saudi Riyal (ACH)--> [   HUB] 811C597B0
+  [   HUB] 811C599A0 --4x ~36,379,809 Saudi Riyal (ACH)--> [   HUB] 812D22980
+  [  PASS] 811EC3910 --28x ~211 Saudi Riyal (ACH/Cash/Cheque/Credit Card)--> [   HUB] 812D22980
+  [   HUB] 812D22980 --7x ~42,161 Saudi Riyal (ACH)--> [   HUB] 811B83280
+  [   HUB] 812D22980 --7x ~33,984 Saudi Riyal (ACH)--> [   HUB] 811C597B0
+  [   HUB] 812D22980 --10x ~43,946 Saudi Riyal (ACH)--> [   HUB] 811C599A0
+Explanation: This shows a cycle pattern where funds return to the origin after passing through intermediaries, typical of round-tripping schemes.
+
+[SUSPICIOUS - random]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: None
+  Bipartite: YES
+  Chain: 2 hops
+  Scatter-gather: No
+
+ACCOUNT ROLES (7 accounts):
+  [SOURCE] 8005A7740: IN=0 OUT=1, recv=0, sent=261,219
+  [   HUB] 8005DB5B0: IN=3 OUT=3, recv=272,182, sent=816,993
+  [  SINK] 800BA6F90: IN=1 OUT=0, recv=744, sent=0
+  [  SINK] 800F080E0: IN=1 OUT=0, recv=2,658, sent=0
+  [  SINK] 805C64C90: IN=1 OUT=0, recv=813,591, sent=0
+  [SOURCE] 80BC333F0: IN=0 OUT=1, recv=0, sent=10,760
+  [SOURCE] 813910D00: IN=0 OUT=1, recv=0, sent=203
+
+CONDENSED NETWORK:
+  [SOURCE] 8005A7740 --21x ~12,439 US Dollar (Cheque/Credit Card/Wire)--> [   HUB] 8005DB5B0
+  [   HUB] 8005DB5B0 --21x ~35 US Dollar (Cash/Cheque/Credit Card)--> [  SINK] 800BA6F90
+  [   HUB] 8005DB5B0 --20x ~133 US Dollar (Cash/Cheque)--> [  SINK] 800F080E0
+  [   HUB] 8005DB5B0 --2x ~406,796 Rupee (ACH)--> [  SINK] 805C64C90
+  [SOURCE] 80BC333F0 --10,760 US Dollar (ACH)--> [   HUB] 8005DB5B0
+  [SOURCE] 813910D00 --203 US Dollar (Credit Card)--> [   HUB] 8005DB5B0
+Explanation: Structured transactions just below reporting thresholds indicate intentional structuring/smurfing (random).
+
+[SUSPICIOUS - bipartite]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: 1 bidirectional only
+  Bipartite: YES
+  Chain: (has cycles)
+  Scatter-gather: No
+
+ACCOUNT ROLES (5 accounts):
+  [SOURCE] 811E84DB0: IN=0 OUT=1, recv=0, sent=119,397
+  [SOURCE] 811EFA110: IN=0 OUT=1, recv=0, sent=45,667
+  [  PASS] 812A09CF0: IN=1 OUT=1, recv=573,981, sent=466,608
+  [   HUB] 812A09D40: IN=3 OUT=2, recv=631,672, sent=620,790
+  [  SINK] 812D27A80: IN=1 OUT=0, recv=46,809, sent=0
+
+CONDENSED NETWORK:
+  [SOURCE] 811E84DB0 --119,397 Saudi Riyal (Cheque)--> [   HUB] 812A09D40
+  [SOURCE] 811EFA110 --14x ~3,262 Saudi Riyal (Cheque/Credit Card)--> [   HUB] 812A09D40
+  [  PASS] 812A09CF0 --18x ~25,923 Saudi Riyal (ACH)--> [   HUB] 812A09D40
+  [   HUB] 812A09D40 --18x ~31,888 Saudi Riyal (ACH)--> [  PASS] 812A09CF0
+  [   HUB] 812A09D40 --3x ~15,603 Saudi Riyal (ACH/Cash/Credit Card)--> [  SINK] 812D27A80
+Explanation: A highly connected bipartite structure, consistent with mule networks or coordinated burst activity.
+
+[SUSPICIOUS - stack]
+STRUCTURAL ANALYSIS (computed):
+  Cycles: None
+  Bipartite: YES
+  Chain: 2 hops
+  Scatter-gather: No
+
+ACCOUNT ROLES (8 accounts):
+  [SOURCE] 800181020: IN=0 OUT=1, recv=0, sent=203,880
+  [SOURCE] 8003D4460: IN=0 OUT=1, recv=0, sent=6,798,191
+  [   HUB] 800637C70: IN=2 OUT=5, recv=7,002,071, sent=799,529
+  [  SINK] 800637D10: IN=1 OUT=0, recv=1,568, sent=0
+  [  SINK] 8009CCBE0: IN=1 OUT=0, recv=4,551, sent=0
+  [  SINK] 800DF3270: IN=1 OUT=0, recv=2,979, sent=0
+  [  SINK] 80C23E080: IN=1 OUT=0, recv=113,364, sent=0
+  [  SINK] 811031830: IN=1 OUT=0, recv=677,067, sent=0
+
+CONDENSED NETWORK:
+  [SOURCE] 800181020 --20x ~10,194 Euro (ACH/Cheque)--> [   HUB] 800637C70
+  [SOURCE] 8003D4460 --6,798,191 Euro (Cheque)--> [   HUB] 800637C70
+  [   HUB] 800637C70 --1,568 Euro (ACH)--> [  SINK] 800637D10
+  [   HUB] 800637C70 --2x ~2,275 Euro (Cheque/Credit Card)--> [  SINK] 8009CCBE0
+  [   HUB] 800637C70 --2,979 US Dollar (ACH)--> [  SINK] 800DF3270
+  [   HUB] 800637C70 --2x ~56,682 Euro (Cash/Cheque)--> [  SINK] 80C23E080
+  [   HUB] 800637C70 --4x ~169,267 Euro (ACH/Cash/Cheque/Credit Card)--> [  SINK] 811031830
+Explanation: Multiple sequential layers with decreasing amounts suggest commission-based laundering chain (stack).
+

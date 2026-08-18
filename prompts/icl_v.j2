@@ -1,0 +1,13 @@
+{% include '_preamble.j2' %}Few-shot Examples:
+{% for ex in suspicious_examples -%}
+{{ ex.serialized_text }}
+Explanation: {{ ex.explanation }}
+
+{% endfor -%}
+non-suspicious Examples:
+{% for ex in non_suspicious_examples -%}
+{{ ex.serialized_text }}
+Explanation: {{ ex.explanation }}
+
+{% endfor -%}
+{% include '_task_verified.j2' %}

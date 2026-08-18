@@ -1,0 +1,53 @@
+=== Trace #02 (rate this one) ===
+
+Trace ID:         amlc_01053
+LLM model:        GPT-OSS-120B
+Method / dataset: ICL-FS / HI-Small (seed 42)
+Ground truth:     label=benign, typology=nan
+LLM said:         illicit=True, typology=fan-out
+Outcome class:    over_prediction
+
+───────────────── Reasoning trace (LLM thinking) ─────────────────
+
+We need to decide if the transaction is suspicious based on surrounding subgraph resembling known suspicious typologies: fan-out, fan-in, scatter-gather, gather-scatter, cycle, random, bipartite, stack, etc.
+
+We need to look at the given subgraph (case amlc_01053). Identify the structure. Looking at nodes and edges: many accounts, multiple transfers between accounts, repeated patterns: there are self-transfers (reinvestment) many small amounts, also repeated transfers between certain pairs: e.g., acct_80803C0D0 to acct_808C52420 and back, acct_802A91580 to acct_808C52420 repeated many times with same amounts via different methods. Also large repeated transfers from acct_1004286A8 to acct_8026815C0 (657k euro) many times daily. Also similar pattern of transfers from acct_1004286A8 to acct_80264AFC0 (12k euro) many times. Also transfers from acct_80E08F640 to acct_81392E2B0 (various amounts: ~19k, 17k, 59k, 1.9k) repeated daily across many days.
+
+Also transfers from acct_808C52380 to acct_8129C60A0 repeatedly (around 2.8k and 1.6k). And from acct_808C52380 to acct_808E56170 small amounts ~200 each.
+
+Pattern seems like repeated funneling: many source accounts moving money to a few destination accounts repeatedly. For example acct_1004286A8 (belongs to bank_070) sends large amounts to acct_8026815C0 (657k) daily, and to acct_80264AFC0 (12k) daily. That resembles fan-out from a single account to many? Actually that account sends to two accounts repeatedly; also those accounts send onward to others: acct_8026815C0 sends to acct_802A91580 small amounts (853, 1076) repeated. acct_80264AFC0 sends to acct_80803C0D0 small amounts repeatedly. So chain: source (1004286A8) -> intermediate (8026815C0, 80264AFC0) -> further (802A91580, 80803C0D0) -> further to other accounts.
+
+Also multiple self-transfers may indicate layering.
+
+This resembles layering/stack? Or scatter-gather? In scatter-gather, funds fan out from a source to many intermediaries then converge back. Here we see multiple intermediate accounts sending to others, but do they converge? For example many accounts (80803C0D0, 808C52420) maybe receive from multiple sources and then send back to 808E56170 etc. There are cycles? Not obvious.
+
+But the pattern of repeated similar amounts across many days suggests structured behavior, possibly suspicious (money laundering). The examples of suspicious patterns: fan-out has one account disperses to many accounts quickly. Here we have an account (1004286A8) sending large amounts to two accounts repeatedly (maybe fan-out). Then those accounts send smaller amounts to others (fan-in perhaps?). This resembles a "stack" pattern where multiple layers of transfers decreasing amounts. The stack example had decreasing amounts across layers. Here amounts are consistent: 657k then 853/1076 then 200ish then 5k etc. That's similar.
+
+Therefore likely suspicious.
+
+Conclusion: Suspicious; pattern: fan-out / multi-layer stacking (layered transfers).
+
+───────────────── Final answer (LLM structured output) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** The subgraph shows a high‑frequency, repetitive flow where a single account repeatedly sends large sums to a few intermediate accounts, which then repeatedly split the money into smaller, regular transfers to multiple downstream accounts. This layered, structured routing with self‑transfers and identical amounts across many days matches typical laundering “fan‑out/stack” patterns.  
+- **Observed Pattern:** Multi‑layer fan‑out (stack) – a source account disperses funds to intermediaries that further split and circulate the money.
+
+───────────────── Full text (header + reasoning + final answer, raw) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** The subgraph shows a high‑frequency, repetitive flow where a single account repeatedly sends large sums to a few intermediate accounts, which then repeatedly split the money into smaller, regular transfers to multiple downstream accounts. This layered, structured routing with self‑transfers and identical amounts across many days matches typical laundering “fan‑out/stack” patterns.  
+- **Observed Pattern:** Multi‑layer fan‑out (stack) – a source account disperses funds to intermediaries that further split and circulate the money.
+
+───────────────── Your rating ─────────────────
+Mark each step ✓ or ✗ (write 1 or 0 in traces.csv). The four steps:
+  Parse    — Did the trace correctly read the graph (hub, edges, key features)?
+  Recall   — Did the trace enumerate ≥2 typology candidates BEFORE concluding?
+  Match    — If the verdict was 'Suspicious', did the trace cite ≥2 structural
+             markers (cycle, identical amounts, temporal regularity, layering)?
+             If the verdict was 'Not Suspicious', this step is automatically ✓.
+  Conclude — Compare GT typology vs the LLM said typology in the header.
+
+Rate Match using the ≥80%-confidence rule (see rubric_guide.md): if you
+are not at least 80% sure the trace cites two genuine structural markers
+(not volume/degree restated), mark Match = 0.

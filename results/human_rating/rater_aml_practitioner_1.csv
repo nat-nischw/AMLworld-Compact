@@ -1,0 +1,29 @@
+case_id,model,method,dataset,seed,outcome,gt_label,gt_typology,pred_illicit,pred_typology,rater_parse,rater_recall,rater_match,rater_conclude,notes
+amlc_03446,GPT-OSS-120B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,cycle,True,cycle,1.0,1.0,1,1.0,cycle => loop / daily repeated
+amlc_01053,GPT-OSS-120B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,fan-out,1.0,1.0,1,0.0,"sending large amounts to two accounts / layered, structred"
+amlc_01500,GPT-OSS-120B,ICL-FS,HI-Small,42.0,typology_error,1.0,gather-scatter,True,fan-out,1.0,1.0,1,0.0,repeatedly sends large sum / layering
+amlc_00437,GPT-OSS-120B,ICL-FS,HI-Small,42.0,under_prediction,1.0,,False,cycle,1.0,1.0,1,0.0,
+amlc_03498,GPT-OSS-20B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,stack,True,fan-out,1.0,1.0,0,0.0,"only one, not two. it said one account sedning to may account "
+amlc_02534,GPT-OSS-20B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,fan-out,1.0,1.0,1,0.0,"layering, short time, cross-bank transfer"
+amlc_03363,GPT-OSS-20B,ICL-FS,HI-Small,42.0,typology_error,1.0,fan-out,True,scatter-gather,1.0,1.0,1,0.0,receive / distribute
+amlc_02270,GPT-OSS-20B,ICL-FS,HI-Small,42.0,under_prediction,1.0,fan-out,False,,1.0,1.0,1,0.0,
+amlc_02409,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,cycle,True,cycle,1.0,1.0,1,1.0,cyce/repeated transfer/sub-threshold
+amlc_02496,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,gather-scatter,1.0,1.0,1,0.0,repeated transfer / layering / below threhsold
+amlc_01079,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42.0,typology_error,1.0,fan-in,True,gather-scatter,1.0,1.0,1,0.0,repeated amount / layering / sub-threshold
+amlc_01619,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42.0,under_prediction,1.0,,False,,1.0,1.0,1,0.0,"(transfer large, complex) in rater_parse"
+amlc_03622,Nemotron-3-Super-120B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,gather-scatter,True,gather-scatter,1.0,1.0,1,1.0,gather-hub / in / out / layered
+amlc_02067,Nemotron-3-Super-120B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,fan-out,1.0,1.0,1,0.0,repeated small transfer / layered
+amlc_00163,Nemotron-3-Super-120B,ICL-FS,HI-Small,42.0,typology_error,1.0,,True,fan-in,1.0,1.0,1,0.0,amounts / multi-channel / fanin
+amlc_00496,Nemotron-3-Super-120B,ICL-FS,HI-Small,42.0,under_prediction,1.0,scatter-gather,False,fan-out,1.0,1.0,1,0.0,
+amlc_03509,Qwen3.5-27B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,gather-scatter,True,gather-scatter,1.0,1.0,1,1.0,single hub gather-scatte / repeated amount / layering
+amlc_02455,Qwen3.5-27B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,gather-scatter,1.0,1.0,1,0.0,repeated usd amount / multihop
+amlc_03366,Qwen3.5-27B,ICL-FS,HI-Small,42.0,typology_error,1.0,,True,gather-scatter,1.0,1.0,1,0.0,repeated amount / multi-hop
+amlc_03685,Qwen3.5-27B,ICL-FS,HI-Small,42.0,under_prediction,1.0,,False,,1.0,1.0,1,0.0,
+amlc_03386,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,fan-out,True,fan-out,1.0,1.0,1,1.0,out-degree/repeated amount/high velocity
+amlc_01833,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,stack,1.0,1.0,1,0.0,multi-hop / rpeated
+amlc_00176,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42.0,typology_error,1.0,stack,True,fan-out,1.0,1.0,1,0.0,reepated / multi-hop
+amlc_02812,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42.0,under_prediction,1.0,gather-scatter,False,,1.0,1.0,1,0.0,
+amlc_01640,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42.0,correct_illicit,1.0,gather-scatter,True,gather-scatter,1.0,1.0,1,1.0,suspicious Indicators: section
+amlc_00749,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42.0,over_prediction,0.0,,True,scatter-gather,1.0,1.0,1,0.0,**Transaction Patterns:** section
+amlc_01630,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42.0,typology_error,1.0,,True,scatter-gather,1.0,1.0,1,0.0,3. Specific Suspicious Indicators:** section
+amlc_03691,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42.0,under_prediction,1.0,,False,,1.0,1.0,1,0.0,**2. Identify Patterns:** section

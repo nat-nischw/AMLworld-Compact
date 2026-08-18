@@ -1,0 +1,14 @@
+{
+  "best_params": {
+    "n_estimators": 226,
+    "num_leaves": 8,
+    "learning_rate": 0.12252422625149968,
+    "reg_lambda": 0.01045557971536039,
+    "reg_alpha": 0.027113959027491415
+  },
+  "best_score": 0.6444211921297929,
+  "n_candidates": 50,
+  "n_trials_completed": 50,
+  "n_failed": 0,
+  "tuning_time_s": 44.2
+}

@@ -1,0 +1,61 @@
+=== Trace #04 (rate this one) ===
+
+Trace ID:         amlc_00437
+LLM model:        GPT-OSS-120B
+Method / dataset: ICL-FS / HI-Small (seed 42)
+Ground truth:     label=illicit, typology=nan
+LLM said:         illicit=False, typology=cycle
+Outcome class:    under_prediction
+
+───────────────── Reasoning trace (LLM thinking) ─────────────────
+
+We need to decide if transaction is suspicious based on similarity to typologies.
+
+We have subgraph with 4 accounts, various self-transfers (reinvestment) and some transfers: A (80DE56A30) self transfers, small amounts; B (80DE564F0) self transfers small; C (80DE56FD0) self transfers large 140,996; C also transfers to A amounts 7,517 and 3,581; B transfers to A 3,216. Also A transfers to D (80DE569E0) 95,757 via Cheque.
+
+Pattern? Could be fan-out? A sends large to D (single target). But also inbound from C and B to A (multiple inbound). Could be fan-in? A receives from C and B, also sends out large to D. Could be cycle? Not obvious.
+
+Suspicious typologies: fan-out (single source disperses many), fan-in (many to one), scatter-gather, gather-scatter, cycle, random, bipartite, stack. Here small number of accounts, not many edges. Self-transfers may be layering. The big transfer from A to D is one outgoing large. Inbound from multiple sources to A.
+
+Looks like a hub A collecting then sending out—a "fan-in" to A then fan-out to D (single). Could be layering/structuring but limited nodes.
+
+Given examples: fan-out subgraph had many accounts each sending to many others repeatedly. Not this.
+
+Fan-in example had many accounts consolidating into one destination repeatedly.
+
+Our case: multiple accounts (C and B) transfer to A (consolidating) then A to D (disbursement). That's a typical funnel: collection then distribution. Could be suspicious but small scale.
+
+But legitimate business could have internal transfers. Self-transfers are weird (reinvestment) but could be internal account activity.
+
+The transaction of interest? Not specified which ID. Probably the highlighted transaction within subgraph maybe the large 95,757 from A to D? Need to decide.
+
+Given pattern resembles a "fan-out" of A to D? Only one out, not many.
+
+Maybe not suspicious as simple internal transfers.
+
+Thus answer Not Suspicious.
+
+───────────────── Final answer (LLM structured output) ─────────────────
+
+- **Conclusion:** Not Suspicious  
+- **Explanation:** The subgraph shows only a handful of accounts with a few self‑transfers and modest inter‑account flows. One account receives funds from two others and then makes a single large payment to a fourth account, a pattern that can be explained by ordinary internal fund consolidation and payout rather than the systematic dispersal or layering seen in the suspicious typologies.  
+- **Observed Pattern:** Simple hub‑and‑spoke (single‑source‑to‑single‑destination) behavior, not matching the fan‑out, fan‑in, scatter‑gather, gather‑scatter, cycle, bipartite, or stack patterns.
+
+───────────────── Full text (header + reasoning + final answer, raw) ─────────────────
+
+- **Conclusion:** Not Suspicious  
+- **Explanation:** The subgraph shows only a handful of accounts with a few self‑transfers and modest inter‑account flows. One account receives funds from two others and then makes a single large payment to a fourth account, a pattern that can be explained by ordinary internal fund consolidation and payout rather than the systematic dispersal or layering seen in the suspicious typologies.  
+- **Observed Pattern:** Simple hub‑and‑spoke (single‑source‑to‑single‑destination) behavior, not matching the fan‑out, fan‑in, scatter‑gather, gather‑scatter, cycle, bipartite, or stack patterns.
+
+───────────────── Your rating ─────────────────
+Mark each step ✓ or ✗ (write 1 or 0 in traces.csv). The four steps:
+  Parse    — Did the trace correctly read the graph (hub, edges, key features)?
+  Recall   — Did the trace enumerate ≥2 typology candidates BEFORE concluding?
+  Match    — If the verdict was 'Suspicious', did the trace cite ≥2 structural
+             markers (cycle, identical amounts, temporal regularity, layering)?
+             If the verdict was 'Not Suspicious', this step is automatically ✓.
+  Conclude — Compare GT typology vs the LLM said typology in the header.
+
+Rate Match using the ≥80%-confidence rule (see rubric_guide.md): if you
+are not at least 80% sure the trace cites two genuine structural markers
+(not volume/degree restated), mark Match = 0.

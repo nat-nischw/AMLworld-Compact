@@ -1,0 +1,79 @@
+# The three claims this repository makes that can be checked without the
+# archived run, the AMLworld download or a GPU. Everything here passes on a
+# clone and nothing else, which is the same bar the README sets.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  clone-and-check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # The README's quick start says `pip install -e ".[hub]"`. Install exactly
+      # that first, in its own step, so a drift between the README and the
+      # package metadata fails here rather than in a reader's terminal. The
+      # dev extra that follows is a superset, so this costs one resolve.
+      - name: The quick start's install line resolves
+        run: pip install -e ".[hub]"
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      # A narrow selection, chosen because it passes today: undefined names,
+      # unused imports and variables, syntax errors, and any `# noqa` that has
+      # stopped suppressing anything. Style rules are deliberately out, so this
+      # step means "nothing is broken", not "everything is formatted".
+      - name: Lint
+        run: ruff check --select E4,E9,F,RUF100 .
+
+      - name: Smoke test
+        run: pytest tests/ -v
+
+      - name: Prompt templates reproduce the executed prompts
+        run: python scripts/verify_prompt_templates.py
+
+      # The venue state changes on a known date and the title is written in
+      # five places. This fails the build if one of them is updated alone.
+      - name: Every copy of the citation agrees
+        run: python scripts/check_citation.py
+
+      - name: The frontier probe reproduces its ninety published numbers
+        run: python scripts/21_score_frontier_probe.py
+
+      # Needs the published dataset, so it only runs once that is public. Until
+      # then this step is skipped rather than deleted, so turning it on is a
+      # one-line change and not a thing to remember.
+      - name: Self-test against the published numbers
+        if: ${{ vars.AMLC_DATASET_IS_PUBLIC == 'true' }}
+        env:
+          AMLC_ALLOW_DOWNLOAD: "1"
+        run: make selftest
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install ruff
+        run: pip install ruff
+      - name: Every file parses and imports are sane
+        run: ruff check amlc scripts --select E9,F63,F7,F82,F401

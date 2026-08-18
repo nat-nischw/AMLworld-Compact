@@ -1,0 +1,16 @@
+{
+  "n_test": 16670,
+  "n_illicit": 1083,
+  "n_benign": 15587,
+  "benign_budget": 2166,
+  "threshold": 0.6140000000000002,
+  "seeds": [
+    42,
+    123,
+    456,
+    789,
+    1011
+  ],
+  "k_repeats": 50,
+  "hard_neg_ratio": 0.3
+}

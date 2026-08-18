@@ -1,0 +1,43 @@
+=== Trace #03 (rate this one) ===
+
+Trace ID:         amlc_01500
+LLM model:        GPT-OSS-120B
+Method / dataset: ICL-FS / HI-Small (seed 42)
+Ground truth:     label=illicit, typology=gather-scatter
+LLM said:         illicit=True, typology=fan-out
+Outcome class:    typology_error
+
+───────────────── Reasoning trace (LLM thinking) ─────────────────
+
+We need to decide if the given transaction (the one with ID?) In test example they ask to determine whether the transaction is suspicious or not based on surrounding subgraph resembling typologies. They provide a huge subgraph with many accounts and many transfers, predominantly from account 100428660 (which belongs to bank_070). This account has massive out-degree 609, many transfers to many diverse accounts, repeated patterns of large amounts, and also many repetitive transfers of the same amounts to certain accounts (like 80B3D7440, 809B6A080, etc) and internal self-transfers? Also self-transfers? Some accounts have self-transfers (e.g., acct_809B0E4C0 transfers to itself). Many repetitive patterns: hub-spoke (fan-out) from 100428660 to many others, repeated over days. Also many reciprocal flows from many accounts to 100428660? Actually mostly outflows from 100428660, plus some inbound from others (like 100428660 receives from others like acct_809B6A080? Not sure). Looks like classic fan-out/layering.
+
+Given typologies: fan-out, fan-in, scatter-gather (fan-out then fan-in), gather-scatter, cycle, random, bipartite, stack. Which best matches? This appears like a hub account with massive outgoing transfers to many accounts, often repeated; also many inbound from many accounts (e.g., other accounts send to 100428660). So could be fan-out and fan-in combined, maybe "gather-scatter" or "scatter-gather". But primary pattern is a central account (100428660) dispersing funds to many accounts repeatedly across time, and also receiving large amounts from some. This strongly resembles "fan-out" suspicious pattern. The example icl_sus_fan-out shows a single account dispersing funds to many accounts within short window. Here timeline is long (1455 units) but still many outward edges. Yet large volume per transaction huge (several million). The presence of many self-transfers and internal loops maybe layering.
+
+Given the size and high out-degree, matches suspicious fan-out. So conclusion: Suspicious.
+
+Observation pattern: fan-out (or possibly scatter-gather). I'll choose fan-out.
+
+───────────────── Final answer (LLM structured output) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** The subgraph is dominated by a single account (acct_100428660) that repeatedly sends large sums to a very large number of distinct accounts, showing an extremely high out‑degree (609) and repeated, systematic transfers over many days. Such hub‑and‑spoke behavior is characteristic of laundering “fan‑out” patterns.  
+- **Observed Pattern:** Fan‑out (single source dispersing funds to many recipients).
+
+───────────────── Full text (header + reasoning + final answer, raw) ─────────────────
+
+- **Conclusion:** Suspicious  
+- **Explanation:** The subgraph is dominated by a single account (acct_100428660) that repeatedly sends large sums to a very large number of distinct accounts, showing an extremely high out‑degree (609) and repeated, systematic transfers over many days. Such hub‑and‑spoke behavior is characteristic of laundering “fan‑out” patterns.  
+- **Observed Pattern:** Fan‑out (single source dispersing funds to many recipients).
+
+───────────────── Your rating ─────────────────
+Mark each step ✓ or ✗ (write 1 or 0 in traces.csv). The four steps:
+  Parse    — Did the trace correctly read the graph (hub, edges, key features)?
+  Recall   — Did the trace enumerate ≥2 typology candidates BEFORE concluding?
+  Match    — If the verdict was 'Suspicious', did the trace cite ≥2 structural
+             markers (cycle, identical amounts, temporal regularity, layering)?
+             If the verdict was 'Not Suspicious', this step is automatically ✓.
+  Conclude — Compare GT typology vs the LLM said typology in the header.
+
+Rate Match using the ≥80%-confidence rule (see rubric_guide.md): if you
+are not at least 80% sure the trace cites two genuine structural markers
+(not volume/degree restated), mark Match = 0.

@@ -1,0 +1,25 @@
+# amlc-vllm-nemo: Variant for Nemotron-3 (Nano-30B / Super-120B).
+# Pinned to a specific vLLM build that supports the Nemotron-3 architecture
+# (Mamba-Hybrid; default vllm 0.20.0 cu13 has driver compatibility issues).
+name: amlc-vllm-nemo
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch::pytorch=2.7.*
+  - pytorch::pytorch-cuda=12.4
+  - pip:
+      # vLLM nightly built for Nemotron-3 (replace commit hash below to upgrade)
+      - --extra-index-url https://wheels.vllm.ai/097eb544e9a22810c9b7a59e586b61627b308362
+      - vllm
+      - transformers==4.46.3
+      - flashinfer-python==0.2.1
+      - openai==1.50.0
+      - numpy==1.26.4
+      - pandas==2.2.3
+      - tqdm
+      - python-dotenv

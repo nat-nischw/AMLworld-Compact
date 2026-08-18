@@ -1,0 +1,104 @@
+case_id,model,method,dataset,seed,outcome,gt_label,gt_typology,pred_illicit,pred_typology,rater_parse,rater_recall,rater_match,rater_conclude,notes
+amlc_03446,GPT-OSS-120B,ICL-FS,HI-Small,42,correct_illicit,1,cycle,True,cycle,1,1,1,1,- [?] **Observed Pattern:** Cycle / Gather‑Scatter (repeated loop of funds between a small set of accounts)
+amlc_01053,GPT-OSS-120B,ICL-FS,HI-Small,42,over_prediction,0,,True,fan-out,1,1,0,0,"- [X] Here amounts are consistent: 657k then 853/1076 then 200ish then 5k etc. 
+- [X] three-way commit => multilayer / fanout / stack"
+amlc_01500,GPT-OSS-120B,ICL-FS,HI-Small,42,typology_error,1,gather-scatter,True,fan-out,1,1,0,0,"- [x] llm forget the fan-in part after it already identifies the pattern (""also receiving large amounts from some"" and ""many inbound from many accounts"")
+- [x]  wrong typology for the wrong reason"
+amlc_00437,GPT-OSS-120B,ICL-FS,HI-Small,42,under_prediction,1,,False,cycle,1,1,1,0,"- [X] the model identify the right pattern byt talk itself out (""multuple accounts transfer to A then A to D"" === gather-scatter but small scale)"
+amlc_03498,GPT-OSS-20B,ICL-FS,HI-Small,42,correct_illicit,1,stack,True,fan-out,1,1,0,0,"- [XX] only focus on volume and out-degree and nothing else
+- [XX] didn't look for stack at all and just focus on fan-out (mass fan-out / distribution layer)"
+amlc_02534,GPT-OSS-20B,ICL-FS,HI-Small,42,over_prediction,0,,True,fan-out,1,1,0,0,"- [XX] ID Drift account 8071D7090 ==> 80371D7090
+- [XX] inventing things (""many self-loops, maybe unnatural"" from reinvestment / ""loan or layering funnel""
+- [XX] it sees a high degess +  many account+ big amount and thing that this must be suspicious"
+amlc_03363,GPT-OSS-20B,ICL-FS,HI-Small,42,typology_error,1,fan-out,True,scatter-gather,1,1,0,0,- [XX] it merges two hub that are not suppose to be the same hub. One is fan-in and another is fan-out. => then it thinks that this is scatter-gather
+amlc_02270,GPT-OSS-20B,ICL-FS,HI-Small,42,under_prediction,1,fan-out,False,,1,1,1,0,"- [XX] it talks itself out like above case. ""out-degree 68 from acct_8006B5930 to many distinct accounts"" & ""no compressed burst"", which is the wrong disqualifier for fan-out (laundering fan-outs are not required to be bursty)
+- [XX] Hallucinate or make things up: ""legitimate big transfer network of a fintech/hub bank"", ""branch account"""
+amlc_02409,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42,correct_illicit,1,cycle,True,cycle,1,1,0,1,"- [X] hub-and-spoke is not the same as cyclic.
+- [?] Observed Pattern: cycle (gather‑scatter)"
+amlc_02496,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42,over_prediction,0,,True,gather-scatter,1,1,0,0,"- [XX] it merges two hub that are not suppose to be the same hub. One is fan-in and another is fan-out. => then it thinks that this is gather scatter
+- two separate hubs with no flow between them is not gather-scatter.
+- ""repeated similar amounts"" claim is bad ===> 131, 431, 1522, 1787, 2602
+- sub-threshold-structuring claim has no specific threshold"
+amlc_01079,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42,typology_error,1,fan-in,True,gather-scatter,1,1,0,0,"- Two answer: """""" - Observed Pattern: gather‑scatter (hub‑and‑spoke layering)""""""
+- [XX] merged issue again: fuses two unrelated hubs into a gather-scatter 
+- [X] wrong reasoning with amount : ""repeated sub-threshold amounts"" claim cites 2.70 Euro and 124,260.36 Euro
+- [X] Change observed pattern many time until final answer:  
+---- Observed Pattern: gather-scatter (or scatter-gather) with central hub.
+---- Observed Pattern: gather-scatter (or bipartite layering)
+---- Observed Pattern: gather‑scatter (hub‑and‑spoke layering)"
+amlc_01619,Nemotron-3-Nano-30B,ICL-FS,HI-Small,42,under_prediction,1,,False,,0,1,1,0,"- [X] no degree or anything
+- [x] reaching the capability limit , model gave up"
+amlc_03622,Nemotron-3-Super-120B,ICL-FS,HI-Small,42,correct_illicit,1,gather-scatter,True,gather-scatter,1,1,1,1,"- This is very very good. 
+- it's not gluing together unrelated hub. "
+amlc_02067,Nemotron-3-Super-120B,ICL-FS,HI-Small,42,over_prediction,0,,True,fan-out,1,1,0,0,"- this is understanable since "" out-degree=146"". 
+- [X] unfortunately, it considered the timespan but didn't really use it for the decision making "" time span 898 units, much larger than the fan-out example's 71/57/44 units""."
+amlc_00163,Nemotron-3-Super-120B,ICL-FS,HI-Small,42,typology_error,1,,True,fan-in,1,1,1,0,"- [O] this is actually reasonable fan-in.  
+ - label issue "
+amlc_00496,Nemotron-3-Super-120B,ICL-FS,HI-Small,42,under_prediction,1,scatter-gather,False,fan-out,1,1,1,0,"- [X] talked itsefl out
+- trace literally observes the scatter-gather pattern (""one node with high out-degree (126) and another with high in-degree (48)"") and then dismisses it because the time window is 739 units (higher than example)
+- """"""- Time span: 739 units, which is much larger than any example (the highest in examples is icl_sus_cycle with 138, and icl_legit_0 with 137). 739 is about 5 times longer."""""""
+amlc_03509,Qwen3.5-27B,ICL-FS,HI-Small,42,correct_illicit,1,gather-scatter,True,gather-scatter,1,1,1,1,- good tracing
+amlc_02455,Qwen3.5-27B,ICL-FS,HI-Small,42,over_prediction,0,,True,gather-scatter,1,1,1,0,"- this one is debateable. the tracing is not wrong, from pure graph pattern perspective, this is very reasonable for gather-scatter. ((label not clear)) "
+amlc_03366,Qwen3.5-27B,ICL-FS,HI-Small,42,typology_error,1,,True,gather-scatter,1,1,1,0,"- the reasoning is pretty reasonable but wrong answer. It should have sticked with fan-out, then this would have been rater_conclue=1
+- """"""Wait, looking at the provided `icl_sus_fan-out` summary stats: Max out-degree 40.
+Test case: Max out-degree 57.
+This is a very strong match for `fan-out` behavior in terms of node centrality.
+But `fan-out` implies the *origin* is the focus. Here `801DB4300` is an intermediary (receives from `8005DB840`).
+If `801DB4300` is the origin, it's `fan-out`. If it's a mule, it's `gather-scatter`.
+Given `8005DB840` sends 2M to it, `801DB4300` is likely a mule/intermediary.
+So `gather-scatter` is the correct typology for a mule account.
+"""""""
+amlc_03685,Qwen3.5-27B,ICL-FS,HI-Small,42,under_prediction,1,,False,,1,1,1,0,"- [X] anchoring on a certain example: """"""**Pattern:** Legitimate recurring payments (similar to `icl_legit_0`/`icl_legit_1`)."""""" ==> then make a decision based on that example
+- [X] **Observed Pattern:** Legitimate recurring payments (similar to icl_legit_0).
+"
+amlc_03386,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42,correct_illicit,1,fan-out,True,fan-out,1,1,1,1,"- Overall looks good, but it's trying too hard to justify it but ends up making something up (small thing tho)
+- [X] ""just below threhsolds"" is inaccurate or not cited threshold amount, usually $10k"
+amlc_01833,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42,over_prediction,0,,True,stack,1,1,1,0,"- [O] (multi-hop chain + repeated identical amounts) ==> Very reasonable pattern detection for stack
+- [X] but the amount of 0.43/04.3/0.54 are way way way too small. ===> """"""passed through multiple accounts with repetitive and fragmented amounts (e.g., 0.43, 0.54 Swiss Francs), indicating an attempt to obscure the money trail. """"""
+- [??] Filtering the data might help."
+amlc_00176,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42,typology_error,1,stack,True,fan-out,1,1,1,0,"- [O]  584-out-degree fan-out  => very reasonable for fan-out
+- the model did consider the stack but it got trick to fan-out by that fan-out degree"
+amlc_02812,Qwen3.5-35B-A3B,ICL-FS,HI-Small,42,under_prediction,1,gather-scatter,False,,1,1,1,0,"- [X] """"""this looks like a hub distributing funds, but the key is the *repetition* of other pairs. The `8051B3BF0` activity looks like a specific batch processing day, but the overall graph is dominated by the recurring pairs. Given the strong signal of `icl_legit_0` (recurring identical payments),""""""
+- [X] """"""This is inter-bank transfer. `icl_legit_3` mentions ""Large bilateral transfers between banks are normal for settlement"".""""""
+- But from reviewing, it's prolly not gonna get the right typology but might get the suspious prediction if it doesn't anchor too much on the icl_legit"
+amlc_01640,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42,correct_illicit,1,gather-scatter,True,gather-scatter,1,1,1,1,traced corectly
+amlc_00749,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42,over_prediction,0,,True,scatter-gather,1,1,1,0,"- this is structurally sound and make sense even the final answer is wrong. 
+- """"""""
+    *   In this test case:
+        *   `acct_80689BC60` acts as a distributor (Fan-out/Scatter).
+        *   `acct_809411700` acts as an intermediary.
+        *   `acct_80B953990` acts as a collector (Fan-in/Gather) before sending to `acct_81254E2F0`.
+        *   This looks like **Scatter-Gather** (Source -> Intermediaries -> Destination).
+        *   Also, the repetition of exact amounts (e.g., 19730.51, 68754.88, etc.) is highly suspicious and indicative of automated laundering scripts.
+        *   The volume is significant (3.5M Euro).
+        *   The structure is complex with multiple layers.
+""""""
+-- (on the fence)"
+amlc_01630,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42,typology_error,1,,True,scatter-gather,1,1,1,0,"- this is reasonable:  """"""
+**3. Specific Suspicious Indicators:**
+*   **Layering:** Funds move through multiple accounts (`100428810` -> `8088842E0`/`80868A010` -> `8085FDA70` -> `80873ECF0` -> `808740F80`).
+*   **Repetitive Amounts:** `100428810` sends exact same amounts (110.67, 150.90, 135.64) repeatedly to `8088842E0`. This is highly indicative of structuring or automated laundering scripts.
+*   **Convergence:** Multiple accounts (`80873ECF0`, `808741110`, `808740EE0`, `8087410C0`) transfer to `808740F80` in a short window (2022/09/09 11:33 - 11:48). This is a classic ""fan-in"" or consolidation step often seen at the end of a layering scheme.
+*   **Pattern Match:** This closely resembles the **scatter-gather** (fan-out then fan-in) or **gather-scatter** typology, specifically the layering aspect where funds are dispersed to obscure origin and then gathered. The repetitive nature of the transactions from the source account (`100428810`) is a strong red flag (structuring). The final convergence on `808740F80` aligns with the ""fan-in"" suspicious example.
+""""""
+**4. Decision:**
+The pattern shows a clear flow of funds from a central source through several layers of intermediaries before consolidating into a final account. The repetitive transaction amounts from the source suggest structuring. The final convergence of multiple accounts into one (`808740F80`) is a strong indicator of money laundering (placement/layering/integration phases). This matches the **scatter-gather** or **fan-in** suspicious typologies.
+"
+amlc_03691,Qwen3.5-397B-A17B,ICL-FS,HI-Small,42,under_prediction,1,,False,,1,1,1,0,"- [X] anchoring on the legit example. it identified  repetiive txn and structure.  ===>  it confuse the legit vs non-legit, could be becuase we dodn't have the illicit_nan class in the example. it tries to compare with this. The larger model tends to not make things up, so when it was given these task, it will try to match these task. for these model, they are doing one step clasification, not two step (licit vs illicit ==> typology) ==> this explain why one the gemini test was working
+""""""    *   However, looking at the *suspicious* examples provided:
+        *   `icl_sus_fan-out`: One source to many destinations.
+        *   `icl_sus_fan-in`: Many sources to one destination.
+        *   `icl_sus_scatter-gather`: Fan-out then fan-in.
+        *   `icl_sus_gather-scatter`: Fan-in then fan-out.
+        *   `icl_sus_cycle`: Funds return to origin.
+        *   `icl_sus_random`: Structuring below thresholds.
+        *   `icl_sus_bipartite`: Highly connected two sets.
+        *   `icl_sus_stack`: Sequential layers.
+    *   Looking at the *non-suspicious* (legit) examples:
+        *   `icl_legit_0`: Regular schedule, known parties, consistent values. Wait, the explanation says ""These transfers occur across a regular schedule, between known parties with consistent values. No indicators of laundering behavior.""
+        *   `icl_legit_1`: Regular business payments to known vendors.
+        *   `icl_legit_2`: Disbursements from investment fund.
+        *   `icl_legit_3`: Large bilateral transfers for settlement.
+""""""
+
+- """""" **Similarity to `icl_legit_0`:** In `icl_legit_0`, there are repeated transactions with exact amounts (e.g., `acct_8100920E0` to `acct_8113C8A10` with 511134.61, 90765.33, 33555.93 repeatedly). The explanation calls this ""regular schedule... consistent values. No indicators of laundering behavior."""""""""

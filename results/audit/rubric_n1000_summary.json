@@ -1,0 +1,195 @@
+{
+  "n": 1000,
+  "annotator_a": "regex",
+  "annotator_b": "deepseek",
+  "per_step": {
+    "parse": {
+      "A_pass": 804,
+      "A_pass_pct": 80.4,
+      "A_ci": [
+        77.82523359291925,
+        82.74209949115902
+      ],
+      "B_pass": 835,
+      "B_pass_pct": 83.5,
+      "B_ci": [
+        81.07207516702334,
+        85.67153201444448
+      ],
+      "AND_pass": 798,
+      "AND_pass_pct": 79.80000000000001,
+      "AND_ci": [
+        77.1996830196033,
+        82.17224217465763
+      ],
+      "cohen_kappa": 0.8548866090712741
+    },
+    "recall": {
+      "A_pass": 828,
+      "A_pass_pct": 82.8,
+      "A_ci": [
+        80.33660485432,
+        85.01235978902758
+      ],
+      "B_pass": 807,
+      "B_pass_pct": 80.7,
+      "B_ci": [
+        78.1383383844143,
+        83.02669864457263
+      ],
+      "AND_pass": 807,
+      "AND_pass_pct": 80.7,
+      "AND_ci": [
+        78.1383383844143,
+        83.02669864457263
+      ],
+      "cohen_kappa": 0.9296736859025879
+    },
+    "match": {
+      "A_pass": 757,
+      "A_pass_pct": 75.7,
+      "A_ci": [
+        72.94665084355113,
+        78.25665377029134
+      ],
+      "B_pass": 801,
+      "B_pass_pct": 80.10000000000001,
+      "B_ci": [
+        77.51234971811168,
+        82.4572794210579
+      ],
+      "AND_pass": 733,
+      "AND_pass_pct": 73.3,
+      "AND_ci": [
+        70.47270990046101,
+        75.94896315411212
+      ],
+      "cohen_kappa": 0.7335542130291991
+    },
+    "conclude": {
+      "A_pass": 192,
+      "A_pass_pct": 19.2,
+      "A_ci": [
+        16.878484731114135,
+        21.757243591596065
+      ],
+      "B_pass": 240,
+      "B_pass_pct": 24.0,
+      "B_ci": [
+        21.455652518754263,
+        26.74333892249461
+      ],
+      "AND_pass": 173,
+      "AND_pass_pct": 17.299999999999997,
+      "AND_ci": [
+        15.08192344529515,
+        19.76834655966016
+      ],
+      "cohen_kappa": 0.746939736346516
+    }
+  },
+  "prm_yet_fail_conclude_a": {
+    "count": 538,
+    "pct": 53.800000000000004,
+    "ci": [
+      50.701329707939976,
+      56.86958692756981
+    ]
+  },
+  "prm_yet_fail_conclude_b": {
+    "count": 527,
+    "pct": 52.7,
+    "ci": [
+      49.60112345098614,
+      55.77821205319188
+    ]
+  },
+  "per_model_A": {
+    "GPT-OSS-120B": {
+      "parse": 64.06,
+      "recall": 72.66,
+      "match": 62.5,
+      "conclude": 4.69
+    },
+    "GPT-OSS-20B": {
+      "parse": 75.78,
+      "recall": 75.0,
+      "match": 57.03,
+      "conclude": 10.94
+    },
+    "Nemotron-3-Nano-30B": {
+      "parse": 66.23,
+      "recall": 86.09,
+      "match": 72.19,
+      "conclude": 17.88
+    },
+    "Nemotron-3-Super-120B": {
+      "parse": 92.95,
+      "recall": 92.95,
+      "match": 82.05,
+      "conclude": 23.72
+    },
+    "Qwen3.5-27B": {
+      "parse": 74.0,
+      "recall": 74.0,
+      "match": 72.67,
+      "conclude": 25.33
+    },
+    "Qwen3.5-35B-A3B": {
+      "parse": 99.34,
+      "recall": 88.74,
+      "match": 98.01,
+      "conclude": 23.18
+    },
+    "Qwen3.5-397B-A17B": {
+      "parse": 87.5,
+      "recall": 87.5,
+      "match": 80.88,
+      "conclude": 25.74
+    }
+  },
+  "failmode_step_A": {
+    "correct_legit": {
+      "n": 9,
+      "first_fail_counts": {
+        "parse": 5,
+        "all_pass": 4
+      }
+    },
+    "correct_illicit": {
+      "n": 183,
+      "first_fail_counts": {
+        "all_pass": 159,
+        "match": 14,
+        "parse": 8,
+        "recall": 2
+      }
+    },
+    "over_prediction": {
+      "n": 295,
+      "first_fail_counts": {
+        "conclude": 237,
+        "match": 36,
+        "parse": 19,
+        "recall": 3
+      }
+    },
+    "under_prediction": {
+      "n": 235,
+      "first_fail_counts": {
+        "parse": 153,
+        "conclude": 66,
+        "recall": 16
+      }
+    },
+    "typology_error": {
+      "n": 278,
+      "first_fail_counts": {
+        "conclude": 235,
+        "match": 30,
+        "parse": 11,
+        "recall": 2
+      }
+    }
+  }
+}

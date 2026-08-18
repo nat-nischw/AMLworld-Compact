@@ -1,0 +1,11 @@
+
+Task: This case has been flagged by an upstream filter as potentially suspicious. Your job is to identify which money-laundering typology best matches the structural pattern. If you believe the upstream filter is wrong (no laundering pattern fits), pick "legitimate".
+
+Test Case:
+STRUCTURAL ANALYSIS (computed):
+  Cycles: {{ graph_text }}0
+
+Answer Format:
+- Explanation: 2-3 sentences citing the specific structural evidence for your typology choice.
+- Observed Pattern: must be EXACTLY one of [fan-out, fan-in, cycle, scatter-gather, gather-scatter, random, bipartite, stack, legitimate]. Use lowercase, hyphenated form.
+- Conclusion: write "Suspicious" if Observed Pattern is one of the 8 laundering typologies; write "Not Suspicious" if Observed Pattern is "legitimate".

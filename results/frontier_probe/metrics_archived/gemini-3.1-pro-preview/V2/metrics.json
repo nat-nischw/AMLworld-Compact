@@ -1,0 +1,13 @@
+{
+  "model": "gemini-3.1-pro-preview",
+  "variant": "V2",
+  "n": 198,
+  "n_per_class": 22,
+  "n_errors": 0,
+  "detection_accuracy": 0.7121212121212122,
+  "predicted_suspicious_rate": 0.7424242424242424,
+  "typology_accuracy_9class": 0.2727272727272727,
+  "total_input_tokens": 3054283,
+  "total_output_tokens": 13886,
+  "timestamp": "2026-05-07T19:19:51.743598+00:00"
+}
