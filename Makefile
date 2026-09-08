@@ -1,9 +1,8 @@
 # AMLCompact. `make help` lists everything.
 #
 # Stages are numbered in pipeline order and match scripts/ and scripts/slurm/.
-# Anything that regenerates results needs AMLC_ARCHIVE pointing at the
-# original run directory's outputs/. Anything that only consumes the released
-# artefacts does not.
+# Archive reconstruction uses AMLC_ARCHIVE pointing at the original run
+# directory's outputs/. Fresh LLM scoring can use RUNS with the released coreset.
 
 PY      ?= python
 SCRIPTS := scripts
@@ -32,7 +31,7 @@ env:  ## Create the conda environments the cluster jobs expect
 selftest: ## Score the shipped ensemble and compare with the paper. Needs the dataset
 	$(PY) -m amlc.selftest
 
-check-citation: ## Assert every copy of the title and venue string agrees with docs/citation.md
+check-citation: ## Check paper title, URL, and BibTeX across release documents
 	$(PY) $(SCRIPTS)/check_citation.py
 
 verify: ## Prove the prompt templates reproduce the executed prompts
@@ -122,8 +121,8 @@ human-rating: ## 19d The three-rater human validation tables
 analysis: ## 20  Per-typology and error-transition analysis
 	$(PY) $(SCRIPTS)/20_error_analysis.py
 
-llm-ht: ## 23  Score the LLM predictions under HT weighting (Tables 2 and 14 reference rows)
-	$(PY) $(SCRIPTS)/23_score_llm_ht.py
+llm-ht: ## 23  Score HT and compact detection metrics; RUNS=path uses fresh runner output
+	$(PY) $(SCRIPTS)/23_score_llm_ht.py $(if $(RUNS),--runs-dir "$(RUNS)") $(if $(MODEL),--models $(MODEL)) $(if $(PROMPTINGS),--promptings $(PROMPTINGS)) $(if $(SEEDS),--seeds $(SEEDS)) $(foreach d,$(DATASETS),--dataset $(d)) $(if $(OUT),--out "$(OUT)")
 
 figures: analysis ## Regenerate the 2 of 11 paper figures this checkout can (see docs/known_issues.md)
 

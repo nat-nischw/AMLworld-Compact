@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software or dataset, please cite the paper."
-title: "AMLCompact: Bias-Free Downsampling Makes AMLworld Tractable for LLM Evaluation"
+title: "AMLworld-Compact: Importance-Weighted Downsampling for LLM Evaluation and Error Diagnosis"
 authors:
   - family-names: Nitarach
     given-names: Natapong

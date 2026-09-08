@@ -1,328 +1,287 @@
-# AMLCompact
+# AMLworld-Compact
 
 [![CI](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-amlcompact--eval-yellow)](https://huggingface.co/datasets/natnitaract/amlcompact-eval)
 [![Code MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
-[![Data CDLA-Sharing-1.0](https://img.shields.io/badge/data-CDLA--Sharing--1.0-orange)](https://cdla.dev/sharing-1-0/)
 
-[Score a model](#score-a-model) ·
-[Baselines](#baselines) ·
-[Reproduce the paper](#reproduce-the-paper) ·
-[Extend](#implementing-new-prompts-and-routers) ·
-[Uses](#uses) ·
-[Cite](#citation)
+[Install](#install) · [Evaluation](#evaluation) · [Baselines](#baselines) ·
+[Dataset](#dataset) · [Citation](#citation)
 
-An anti-money-laundering benchmark that a language model can actually be run on. AMLworld's
-test split is a million transaction edges and serialises to roughly 1B tokens per pass; this
-is the same split compressed 271x and 611x, with importance weights that put the metrics back.
+AMLworld-Compact provides importance-weighted subsets of AMLworld for evaluating
+transaction classification and laundering-typology prediction. It retains all
+illicit test edges and samples benign edges, reducing HI-Small and LI-Small by
+271× and 611×. Each retained edge has graph features, a serialised local graph,
+and an inverse-inclusion-probability weight.
 
-Code for *AMLCompact: Bias-Free Downsampling Makes AMLworld Tractable for LLM Evaluation*,
-an ARR submission committed to EMNLP 2026 (Resources and Evaluation). The venue state and the
-citation live in [`docs/citation.md`](docs/citation.md) and this page is updated when the
-decision lands.
-
-**Three names, one project.** *AMLCompact* is the paper and this repository, `amlc` is the
-package you import, `amlcompact-eval` is the dataset on Hugging Face. Only `amlc/` is
-importable code.
+Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsampling
+for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
+is [`natnitaract/amlcompact-eval`](https://huggingface.co/datasets/natnitaract/amlcompact-eval).
 
 ## Install
 
+Use Python 3.11 or later. Run commands from the code repository root:
+
 ```bash
-pip install -e ".[hub]"
+git clone https://github.com/nat-nischw/AMLCompact.git
+cd AMLCompact
+python -m pip install -e ".[hub]"
 ```
 
-## Score a model
+This installs the dataset loaders and scoring dependencies. To generate predictions
+through an existing vLLM endpoint, also install the LLM client dependencies:
 
-The dataset downloads on first use and caches. You need neither AMLworld nor the archived run.
+```bash
+python -m pip install -e ".[llm]"
+```
+
+## Evaluation
+
+### Score the released supervised ensemble
+
+The following example loads the evaluation arrays and scores the released ensemble
+without training or generating new predictions. The first Hub load downloads the
+arrays; subsequent loads use the cache.
 
 <!--quick-start-begin-->
 ```python
+import numpy as np
 from amlc import hub
 from amlc.triage.doubt_triage import ht_weighted_prf
 
-d = hub.load_coreset("HI-Small")                 # arrays only, 0.9 MB
-P, R, F1 = ht_weighted_prf(your_predictions, d["labels"], d["weights"])
+d = hub.load_coreset("HI-Small")
+predictions = (d["ensemble_probs"] >= d["ml_threshold"]).astype(int)
 
-table = hub.load_table("HI-Small")               # adds the prompt text, 20 MB
+for name, weights in [
+    ("HT-weighted", d["weights"]),
+    ("Compact", np.ones(d["n"])),
+]:
+    precision, recall, f1 = ht_weighted_prf(predictions, d["labels"], weights)
+    print(f"{name}: P={100 * precision:.4f}% R={100 * recall:.4f}% F1={100 * f1:.4f}%")
 ```
 <!--quick-start-end-->
 
-Each row of `table` carries `typed_graph_text`, the prompt as the evaluated models received it,
-and asks for two things: is this edge illicit, and which of eight laundering typologies is it.
-The [dataset card](https://huggingface.co/datasets/natnitaract/amlcompact-eval) is the column
-dictionary.
+For your own detector, replace `predictions` with a one-dimensional binary array:
+`1` means illicit and `0` means benign. It must contain exactly one prediction per
+released row, in the same order as `d["labels"]`. Join unordered outputs to the
+`case_id` column of `hub.load_table("HI-Small")` before scoring. If probabilities
+cover the full temporal test split, select `probabilities[d["subset_idx"]]` first,
+then apply your chosen decision threshold.
 
-**Pass the HT weights.** Unweighted numbers on a coreset describe the coreset and not the
-population, and the whole point of the construction is that the weighted ones describe the
-population exactly. `hub.load_coreset` asserts that the weights sum to the full test-split size
-before handing them back, because a weight vector that does not is silently wrong rather than
-loudly broken.
+To check both released ensembles and their weight sums:
 
 ```bash
-make selftest        # scores the shipped ensemble, compares against the published numbers
+python -m amlc.selftest
 ```
 
-Ten seconds, and it exercises the download, the weight-sum assertion and the scorer in one go.
+With a local copy of the dataset, the array loader can run offline. Point it at
+`extras/`, which contains one directory per split:
 
-The evaluation set is **not vendored into this repository**. One published copy stays
-authoritative; a copy committed here would drift from it, and the copy that drifts is always
-the one nobody rebuilt. Point `AMLC_DATASET` at a fork, or `AMLC_CORESET_DIR` at a local build.
+```bash
+AMLC_CORESET_DIR=/path/to/amlcompact-dataset/extras python -m amlc.selftest
+```
+
+`AMLC_CORESET_DIR` overrides array loading; `hub.load_table()` still reads the Hub
+Parquet table. To load local prompts, use `pandas.read_parquet()` on
+`data/HI-Small/test-00000-of-00001.parquet` in the dataset copy.
+
+### Generate LLM predictions
+
+Use an existing vLLM server with a served model name matching a runner ID in
+[Baselines](#baselines). The hosting configurations used for the released runs are
+in [`scripts/slurm/host_vllm/`](scripts/slurm/host_vllm/). Set `--model-id` if your
+endpoint exposes a different served name.
+
+```bash
+python scripts/13_run_llm_eval.py \
+  --model GPT-OSS-20B \
+  --vllm-url http://localhost:8000/v1 \
+  --datasets HI-Small LI-Small \
+  --promptings ICL-ZS ICL-FS \
+  --seeds 42 123 456 789 1011 \
+  --workers 16 \
+  --out runs/gpt-oss-20b
+```
+
+`ICL-ZS` uses the task instructions without demonstrations; `ICL-FS` adds the
+released demonstration pool. `ICL-V` is an additional supported condition and is
+not included in the baseline table below. The coreset stays fixed across seeds;
+the runner sends each requested sampling seed to vLLM. Server versions and
+batching can still affect reproducibility.
+Use fewer values in `--datasets`, `--promptings`, or `--seeds` to evaluate a smaller
+configuration. Each selected combination evaluates every row in that split.
+
+The runner saves per-case verdicts, typologies, responses, available reasoning,
+and token counts in per-seed JSON files under `--out`. It also writes
+`metrics.json` beside those files and `summary_all.csv` / `summary_all.json` at
+the output root. **The runner's detection metrics are unweighted compact-set
+metrics.** Run the next step to obtain HT-weighted metrics.
+
+### Score saved LLM predictions
+
+This step reads predictions already saved by the runner and the released coreset
+arrays. It does not call an LLM:
+
+```bash
+python scripts/23_score_llm_ht.py \
+  --runs-dir runs/gpt-oss-20b \
+  --models GPT-OSS-20B \
+  --promptings ICL-ZS ICL-FS \
+  --seeds 42 123 456 789 1011 \
+  --dataset HI-Small --dataset LI-Small \
+  --out runs/gpt-oss-20b/evaluation
+```
+
+Set `AMLC_CORESET_DIR` as above to score with local arrays. Match the model,
+prompting, dataset, and seed selections to the prediction files you generated.
+
+| Output in the evaluation directory | Contents |
+|---|---|
+| `llm_ht_weighted.csv` | One row per dataset/model/prompting/seed with both `ht_*` and `subset_*` detection metrics; also includes predict-all-illicit reference rows. |
+| `llm_ht_weighted_summary.csv` | Ranges over model/prompting means within each dataset and the predict-all-illicit reference. |
+
+### Metrics and reporting
+
+For binary labels `y`, predictions `p`, and weights `w`, the scorer computes
+`TP = sum(w * (y == 1) * (p == 1))`, with analogous weighted FP and FN counts.
+Precision is `TP / (TP + FP)`, recall is `TP / (TP + FN)`, and F1 is
+`2 * TP / (2 * TP + FP + FN)`. A zero denominator returns zero.
+
+| Metric | Population / denominator | Where to find it |
+|---|---|---|
+| HT-weighted detection precision, recall, F1 | Released coreset with `ht_weight`; estimates the full temporal test split. | `ht_p`, `ht_r`, `ht_f1` |
+| Compact detection precision, recall, F1 | Every retained row has weight one; describes the 1:2 compact-set class ratio. | `subset_p`, `subset_r`, `subset_f1`; runner detection columns |
+| Detection accuracy | Fraction of all compact-set rows classified correctly. | Runner `detection_accuracy` |
+| Typology macro-F1 | Unweighted mean of class F1 values on illicit rows with a known ground-truth typology. The runner averages over labels present in the ground truth or predictions, including `none` for missing predictions. | Runner `typology_macro_f1` |
+| Typology accuracy | Fraction of labelled illicit rows whose predicted typology matches the ground truth, scored independently of the detection verdict. | Runner `typology_accuracy` |
+| Valid-response ratio | Percentage of attempted cases with recorded token usage; this is not classification accuracy. | Runner `valid_ratio` |
+
+`ht_weighted_prf()` returns fractions in `[0, 1]`. Detection and typology scores in
+the stage-23 and runner summary CSV files are percentages in `[0, 100]`; their
+values in per-seed metric JSON are fractions. Counts, token usage, and latency
+retain their own units; `token_stats.valid_ratio` is already a percentage.
+Runner seed summaries report mean and standard deviation (`ddof=0`),
+with zero standard deviation for a single run. The stage-23 summary reports ranges
+of seed means, not confidence intervals. Evidence/verifier fields are not computed
+by the standard ICL evaluation.
+
+Report HT-weighted detection metrics as the primary full-split estimates, and label
+compact metrics separately. Predicting every edge illicit gives compact precision
+33.333% and F1 50.000%; after weighting, its F1 is 0.246% on HI-Small and 0.109% on
+LI-Small. These are different evaluation distributions.
+
+With fixed per-edge predictions and contexts, positive known inclusion
+probabilities make HT confusion counts unbiased in expectation. Precision and F1
+are ratios and need not be unbiased in finite samples. Recall is exact for the
+fixed predictor because every illicit edge is retained with weight one. Variation
+across inference seeds does not measure variation across newly sampled coresets.
 
 ## Baselines
 
-Every number is HT-weighted, so it describes the full million-edge split.
+### Supervised models
 
-| | HI-Small | LI-Small |
-|---|---:|---:|
-| Supervised ensemble, detection F1 | 70.9 | 29.6 |
-| Seven open-weight LLMs, detection F1 | 40.7 to 50.7 | 40.6 to 50.7 |
-| Their precision | 31.5 to 34.2 | 28.3 to 34.0 |
-| Their recall | 55.2 to 100.0 | 63.5 to 100.0 |
-| Their typology macro-F1 | 5.6 to 18.4 | 2.5 to 13.0 |
-| Doubt Triage, an ML and LLM hybrid | 82.1 to 87.4 | 71.8 to 84.9 |
-| The same idea, implementable | 66.0 | 31.9 |
+GFP means **Graph Feature Preprocessor**. The ensemble averages the three members'
+probabilities and uses thresholds 0.80 for HI-Small and 0.48 for LI-Small.
 
-**LLMs recall almost everything and decide almost nothing.** Precision sits near a third, which
-under the 1:2 design ratio is what predict-all-illicit earns. Restore the native prevalence by
-weighting and all fourteen model-and-prompting cells land on that trivial baseline. Scale does
-not help: typology macro-F1 tops out at 18.4 against the ensemble's 72.3.
-
-**The failure is at the last step.** Of 1,000 audited reasoning traces, 538 parse the subgraph,
-recall the typology inventory and match evidence against it, then emit the wrong verdict.
-
-**The asymmetry is exploitable, but not by a bank.** Routing only the supervised model's
-uncertain cases to an LLM reaches 87.4 and 84.9. That router reads the coreset stratum, a
-property of how the evaluation set was drawn rather than of the edge, so it is an upper bound.
-Gating on the supervised score alone, which a deployment could compute, reaches 66.0 and 31.9.
-The gap between those two rows is the open problem.
-
-Sources: `results/summary_all.csv`, `results/triage/dt_summary.csv`,
-`results/triage/score_deferral_grid_*.csv`.
-
-## Coreset statistics and weighting
-
-| | HI-Small | LI-Small |
-|---|---:|---:|
-| Full temporal test split | 1,015,669 edges | 1,384,810 edges |
-| Illicit in it | 1,251 (0.1232%) | 756 (0.0546%) |
-| Coreset | 3,753 | 2,268 |
-| Ensemble P / R / F1, weighted on the coreset | 93.4555 / 57.0743 / 70.8685 | 73.2984 / 18.5185 / 29.5671 |
-| The same, computed on the full split | identical | identical |
-
-Identical is literal, and it is a narrower claim than "the weighting is unbiased". The paper
-separates three things in §3.3, *Estimation properties*, and the separation matters:
-
-- The weighted TP, FP and FN **counts** are unbiased for their full-split values, for any
-  predictor. That is the Horvitz-Thompson guarantee and it assumes nothing.
-- **Precision and F1** are ratios of two such counts, so they are consistent and asymptotically
-  unbiased but not unbiased in finite samples.
-- **Recall is exact** for any predictor, because every illicit edge is retained at weight one,
-  so its denominator is observed rather than sampled.
-
-The row above is stronger than all three and is not an instance of the ratio guarantee: the
-ensemble flags no down-sampled benign edge at its operating threshold, so every edge entering P,
-R and F1 carries weight one and the two computations are the same arithmetic on the same edges.
-The residual is below 1e-15, which is double precision and not a tolerance.
-
-That exactness belongs to the scored predictor, not to the coreset alone. A predictor that does
-flag down-sampled edges pays about 470x per false positive on HI-Small and falls back to the
-ratio regime with real sampling variance, which is the LLM case above and the reason those rows
-collapse onto the trivial floor. The dataset card carries the same statement in full.
-
-## Reproduce the paper
-
-Every row was traced by opening the producing script and the result file. **Needs** is `repo`
-for this checkout alone, `archive` for `AMLC_ARCHIVE` pointing at the run directory, `full` for
-AMLworld and a cluster. Of 32 traced objects, 9 run from a clone, 13 need the archive, 10 need
-the full pipeline.
-
-| Paper object | Command | Output | Needs |
-|---|---|---|---|
-| Tab 1 | `make ablation` | `results/coreset/baselines_agg.csv` | full |
-| Tab 9 | `make ablation` | `results/coreset/baselines_agg.csv` | full |
-| Tab 11 | `make ablation` | `results/coreset/baselines_permodel.csv` | full |
-| Tab 12 | `python scripts/elliptic/eval_ht_coreset.py --n-boot 2000` | `results/elliptic/eval_summary.csv` | full |
-| Tab 4 | `make analysis` | `results/error_analysis/typology_recall.csv` | archive |
-| 2 | `make llm-eval MODEL=GPT-OSS-120B VLLM=http://host:18809/v1 DATASETS=HI-Small` | `results/summary_all.csv` | full |
-| 13 | `make llm-eval MODEL=GPT-OSS-120B VLLM=http://host:18809/v1 DATASETS=LI-Small` | `results/summary_all.csv` | full |
-| 14 | `make llm-ht` | `results/analysis/llm_ht_weighted.csv` | archive |
-| 15 | `make llm-eval MODEL=GPT-OSS-120B VLLM=http://host:18809/v1` | `results/summary_all.csv` | full |
-| 8 | `make llm-eval MODEL=GPT-OSS-120B VLLM=http://host:18809/v1` | `results/summary_all.csv` | full |
-| 10 | `make train-ml train-gcpal infer-gcpal ensemble` | `results/summary_all.csv` | full |
-| 18 | `make llm-eval MODEL=GPT-OSS-120B VLLM=http://host:18809/v1` | `results/summary_all.csv` | full |
-| 19 | `make analysis` | `results/error_analysis/typology_recall.csv` | archive |
-| 3 | `AMLC_ARCHIVE=/path/to/outputs make triage` | `results/triage/dt_summary.csv` | archive |
-| 3 | `AMLC_ARCHIVE=/path/to/outputs make deferral` | `results/triage/score_deferral_grid_HI-Small_Qwen3.5-27B_ICL-ZS.csv` | archive |
-| app:significance | `make triage-stats` | `results/stats/dt_pooled_stats.json` | repo |
-| app:naive_hybrids | `AMLC_ARCHIVE=/path/to/outputs make deferral` | `results/triage/score_deferral_summary_HI-Small.csv` | archive |
-| Table 23 | `make iaa` | `results/audit/rubric_n1000_summary.json` | repo |
-| Table 24 | `make iaa` | `results/audit/multi_judge_iaa_n1000.csv` | repo |
-| Table 25 | `make human-rating` | `results/human_rating/human_rating_summary.csv` | repo |
-| Table 26 | `make human-rating` | `results/human_rating/human_rating_summary.csv` | repo |
-| Table 27 | `make human-rating` | `results/human_rating/human_rating_by_outcome.csv` | repo |
-| Table 16 | `AMLC_ARCHIVE=/path/to/run/outputs make analysis` | `results/error_analysis/error_transition_deep.csv` | archive |
-| Table 17 | `AMLC_ARCHIVE=/path/to/run/outputs make analysis` | `results/error_analysis/error_transition_deep.csv` | archive |
-| Figure 9 | `AMLC_ARCHIVE=/path/to/run/outputs AMLC_FIGURE_OUT=results/figures make analysis` | `results/error_analysis/error_transitions.csv` | archive |
-| Figure 8 | `AMLC_ARCHIVE=/path/to/run/outputs AMLC_FIGURE_OUT=results/figures make analysis` | `results/error_analysis/typology_f1.csv` | archive |
-| Table 22 | `python scripts/21_score_frontier_probe.py --convention benign` | `results/frontier_probe/predictions.csv` | repo |
-| Table 31 | `AMLC_ARCHIVE=/path/to/run/outputs python scripts/22_compare_intervention.py` | `results/summary_all.csv` | archive |
-
-Twenty objects have no command, listed as such in
-[`docs/reproducibility.md`](docs/reproducibility.md) along with the per-row tolerance and four
-cases where a printed cell disagrees with the shipped file. Most are configuration tables with
-nothing to regenerate. Nine are figures whose plotting scripts live in the paper workspace
-rather than here; the data behind all of them ships, so any figure can be redrawn.
-
-Three things do not reproduce bit-for-bit: the k-hop neighbourhood sample, LLM generations, and
-anything downstream of the Graph Feature Preprocessor's `batch_size=128`. The third is the one
-that can bite you, because it fails quietly and in the direction that looks like success.
-[`docs/reproducibility.md`](docs/reproducibility.md) has the mechanism for each.
-
-## Implementing new prompts and routers
-
-The paper closes on two open problems. Neither needs the archive.
-
-### A different prompt
-
-The prompts are Jinja templates, not strings buried in a runner: `prompts/icl_zs.j2`,
-`icl_fs.j2`, `icl_v.j2`, and the six frontier-probe variants under `prompts/frontier_probe/`.
-`scripts/verify_prompt_templates.py` proves they render byte-for-byte into what was actually
-sent, so a new variant starts from a known baseline rather than an approximation.
-
-The four-step audit scores Parse, Recall, Match and Conclude separately, so a prompt change
-reports which step it moved:
-
-```bash
-python scripts/13_run_llm_eval.py --model <yours> --vllm-url <url>
-python scripts/16_sample_traces.py                 # draw 1,000 traces, regex annotator
-python scripts/19a_run_judges.py deepseek          # add an LLM judge
-python scripts/19b_analyze_rubric.py               # per-step pass rates and the fail mode
-```
-
-`scripts/21_score_frontier_probe.py` reproduces all ninety of those numbers from
-`results/frontier_probe/predictions.csv` with nothing but this checkout.
-
-### A different router
-
-Doubt Triage is one rule for deciding which edges to send to the LLM, and
-`amlc.triage.doubt_triage.STRATEGIES` ships four of them (`dt`, `confidence`, `disagree`,
-`union`). A new one needs the supervised scores, the labels and the weights, all of which are
-one call away:
-
-```python
-probs = hub.load_test_probs("HI-Small", "LightGBM+GFP", seed=42)
-d     = hub.load_coreset("HI-Small")
-# route however you like, then score the fused predictions
-P, R, F1 = ht_weighted_prf(fused, d["labels"], d["weights"])
-```
-
-Two reference points make the result interpretable. `scripts/17b_dt_stats.py` gives the paired
-comparison against DT over all 140 cells rather than a single number.
-`scripts/18_score_deferral_grid.py` gives the floor that matters: a grid-searched gate on the ML
-score alone, which is what a deployed system can actually compute, since DT routes on the
-coreset stratum and a bank has no stratum. That gate recovers 2.3 of DT's 55.3 pp on LI-Small.
-The gap between those two numbers is the open problem.
-
-## Repository and Hub contents
-
-| | this repository | the dataset on Hugging Face |
-|---|---|---|
-| pipeline code, prompts, SLURM jobs | yes | |
-| tuned hyperparameters, demonstration pool | yes | |
-| every result table and figure | yes | |
-| the evaluation set and its prompts | | yes |
-| HT weights, labels, typologies, GFP tensors | | yes |
-| supervised model weights and probabilities | | yes |
-
-### Which file supports which claim
-
-| Path | The claim it supports |
+| Full baseline name | Loader ID |
 |---|---|
-| `amlc/coreset/` | the coreset construction and the seven-baseline ablation |
-| `amlc/triage/` | Doubt Triage, its paired statistics, the score-only deferral floor |
-| `amlc/audit/` | the four-step rubric, the four judges, inter-annotator agreement |
-| `amlc/llm/`, `prompts/` | the LLM evaluation and the prompts that were actually sent |
-| `amlc/baselines/` | the three supervised members and the soft-vote ensemble |
-| `results/` | every CSV and JSON behind a published number |
-| `docs/` | [known issues](docs/known_issues.md), [reproduction tiers](docs/reproducibility.md), [another split](docs/another_split.md), [citation](docs/citation.md), [full layout](docs/repo_layout.md) |
+| LightGBM + Graph Feature Preprocessor | `LightGBM+GFP` |
+| XGBoost + Graph Feature Preprocessor | `XGBoost+GFP` |
+| Graph Contrastive Pre-training for Anti-money Laundering + Graph Feature Preprocessor | `GCPAL+GFP` |
 
-`make help` lists every stage in pipeline order. `amlc/config.yaml` holds every constant the
-paper reports, annotated, in one file.
+The released ensemble's HT-weighted P / R / F1 (%) is
+**93.4555 / 57.0743 / 70.8685** on HI-Small and
+**73.2984 / 18.5185 / 29.5671** on LI-Small. Its full-split and coreset values
+coincide because all edges contributing to its TP, FP, and FN counts are retained
+with weight one. This exact equality does not extend to arbitrary predictors.
+
+GCPAL was fine-tuned with a random split that overlaps roughly 60% of the temporal
+test edges. Interpret its scores and the resulting ensemble comparison with that
+overlap in mind. The released thresholds are test-selected operating points.
+
+Checkpoints and full-test probabilities are available through `hub.load_ml_weights()`
+and `hub.load_test_probs()`. Use `d["subset_idx"]` to align full-test predictions
+with coreset rows.
+
+### Language models
+
+| Model | Runner ID (`--model`) | Checkpoint |
+|---|---|---|
+| OpenAI GPT-OSS-20B | `GPT-OSS-20B` | `openai/gpt-oss-20b` |
+| Qwen3.5-27B | `Qwen3.5-27B` | `Qwen/Qwen3.5-27B-FP8` |
+| NVIDIA Nemotron-3-Nano-30B-A3B | `Nemotron-3-Nano-30B` | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-FP8` |
+| Qwen3.5-35B-A3B | `Qwen3.5-35B-A3B` | `Qwen/Qwen3.5-35B-A3B-FP8` |
+| OpenAI GPT-OSS-120B | `GPT-OSS-120B` | `openai/gpt-oss-120b` |
+| NVIDIA Nemotron-3-Super-120B-A12B | `Nemotron-3-Super-120B` | `nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8` |
+| Qwen3.5-397B-A17B | `Qwen3.5-397B-A17B` | `Qwen/Qwen3.5-397B-A17B-FP8` |
+
+The following values are **HT-weighted detection F1 (%)**, averaged over five seeds
+for each model and prompting condition. ZS means `ICL-ZS`; FS means `ICL-FS`.
+
+| Model | HI-Small ZS | HI-Small FS | LI-Small ZS | LI-Small FS |
+|---|---:|---:|---:|---:|
+| OpenAI GPT-OSS-20B | 0.246 | 0.236 | 0.109 | 0.098 |
+| Qwen3.5-27B | 0.230 | 0.240 | 0.088 | 0.096 |
+| NVIDIA Nemotron-3-Nano-30B-A3B | 0.246 | 0.245 | 0.109 | 0.108 |
+| Qwen3.5-35B-A3B | 0.246 | 0.253 | 0.109 | 0.107 |
+| OpenAI GPT-OSS-120B | 0.246 | 0.249 | 0.109 | 0.108 |
+| NVIDIA Nemotron-3-Super-120B-A12B | 0.247 | 0.247 | 0.110 | 0.109 |
+| Qwen3.5-397B-A17B | 0.248 | 0.251 | 0.110 | 0.110 |
+
+Source: [`results/analysis/llm_ht_weighted.csv`](results/analysis/llm_ht_weighted.csv).
+These values are estimates at native test-split prevalence. Compact-set metrics
+are available as `subset_*` columns in the same file.
+
+## Dataset
+
+| | HI-Small | LI-Small |
+|---|---:|---:|
+| Full temporal test edges | 1,015,669 | 1,384,810 |
+| Illicit edges retained | 1,251 | 756 |
+| Compact evaluation rows | 3,753 | 2,268 |
+| Illicit rows with a known typology | 791 | 174 |
+
+The [dataset card](https://huggingface.co/datasets/natnitaract/amlcompact-eval)
+describes all columns, feature arrays, weights, and checkpoint files. Graph texts
+use two-hop neighbourhoods with a cap of 50 neighbours per hop. The released data
+contains test rows; use separate data when training and tuning a new model.
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `amlc/` | Data loaders, coreset construction, baseline models, evaluation, triage, and audit code |
+| `scripts/` | Command-line entry points and optional cluster configurations |
+| `prompts/` | Task, demonstration, verification, and audit templates |
+| `data/` | Tuned hyperparameters and demonstration pools |
+| `results/` | Released metrics and analysis outputs |
+| `docs/` | Dataset-extension instructions, repository layout, and citation details |
+
+Run `make help` to list the available commands. See
+[`docs/another_split.md`](docs/another_split.md) for evaluating another split.
+The released detailed reasoning audit uses the available seed-42 traces; task
+metrics use five inference seeds.
 
 ## Uses
 
-### Direct Use
-
-Scoring a detector on a transaction-graph AML benchmark whose weighted
-metrics stand in for a million-edge split; measuring where a prompt change acts, using the
-four-step rubric rather than a single F1 number; and building selective ML-and-LLM routers
-against a fixed evaluation design. It is a research benchmark and a measurement instrument.
-
-### Out-of-Scope Use
-
-**Not for deployment, and the paper's own numbers are the argument.** Restoring the native
-prevalence by Horvitz-Thompson weighting puts every one of the fourteen evaluated LLM cells on
-the trivial predict-all baseline: F1 between 0.23 and 0.25 on HI-Small against a floor of 0.25,
-and between 0.09 and 0.11 on LI-Small against 0.11. The hybrid that does lift F1 routes on the
-coreset stratum, which is a property of how the evaluation set was drawn and not of the edge, so
-a bank cannot compute it; the implementable version, a grid-searched gate on the supervised score
-alone, recovers 2.3 of Doubt Triage's 55.3 pp on LI-Small and falls below the ensemble on
-HI-Small. Nothing here is evidence that an LLM should decide whether a transaction is
-suspicious.
-
-**Also out of scope.** Estimating what precision a detector would reach in production at the
-native rate, which needs a deployment study and not a coreset. Any use that treats a flagged
-edge as an accusation about a person or an institution. Training on the evaluation split, which
-is what the released supervised probabilities are for.
-
-**Personal and sensitive information.** AMLworld is agent-generated: accounts, amounts and
-counterparties are synthetic and correspond to no real person or institution, which is why IBM
-publishes it openly. That provenance is the basis for the claim. What we verify mechanically is
-integrity rather than content: `scripts/00_download_amlworld.py` checks pinned SHA256 digests
-before anything is derived. We did not run a content sweep over the 6,021 serialised prompts,
-because they are built from that synthetic source by a deterministic serialiser.
+This synthetic benchmark supports research on transaction classification,
+graph-to-text prompting, and error analysis. Use the released test split for
+evaluation and separate data for training and tuning. Results describe the
+released AMLworld splits and do not establish performance on real banking
+transactions.
 
 ## Licences
 
-Named per asset class, because they are not the same and the difference has consequences.
-
-| Asset | Licence | Consequence |
-|---|---|---|
-| This code | MIT | do what you like |
-| Anything derived from AMLworld: coreset indices, HT weights, labels, typologies, GFP tensors, serialised prompts | **CDLA-Sharing-1.0** | copyleft. Publish a derivative and you are bound to the same terms |
-| Supervised model weights and the aggregate metrics in `results/` | MIT | the agreement's carve-out for computational results, §3.5 |
-| Elliptic | CC BY-NC-ND 4.0 | NoDerivatives, so we ship the pipeline and no derived data |
-
-[`NOTICE.md`](NOTICE.md) carries the reasoning, the provenance and the prior work reused.
-
-## Known issues
-
-[`docs/known_issues.md`](docs/known_issues.md) records what was corrected while preparing this
-release and which published numbers moved. The superseded coreset draw behind the
-ARR-submission numbers is still runnable with `AMLC_LEGACY_DRAW=1`, so the difference can be
-seen rather than guessed at.
-
-## Maintenance and contact
-
-**Frozen at camera-ready.** This repository records what the paper reports. Dependency rot and
-correctness fixes land on a `post-camera-ready` branch; the tagged commit the paper cites does
-not move. Correctness reports are welcome and feature requests are not, because a benchmark that
-changes under the people comparing against it is not a benchmark.
-
-If a number here disagrees with the paper, that is a bug and we want to know: open an issue with
-the command you ran and the file you read. If a case looks mislabelled, raise it on the dataset's
-Community tab quoting its `amlc_NNNNN` identifier.
-
-Point of contact: `<NAME AND ADDRESS>`.
-
-This is a research artefact and not a product. It is not audited, not supported, and not
-suitable for use in a compliance decision.
+Code is [MIT](LICENSE). AMLworld-derived evaluation data is CDLA-Sharing-1.0;
+released supervised model parameters and outputs are labelled MIT in the dataset
+release. The Elliptic pipeline is provided without derived Elliptic data. See
+[`NOTICE.md`](NOTICE.md) and the dataset's licence files for attribution and
+asset-specific terms.
 
 ## Citation
 
 ```bibtex
 @misc{nitarach2026amlcompact,
-  title  = {AMLCompact: Bias-Free Downsampling Makes AMLworld Tractable for LLM Evaluation},
+  title  = {AMLworld-Compact: Importance-Weighted Downsampling for LLM Evaluation and Error Diagnosis},
   author = {Nitarach, Natapong and Ngampornsukswadi, Phume and
             Taveekitworachai, Pittawat and Nonesung, Surapon and
             Sirichotedumrong, Warit and Halverson, Duncan and
@@ -332,7 +291,4 @@ suitable for use in a compliance decision.
 }
 ```
 
-Cite AMLworld as well; nothing here exists without it, and its licence asks that the attribution
-be preserved. The entry, the three venue states and what changes at each are in
-[`docs/citation.md`](docs/citation.md), which `make check-citation` holds the other four copies
-against.
+The AMLworld citation is also provided in [`docs/citation.md`](docs/citation.md).

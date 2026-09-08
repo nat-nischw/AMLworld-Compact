@@ -54,7 +54,7 @@ import logging
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 from .. import config
@@ -101,6 +101,8 @@ class ModelConfig:
     # Templates that do not read it ignore it; the ones that do are the Qwen3.5
     # pair, where it is what keeps thinking mode on.
     enable_thinking: bool = True
+    # Optional vLLM sampling seed. None preserves unseeded direct calls.
+    seed: Optional[int] = None
 
 
 #: Officially recommended sampling parameters, per model card, thinking mode.
@@ -217,6 +219,7 @@ class VLLMClient(BaseClient):
         req_max_tokens = max_tokens or self.config.max_tokens
 
         def _do_call(msgs, mt):
+            seed_kwargs = {"seed": self.config.seed} if self.config.seed is not None else {}
             return client.chat.completions.create(
                 model=self.config.model_id,
                 messages=msgs,
@@ -224,6 +227,7 @@ class VLLMClient(BaseClient):
                 top_p=self.config.top_p,
                 max_tokens=mt,
                 extra_body=extra_body if extra_body else None,
+                **seed_kwargs,
             )
 
         try:
@@ -472,17 +476,19 @@ def client_for(model_config: ModelConfig, base_url: Optional[str] = None,
 
 
 def get_client(model: str, base_url: Optional[str] = None,
-               model_id: Optional[str] = None) -> BaseClient:
+               model_id: Optional[str] = None,
+               seed: Optional[int] = None) -> BaseClient:
     """Client for one of the evaluated models, by paper name.
 
     ``model_id`` overrides the served model name, for a server started with a
     different ``--served-model-name``.
+    ``seed`` sets the vLLM request's sampling seed; it does not guarantee
+    deterministic results across server versions or batching configurations.
     """
     if model not in MODELS:
         raise ValueError(
             f"unknown model {model!r}; the evaluated models are "
             f"{list(MODELS)}")
     cfg = MODELS[model]
-    if model_id:
-        cfg = ModelConfig(**{**cfg.__dict__, "model_id": model_id})
+    cfg = replace(cfg, model_id=model_id or cfg.model_id, seed=seed)
     return client_for(cfg, base_url=base_url)

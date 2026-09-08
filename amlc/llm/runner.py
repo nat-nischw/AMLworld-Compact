@@ -6,8 +6,7 @@ Two modes, both of which the paper reports.
     One model, served by vLLM or reached over an API, against the HT-Coreset
     under each in-context condition and each seed. The coreset is fixed across
     seeds; what varies is the model's own sampling, which is where the seed
-    enters. Seven models x three conditions x two datasets x five seeds is the
-    grid behind the LLM tables.
+    enters. The requested seed is sent to vLLM on each case request.
 
 ``supervised``
     The boosted-tree ensemble members, trained on the temporal training split,
@@ -27,9 +26,9 @@ Writes, under ``--out`` (default ``paths.results()``)
 
 The LLM half of that tree has the same shape as the archived run directory, and
 it is built with :func:`amlc.archive.legacy_path` for that reason:
-point ``AMLC_ARCHIVE`` at a fresh run and the downstream stages read it
-unchanged. Directory names inside it are therefore the archive's; everything a
-user types, and everything a log line says, is the paper's.
+the HT scorer can read it with ``--runs-dir`` and load labels and weights from
+the public coreset. Directory names inside it are therefore the archive's;
+everything a user types, and everything a log line says, is the paper's.
 
 Dropped against the pre-release ``run_all_baselines.py``
 --------------------------------------------------------
@@ -356,10 +355,13 @@ def run_llm(cfg: RunConfig) -> list[dict]:
                   f"~{icl_examples['total_tokens_approx']:,} tokens per prompt")
 
         for prompting in cfg.promptings:
-            method = get_method(prompting, client, texts, icl_examples=icl_examples)
             seed_metrics, seed_tokens = [], []
 
             for seed in cfg.seeds:
+                seeded_client = get_client(
+                    cfg.model, base_url=cfg.vllm_url, model_id=cfg.model_id, seed=seed)
+                method = get_method(
+                    prompting, seeded_client, texts, icl_examples=icl_examples)
                 t0 = time.time()
                 predictions, n_errors = predict_all(method, cases, cfg.workers)
                 elapsed = time.time() - t0
@@ -739,8 +741,8 @@ def save_method_metrics(cfg: RunConfig, model: str, method: str, dataset: str,
 def save_summary(cfg: RunConfig, rows: Sequence[dict]) -> Path:
     """Merge this run's rows into the summary table.
 
-    A (method, dataset) pair this run produced replaces its old row; every other
-    row is left alone, so re-running one model does not erase the other six.
+    A (model, method, dataset) configuration this run produced replaces its old
+    row; every other row is left alone.
     """
     import pandas as pd
 
@@ -751,13 +753,13 @@ def save_summary(cfg: RunConfig, rows: Sequence[dict]) -> Path:
     df_new = pd.DataFrame(list(rows))
     if csv_path.exists():
         df_old = pd.read_csv(csv_path)
-        replaced = set(zip(df_new["method"], df_new["dataset"]))
+        replaced = set(zip(df_new["model"], df_new["method"], df_new["dataset"]))
         keep = df_old[~df_old.apply(
-            lambda r: (r["method"], r["dataset"]) in replaced, axis=1)]
+            lambda r: (r["model"], r["method"], r["dataset"]) in replaced, axis=1)]
         df = pd.concat([keep, df_new], ignore_index=True)
     else:
         df = df_new
-    df = df.sort_values(["method", "dataset"]).reset_index(drop=True)
+    df = df.sort_values(["model", "method", "dataset"]).reset_index(drop=True)
 
     df.to_csv(csv_path, index=False, encoding="utf-8")
     json_path.write_text(

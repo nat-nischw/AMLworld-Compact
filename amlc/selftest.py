@@ -76,13 +76,12 @@ def main(argv=None) -> int:
         ok &= passed
 
     if ok:
-        print("\nself-test passed. The download, the weights and the scorer all work.")
-        print("Note: the F1 check alone does not prove you handled the weights. The")
-        print("ensemble flags too few down-sampled edges for weighting to move it.")
-        print("The weight-sum assertion above is the one that catches that mistake.")
+        print("\nself-test passed: loaded arrays, weight sums, and ensemble metrics match.")
+        print("The ensemble's metrics also agree without weighting; use the HT weights")
+        print("when scoring other predictors to estimate full-split performance.")
     else:
-        print("\nself-test failed. See docs/known_issues.md, and note that a stale or")
-        print("partial Hugging Face cache is the most common cause.")
+        print("\nself-test failed. Check the reported mismatch and the dataset files")
+        print("selected by AMLC_CORESET_DIR or AMLC_DATASET.")
     return 0 if ok else 1
 
 

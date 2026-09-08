@@ -2,14 +2,17 @@
 """Stage 23. The LLM predictions under HT weighting, and the predict-all floor.
 
 Thin wrapper. The stage lives in :mod:`amlc.analysis.llm_ht`; this exists so
-the pipeline order is visible from `scripts/`. Needs AMLC_ARCHIVE.
+the pipeline order is visible from `scripts/`.
 
-    python scripts/23_score_llm_ht.py
-    python scripts/23_score_llm_ht.py --dataset HI-Small
+    python scripts/23_score_llm_ht.py --runs-dir runs/demo \\
+        --models GPT-OSS-20B --promptings ICL-ZS --seeds 42 \\
+        --dataset HI-Small --out runs/demo/evaluation
+    python scripts/23_score_llm_ht.py  # original AMLC_ARCHIVE layout
 
 Writes ``results/analysis/llm_ht_weighted.csv`` (one row per model, prompting
-and seed, both framings side by side) and ``llm_ht_weighted_summary.csv`` (the
-spans quoted in Tables 2 and 14).
+and seed, HT and compact metrics side by side) and
+``llm_ht_weighted_summary.csv`` (min/max over selected cells' seed means).
+``--out`` overrides that output directory. All metrics are percentages.
 """
 
 import sys

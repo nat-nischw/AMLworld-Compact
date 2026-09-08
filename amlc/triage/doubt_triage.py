@@ -530,6 +530,9 @@ def load_llm_predictions(
     prompting: str = "ICL-FS",
     seed: int = 42,
     n: int = 0,
+    *,
+    strict: bool = False,
+    runs_dir: Optional[Path] = None,
 ) -> Optional[tuple[np.ndarray, np.ndarray, dict]]:
     """Read one seed's predictions into arrays of length n.
 
@@ -540,15 +543,53 @@ def load_llm_predictions(
     recorded output and are never rewritten. Either prefix parses; the numeric
     part is the row position in the released draw. See
     :mod:`amlc.case_ids`.
+
+    ``strict=True`` requires a file with exactly one boolean or integer 0/1
+    verdict for every row. This is used for fresh evaluations so a missing
+    prediction cannot silently become a benign verdict. The default preserves
+    the archived loader's permissive behavior.
+
+    ``runs_dir`` reads that directory directly, as written by the runner's
+    ``--out`` option, without the legacy archive ``outputs/`` resolution.
     """
-    archive = resolve_archive(archive)
+    if runs_dir is not None:
+        if archive is not None:
+            raise ValueError("use either runs_dir or archive, not both")
+        archive = Path(runs_dir)
+    else:
+        archive = resolve_archive(archive)
     p = legacy_path(archive, "predictions", dataset,
                     model=model, prompting=prompting, seed=seed)
     if not p.exists():
+        if strict:
+            raise FileNotFoundError(f"missing requested predictions: {p}")
         return None
 
     with open(p) as f:
         data = json.load(f)
+
+    if strict:
+        for key, expected in (("dataset", dataset), ("model", model),
+                              ("method", prompting), ("seed", seed)):
+            if key in data and data[key] != expected:
+                raise ValueError(f"{p}: {key}={data[key]!r}, expected {expected!r}")
+        records = data.get("predictions")
+        if not isinstance(records, list):
+            raise ValueError(f"{p}: predictions must be a list")
+        positions = set()
+        for pred in records:
+            cid = pred.get("case_id", "") if isinstance(pred, dict) else ""
+            if not isinstance(cid, str) or not is_case_id(cid):
+                raise ValueError(f"{p}: invalid case_id {cid!r}")
+            i = case_position(cid)
+            if i >= n or i in positions:
+                raise ValueError(f"{p}: duplicate or out-of-range case_id {cid!r}")
+            value = pred.get("illicit")
+            if type(value) not in (bool, int) or value not in (0, 1):
+                raise ValueError(f"{p}: {cid} illicit must be boolean or integer 0/1")
+            positions.add(i)
+        if len(positions) != n:
+            raise ValueError(f"{p}: expected {n} unique cases, found {len(positions)}")
 
     llm_bin = np.zeros(n, dtype=int)
     llm_typ = np.full(n, "unknown", dtype=object)

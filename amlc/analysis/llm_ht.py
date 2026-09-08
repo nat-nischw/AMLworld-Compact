@@ -1,17 +1,14 @@
-"""Score the LLM predictions under Horvitz-Thompson weighting.
+"""Score saved predictions with HT weights and with unit weights.
 
-Tables 2 and 14 report LLM detection on the coreset unweighted, against the
-1:2 design ratio. That is the right frame for comparing one LLM to another,
-because the predict-all-illicit floor sits at a legible 50 percent F1, but it
-is the wrong frame for asking what an LLM would score on the full split. This
-module answers the second question, for the LLM rows and for the predict-all
-floor, using the same weights and the same estimator the supervised baselines
-are scored with.
+HT P/R/F1 are plug-in ratios of weighted confusion counts that estimate
+full-split performance; the ratios are not generally unbiased. Compact
+(unweighted, named ``subset_*`` in the CSV) metrics describe the released
+diagnostic cohort. All output metrics are percentages. Recall agrees between
+the two because every illicit edge is retained at weight one.
 
-The arithmetic is not new: :func:`amlc.triage.doubt_triage.ht_weighted_prf`
-does the weighting, and this module only assembles predictions and reports.
-Recall is invariant to the weights on this coreset, because every illicit edge
-is retained at weight one, so the whole effect lands on precision.
+Use ``--runs-dir`` to score fresh runner output against the released coreset
+from Hugging Face or ``AMLC_CORESET_DIR``. Without it, use the original
+``AMLC_ARCHIVE`` layout, including its full-test arrays.
 """
 
 from __future__ import annotations
@@ -23,7 +20,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from ..config import DATASETS, LLM_MODELS, SEEDS
+from ..config import DATASETS, LLM_MODELS, PROMPTINGS, SEEDS
 from ..triage.doubt_triage import (
     ht_weighted_prf,
     load_coreset_from_archive,
@@ -46,11 +43,15 @@ def score_cell(
     model: str,
     prompting: str,
     seeds=SEEDS,
+    strict: bool = False,
 ) -> list[dict]:
     """Both framings of one (dataset, model, prompting) cell, per seed."""
     rows = []
     for seed in seeds:
-        loaded = load_llm_predictions(archive, dataset, model, prompting, seed, data["n"])
+        source = {"runs_dir": archive} if strict else {"archive": archive}
+        loaded = load_llm_predictions(
+            dataset=dataset, model=model, prompting=prompting, seed=seed,
+            n=data["n"], strict=strict, **source)
         if loaded is None:
             continue
         llm_preds, _, _ = loaded
@@ -75,9 +76,8 @@ def score_cell(
 def predict_all_floor(data: dict, dataset: str) -> dict:
     """The predict-all-illicit baseline under both framings.
 
-    Under the 1:2 design ratio this is the noise floor the paper quotes for
-    Tables 2 and 14. Under HT weighting it is the same rule scored against the
-    full split, where precision falls to the population illicit rate.
+    Under the 1:2 design ratio its compact F1 is 50%. Under HT weighting its
+    precision is the full-split illicit rate.
     """
     preds = np.ones(data["n"], dtype=int)
     p_u, r_u, f1_u = _unweighted_prf(preds, data["labels"])
@@ -103,14 +103,33 @@ def score_dataset(
     models=LLM_MODELS,
     promptings=("ICL-FS", "ICL-ZS"),
     verify: bool = True,
+    *,
+    runs_dir: Optional[Path] = None,
+    seeds=SEEDS,
 ) -> list[dict]:
-    """Every LLM cell on one dataset, plus the predict-all floor."""
-    archive = resolve_archive(archive)
-    data = load_coreset_from_archive(archive, dataset, verify=verify)
+    """Requested cells and the predict-all baseline, with percentages.
+
+    ``runs_dir`` needs only the runner's prediction tree; labels and weights
+    come from :func:`amlc.hub.load_coreset`. Every requested file must contain
+    exactly one binary verdict per coreset row. The legacy ``archive`` mode
+    retains its original loading and missing-file behavior.
+    """
+    if runs_dir is not None:
+        if archive is not None:
+            raise ValueError("use either runs_dir or archive, not both")
+        from ..hub import load_coreset
+
+        archive = Path(runs_dir)
+        data = load_coreset(dataset, with_ensemble_probs=False)
+    else:
+        archive = resolve_archive(archive)
+        data = load_coreset_from_archive(archive, dataset, verify=verify)
     rows = [predict_all_floor(data, dataset)]
     for model in models:
         for prompting in promptings:
-            rows.extend(score_cell(archive, data, dataset, model, prompting))
+            rows.extend(score_cell(
+                archive, data, dataset, model, prompting,
+                seeds=seeds, strict=runs_dir is not None))
     return rows
 
 
@@ -119,7 +138,18 @@ def main(argv=None):
 
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dataset", choices=DATASETS, action="append")
-    ap.add_argument("--no-verify", dest="verify", action="store_false")
+    source = ap.add_mutually_exclusive_group()
+    source.add_argument("--runs-dir", type=Path,
+                        help="fresh runner output; load released labels and weights")
+    source.add_argument("--archive", type=Path,
+                        help="original archive root; defaults to AMLC_ARCHIVE")
+    ap.add_argument("--models", nargs="+", default=list(LLM_MODELS),
+                    help="model directory names to score")
+    ap.add_argument("--promptings", nargs="+", choices=PROMPTINGS,
+                    default=["ICL-FS", "ICL-ZS"])
+    ap.add_argument("--seeds", nargs="+", type=int, default=list(SEEDS))
+    ap.add_argument("--no-verify", dest="verify", action="store_false",
+                    help="skip frozen-array verification in archive mode only")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args(argv)
 
@@ -128,12 +158,15 @@ def main(argv=None):
 
     rows = []
     for dataset in (args.dataset or list(DATASETS)):
-        rows.extend(score_dataset(dataset, verify=args.verify))
+        rows.extend(score_dataset(
+            dataset, archive=args.archive, models=args.models,
+            promptings=args.promptings, verify=args.verify,
+            runs_dir=args.runs_dir, seeds=args.seeds))
     df = pd.DataFrame(rows)
     df.to_csv(out_dir / "llm_ht_weighted.csv", index=False)
 
-    # The span the paper quotes, over the 14 (model, prompting) cells, on the
-    # seed-mean of each cell.
+    # Min/max over the requested (model, prompting) cells, after averaging
+    # each cell's per-seed metrics. This is not a confidence interval.
     cells = df[df.model != "predict-all-illicit"]
     per_cell = cells.groupby(["dataset", "model", "prompting"]).mean(numeric_only=True)
     summary = []
@@ -153,3 +186,7 @@ def main(argv=None):
     sdf.to_csv(out_dir / "llm_ht_weighted_summary.csv", index=False)
     print(sdf.to_string(index=False))
     return df, sdf
+
+
+if __name__ == "__main__":
+    main()
