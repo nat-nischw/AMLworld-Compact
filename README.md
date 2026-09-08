@@ -1,7 +1,7 @@
 # AMLworld-Compact
 
 [![CI](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml)
-[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-amlcompact--eval-yellow)](https://huggingface.co/datasets/natnitaract/amlcompact-eval)
+[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-AMLworldCompactEval-yellow)](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
 [![Code MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
 
 [Install](#install) · [Evaluation](#evaluation) · [Baselines](#baselines) ·
@@ -15,7 +15,7 @@ and an inverse-inclusion-probability weight.
 
 Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsampling
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
-is [`natnitaract/amlcompact-eval`](https://huggingface.co/datasets/natnitaract/amlcompact-eval).
+is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
 
 ## Install
 
@@ -41,6 +41,9 @@ python -m pip install -e ".[llm]"
 The following example loads the evaluation arrays and scores the released ensemble
 without training or generating new predictions. The first Hub load downloads the
 arrays; subsequent loads use the cache.
+
+The dataset is currently private. Set `HF_TOKEN` in your environment using a
+Hugging Face token with read access before loading it from the Hub.
 
 <!--quick-start-begin-->
 ```python
@@ -240,7 +243,7 @@ are available as `subset_*` columns in the same file.
 | Compact evaluation rows | 3,753 | 2,268 |
 | Illicit rows with a known typology | 791 | 174 |
 
-The [dataset card](https://huggingface.co/datasets/natnitaract/amlcompact-eval)
+The [dataset card](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
 describes all columns, feature arrays, weights, and checkpoint files. Graph texts
 use two-hop neighbourhoods with a cap of 50 neighbours per hop. The released data
 contains test rows; use separate data when training and tuning a new model.

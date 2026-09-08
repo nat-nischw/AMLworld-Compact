@@ -20,7 +20,7 @@
 # ── where things come from ───────────────────────────────────────────────
 sources:
   # The published evaluation set. Override: AMLC_DATASET
-  dataset_repo: natnitaract/amlcompact-eval
+  dataset_repo: natnitaract/AMLworldCompactEval
   # A local build of the coreset, used instead of downloading. Override: AMLC_CORESET_DIR
   coreset_dir: null
   # AMLworld itself, which is not redistributed. CDLA-Sharing-1.0, fetch under
