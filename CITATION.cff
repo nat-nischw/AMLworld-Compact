@@ -24,6 +24,5 @@ authors:
     given-names: Kunat
     affiliation: "SCB DataX, SCBX Group"
 year: 2026
-# Conference metadata is filled in at camera-ready.
-repository-code: "https://github.com/nat-nischw/AMLCompact"
+repository-code: "https://github.com/nat-nischw/AMLworld-Compact"
 url: "https://openreview.net/forum?id=VouFZFf8Ph"

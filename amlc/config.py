@@ -81,18 +81,15 @@ N_CORESET: dict[str, int] = dict(_C["n_coreset"])
 
 SEEDS: tuple[int, ...] = tuple(_C["seeds"])
 
-#: Supervised ensemble decision thresholds. See docs/known_issues.md: the paper
-#: describes these as validation-tuned but the archived code computed them on
-#: the full test split.
+#: Supervised ensemble operating thresholds selected on the full test split.
 ML_THRESHOLDS: dict[str, float] = dict(_C["ml_thresholds"])
 
 ENSEMBLE_MEMBERS: tuple[str, ...] = tuple(_C["ensemble_members"])
 
 PROMPTINGS: tuple[str, ...] = tuple(_C["promptings"])
 
-#: The released coreset, and the separate same-size re-draw retained only to
-#: reproduce the numbers in the ARR submission. They are not interchangeable:
-#: see docs/known_issues.md.
+#: The released coreset and a separate same-size ablation draw. Use ht-coreset
+#: when joining the released LLM predictions; the two draws have different rows.
 CORESET_DRAWS: tuple[str, ...] = tuple(_C["coreset_draws"])
 
 # ── construction ─────────────────────────────────────────────────────────

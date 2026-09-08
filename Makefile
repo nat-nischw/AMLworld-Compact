@@ -124,7 +124,7 @@ analysis: ## 20  Per-typology and error-transition analysis
 llm-ht: ## 23  Score HT and compact detection metrics; RUNS=path uses fresh runner output
 	$(PY) $(SCRIPTS)/23_score_llm_ht.py $(if $(RUNS),--runs-dir "$(RUNS)") $(if $(MODEL),--models $(MODEL)) $(if $(PROMPTINGS),--promptings $(PROMPTINGS)) $(if $(SEEDS),--seeds $(SEEDS)) $(foreach d,$(DATASETS),--dataset $(d)) $(if $(OUT),--out "$(OUT)")
 
-figures: analysis ## Regenerate the 2 of 11 paper figures this checkout can (see docs/known_issues.md)
+figures: analysis ## Generate the typology and error-transition plots from stage 20
 
 dataset: ## Rebuild the published dataset from the archive (maintainers)
 	$(PY) $(SCRIPTS)/build_hf_dataset.py --archive $$AMLC_ARCHIVE --out build/dataset

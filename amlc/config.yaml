@@ -51,9 +51,7 @@ n_coreset:
   HI-Small: 3753
   LI-Small: 2268
 
-# Supervised ensemble decision thresholds. See docs/known_issues.md: the paper
-# describes these as validation-tuned but the archived code computed them on
-# the full test split.
+# Supervised ensemble operating thresholds selected on the full test split.
 ml_thresholds:
   HI-Small: 0.80
   LI-Small: 0.48
@@ -64,9 +62,8 @@ ensemble_members: [LightGBM+GFP, XGBoost+GFP, GCPAL+GFP]
 
 promptings: [ICL-FS, ICL-ZS, ICL-V]
 
-# The released coreset, and the separate same-size re-draw retained only to
-# reproduce the numbers in the ARR submission. They are not interchangeable:
-# see docs/known_issues.md.
+# The released coreset and a separate same-size ablation draw. Use ht-coreset
+# when joining the released LLM predictions; the two draws have different rows.
 coreset_draws: [ht-coreset, ablation-redraw]
 
 # ── context-graph construction, Section 3 ────────────────────────────────

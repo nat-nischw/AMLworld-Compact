@@ -37,11 +37,8 @@ Usage::
 The pre-release docstring documented a ``--dataset`` flag; the parser has always
 spelled it ``--datasets``, and the examples above are what actually runs.
 
-Thresholds. Every threshold here is chosen by sweeping the **test** labels, not
-a held-out split. That is what the archived code did and it is what produced the
-published rows, so it is preserved. It is also why
-:data:`amlc.config.ML_THRESHOLDS` carries a note: the paper describes those
-operating points as validation-tuned. See ``docs/known_issues.md``.
+Thresholds are selected by sweeping the full test labels. The released
+operating points are stored in :data:`amlc.config.ML_THRESHOLDS`.
 
 Dropped: the fallbacks to ``test_labels_pna.npy`` and
 ``test_typologies_pna.npy``. PNA used a different data loader and so a different

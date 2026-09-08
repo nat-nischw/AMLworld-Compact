@@ -48,8 +48,7 @@ jobs:
       - name: Prompt templates reproduce the executed prompts
         run: python scripts/verify_prompt_templates.py
 
-      # The venue state changes on a known date and the title is written in
-      # five places. This fails the build if one of them is updated alone.
+      # Compare the README paper citation with the metadata in CITATION.cff.
       - name: Every copy of the citation agrees
         run: python scripts/check_citation.py
 

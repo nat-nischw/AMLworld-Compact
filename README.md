@@ -254,10 +254,9 @@ contains test rows; use separate data when training and tuning a new model.
 | `prompts/` | Task, demonstration, verification, and audit templates |
 | `data/` | Tuned hyperparameters and demonstration pools |
 | `results/` | Released metrics and analysis outputs |
-| `docs/` | Dataset-extension instructions, repository layout, and citation details |
 
-Run `make help` to list the available commands. See
-[`docs/another_split.md`](docs/another_split.md) for evaluating another split.
+Run `make help` to list the available commands. For local checks, run
+`make install-dev`, then `make test` and `make lint`.
 The released detailed reasoning audit uses the available seed-42 traces; task
 metrics use five inference seeds.
 
@@ -291,4 +290,18 @@ asset-specific terms.
 }
 ```
 
-The AMLworld citation is also provided in [`docs/citation.md`](docs/citation.md).
+Please also cite AMLworld, the source dataset:
+
+```bibtex
+@inproceedings{altman2023realistic,
+  title     = {Realistic Synthetic Financial Transactions for Anti-Money Laundering Models},
+  author    = {Altman, Erik and Blanu{\v{s}}a, Jovan and von Niederh{\"a}usern, Luc and
+               Egressy, B{\'e}ni and Anghel, Andreea and Atasu, Kubilay},
+  booktitle = {Advances in Neural Information Processing Systems 36,
+               Datasets and Benchmarks Track},
+  year      = {2023}
+}
+```
+
+Paper metadata is maintained in [CITATION.cff](CITATION.cff). Run
+`make check-citation` to check the README citation against that file.
