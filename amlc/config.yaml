@@ -51,14 +51,24 @@ n_coreset:
   HI-Small: 3753
   LI-Small: 2268
 
-# Supervised ensemble operating thresholds selected on the full test split.
+# Fixed evaluation operating points, inherited from the original construction
+# scorer. They were originally selected on full-test labels and are not
+# retuned after removing GCPAL from the primary evaluation ensemble.
 ml_thresholds:
   HI-Small: 0.80
   LI-Small: 0.48
 
 seeds: [42, 123, 456, 789, 1011]
 
-ensemble_members: [LightGBM+GFP, XGBoost+GFP, GCPAL+GFP]
+# Primary evaluation: both boosters were trained on the temporal training split.
+ensemble_members: [LightGBM+GFP, XGBoost+GFP]
+
+# Frozen construction provenance. Changing the evaluation ensemble must never
+# redraw the released subset or change its strata, probabilities, or HT weights.
+construction_members: [LightGBM+GFP, XGBoost+GFP, GCPAL+GFP]
+construction_thresholds:
+  HI-Small: 0.80
+  LI-Small: 0.48
 
 promptings: [ICL-FS, ICL-ZS, ICL-V]
 

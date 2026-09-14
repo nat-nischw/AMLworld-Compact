@@ -15,6 +15,7 @@ is what the build scripts produce before the dataset is published.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -77,8 +78,9 @@ def load_coreset(dataset: str = "HI-Small",
     """Load the released HT-Coreset for one split.
 
     Returns indices into the full temporal test split, HT weights, labels,
-    typologies and, unless turned off, the supervised ensemble probability per
-    row. The weights sum to the full split size; that is asserted here because
+    typologies and, unless turned off, the two-temporal-booster evaluation
+    probability per row. The frozen construction scores remain a separate file.
+    The weights sum to the full split size; that is asserted here because
     a coreset whose weights do not is not usable for weighted metrics.
     """
     d = coreset_dir(dataset)
@@ -107,8 +109,25 @@ def load_coreset(dataset: str = "HI-Small",
     }
     if with_ensemble_probs:
         p = d / "ensemble_probs_coreset.npy"
-        if p.exists():
-            out["ensemble_probs"] = out["ml_probs"] = np.load(p)
+        meta_path = d / "scoring_metadata.json"
+        if not p.is_file() or not meta_path.is_file():
+            raise FileNotFoundError(
+                f"{d}: evaluation probabilities and scoring_metadata.json are "
+                "required. Refresh the dataset to the two-booster evaluation "
+                "release, or pass with_ensemble_probs=False to load targets only.")
+        metadata = json.loads(meta_path.read_text())
+        evaluation = metadata.get("evaluation", {})
+        if (tuple(evaluation.get("members", [])) != config.ENSEMBLE_MEMBERS
+                or tuple(evaluation.get("seeds", [])) != config.SEEDS
+                or evaluation.get("threshold") != config.ML_THRESHOLDS[dataset]):
+            raise ValueError(f"{meta_path}: evaluation provenance does not match config")
+        probs = np.load(p, allow_pickle=False)
+        if probs.shape != out["labels"].shape or not np.isfinite(probs).all():
+            raise ValueError(f"{p}: invalid evaluation probability vector")
+        if np.any((probs < 0) | (probs > 1)):
+            raise ValueError(f"{p}: probabilities must lie in [0, 1]")
+        out["ensemble_probs"] = out["ml_probs"] = probs
+        out["scoring_metadata"] = metadata
     return out
 
 
@@ -119,11 +138,11 @@ def load_table(dataset: str = "HI-Small"):
 
 
 def load_ml_weights(dataset: str, member: str) -> Path:
-    """Download one supervised member's checkpoints and return the directory."""
+    """Download a member checkpoint, including historical construction scorers."""
     from huggingface_hub import snapshot_download
 
-    if member not in config.ENSEMBLE_MEMBERS:
-        raise ValueError(f"member must be one of {config.ENSEMBLE_MEMBERS}")
+    if member not in config.CONSTRUCTION_MEMBERS:
+        raise ValueError(f"member must be one of {config.CONSTRUCTION_MEMBERS}")
     root = snapshot_download(
         DATASET_REPO, repo_type="dataset",
         allow_patterns=[f"ml_baselines/weights/{dataset}/{member}/*"],

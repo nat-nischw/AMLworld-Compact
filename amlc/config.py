@@ -13,8 +13,8 @@ in ``audit/judges.py`` among them, now sit next to the split sizes they belong
 with. And the addresses, the dataset repo and the vLLM endpoint, can be pointed
 somewhere else without editing a file that ships inside the package.
 
-Every name this module exported before still exists and still holds the same
-value; ``tests/test_config.py`` pins that.
+Construction provenance and the primary evaluation ensemble have separate
+constants so changing an evaluator cannot alter the released sampling design.
 """
 
 from __future__ import annotations
@@ -81,10 +81,15 @@ N_CORESET: dict[str, int] = dict(_C["n_coreset"])
 
 SEEDS: tuple[int, ...] = tuple(_C["seeds"])
 
-#: Supervised ensemble operating thresholds selected on the full test split.
+#: Fixed evaluation thresholds, inherited without retuning from construction.
 ML_THRESHOLDS: dict[str, float] = dict(_C["ml_thresholds"])
 
+#: Primary evaluation ensemble; both members use temporal training splits.
 ENSEMBLE_MEMBERS: tuple[str, ...] = tuple(_C["ensemble_members"])
+
+#: Frozen historical scorer that selected the released targets and strata.
+CONSTRUCTION_MEMBERS: tuple[str, ...] = tuple(_C["construction_members"])
+CONSTRUCTION_THRESHOLDS: dict[str, float] = dict(_C["construction_thresholds"])
 
 PROMPTINGS: tuple[str, ...] = tuple(_C["promptings"])
 

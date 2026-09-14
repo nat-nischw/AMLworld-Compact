@@ -13,8 +13,9 @@ Usage:
     python scripts/17_run_doubt_triage.py                        # all cells, released draw
     python scripts/17_run_doubt_triage.py --dataset HI-Small
     python scripts/17_run_doubt_triage.py --strategy dt
-    # reproduce the ARR-submission numbers exactly:
-    python scripts/17_run_doubt_triage.py --draw ablation-redraw --no-verify --archived-weights
+
+The evaluation scorer uses the two temporal-trained boosters. The frozen
+construction draw and its repaired design weights are unchanged.
 
 Outputs ``dt_results.csv`` (per seed) and ``dt_summary.csv`` (mean over seeds).
 """
@@ -29,6 +30,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from amlc.config import CORESET_DRAWS, PROMPTINGS
 from amlc.config import DATASETS, SEEDS
+from amlc.paths import results
 from amlc.config import LLM_MODELS as CONFIG_LLM_MODELS
 from amlc.triage.doubt_triage import (
     STRATEGIES,
@@ -101,6 +103,7 @@ def run_cell(archive, data, dataset, model, prompting, strategy, confidence_delt
             "confidence_delta": confidence_delta if strategy in ("confidence", "union") else np.nan,
             "seed": seed,
             "ml_threshold": data["ml_threshold"],
+            "evaluation_members": ";".join(data["evaluation_members"]),
             "ml_f1": ml_f1,
             "ml_precision": ml_p,
             "ml_recall": ml_r,
@@ -151,7 +154,7 @@ def main():
     args = ap.parse_args()
 
     archive = resolve_archive(args.archive)
-    out_dir = args.out or (archive / "triage")
+    out_dir = args.out or (results() / "triage")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     datasets = [args.dataset] if args.dataset else DATASETS
@@ -194,6 +197,8 @@ def main():
 
     agg = df.groupby(["draw", "dataset", "llm_model", "prompting", "strategy"]).agg(
         n_seeds=("seed", "count"),
+        evaluation_members=("evaluation_members", "first"),
+        ml_threshold=("ml_threshold", "first"),
         ml_f1=("ml_f1", "first"),
         dt_f1_mean=("dt_f1", "mean"), dt_f1_std=("dt_f1", "std"),
         dt_p_mean=("dt_precision", "mean"), dt_p_std=("dt_precision", "std"),

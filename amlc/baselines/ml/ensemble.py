@@ -1,69 +1,66 @@
-"""Combine the three supervised members into the ensemble the LLMs are measured against.
+"""Primary two-booster evaluation and optional historical ensemble comparisons.
 
-Reads the per-seed test probabilities each member wrote into the archived run
-directory, combines them three ways, and writes the aggregate rows into
-``results/summary_all.csv`` and ``results/summary_all.json`` beside the
-per-model and LLM rows.
+``load_evaluation_probabilities`` averages LightGBM+GFP and XGBoost+GFP over
+all requested seeds, requiring a complete set of predictions. The released
+operating points remain fixed at 0.80 / 0.48; they were inherited from the
+original construction scorer and are not retuned for these two members.
 
-    hard majority vote      threshold each member at its own optimum, take >= 2
-    soft average            mean the probabilities, then threshold
-    weighted soft average   mean weighted by each member's oracle F1
-
-Soft average is the ensemble behind the paper's supervised detection row. Per
-seed, over the three members, it gives the 70.8 +/- 0.1 and 29.8 +/- 0.2 rows in
-``results/summary_all.csv``. The 70.9 and 29.6 figures quoted for the full
-temporal split come from the same rule applied one level up: the mean over all
-three members and all five seeds, which is the ``ens_probs_<dataset>.npy`` the
-coreset stage stratifies on, thresholded at the operating points in
-:data:`amlc.config.ML_THRESHOLDS`. Both are the soft vote; they differ in
-whether the seed average happens before or after scoring.
-
-A two-member boosted-tree-only ensemble is also scored, because its rows are in
-the published CSV.
-
-Reads
-    ``test_labels.npy``, ``test_typologies.npy`` and, per member and seed,
-    ``seed_<seed>.npy`` and ``seed_<seed>_typ.npy`` from the archive.
-Writes
-    ``results/summary_all.csv`` and ``results/summary_all.json``, replacing any
-    row with the same method and dataset and leaving every other row alone.
-
-Usage::
-
-    python -m amlc.baselines.ml.ensemble --datasets HI-Small
-    python -m amlc.baselines.ml.ensemble --datasets HI-Small LI-Small
-    python -m amlc.baselines.ml.ensemble --members LightGBM+GFP XGBoost+GFP
-
-The pre-release docstring documented a ``--dataset`` flag; the parser has always
-spelled it ``--datasets``, and the examples above are what actually runs.
-
-Thresholds are selected by sweeping the full test labels. The released
-operating points are stored in :data:`amlc.config.ML_THRESHOLDS`.
-
-Dropped: the fallbacks to ``test_labels_pna.npy`` and
-``test_typologies_pna.npy``. PNA used a different data loader and so a different
-test set, and it appears in no table in the paper.
+The archived ``ens_probs_<dataset>.npy`` is a separate, frozen three-scorer
+construction array. It determines sampling strata and must never be overwritten
+with the primary evaluation scores. The exploratory vote/oracle comparisons
+below remain available through ``--exploratory`` for historical reproduction.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-from collections import Counter
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 
 from ... import paths
-from ...config import DATASETS, ENSEMBLE_MEMBERS, SEEDS
+from ...config import DATASETS, ENSEMBLE_MEMBERS, ML_THRESHOLDS, SEEDS
 from ...archive import legacy_path, member_dir
-from ..metrics import find_optimal_threshold
 
 #: Written into cells the supervised path does not produce. This exact
 #: character, U+2014, is in the published summary_all.csv, so it is data rather
 #: than prose and is spelled as an escape to keep it out of the source text.
 EMPTY_CELL = "\u2014"
+
+
+def load_evaluation_probabilities(
+    archive: Path, dataset: str, seeds: Sequence[int] = SEEDS,
+) -> np.ndarray:
+    """Full-test mean over both temporal boosters and every requested seed.
+
+    Missing, malformed, or out-of-range arrays are errors. Silently dropping a
+    model or seed would change the evaluator and invalidate published metrics.
+    No archive files are modified, and construction scores are never read.
+    """
+    seeds = tuple(seeds)
+    if not seeds or len(set(seeds)) != len(seeds):
+        raise ValueError("seeds must be nonempty and contain no duplicates")
+    labels = load_labels(archive, dataset)
+    arrays = []
+    for member in ENSEMBLE_MEMBERS:
+        for seed in seeds:
+            path = legacy_path(archive, "member_probs", dataset,
+                               member=member_dir(member), seed=seed)
+            if not path.is_file():
+                raise FileNotFoundError(
+                    f"Incomplete evaluation ensemble: missing {member}, "
+                    f"seed {seed}, at {path}")
+            probs = np.load(path, allow_pickle=False)
+            if probs.shape != labels.shape or probs.ndim != 1:
+                raise ValueError(
+                    f"{path}: probability shape {probs.shape} does not match "
+                    f"the full-test label vector {labels.shape}")
+            if not np.isfinite(probs).all() or np.any((probs < 0) | (probs > 1)):
+                raise ValueError(f"{path}: probabilities must be finite and in [0, 1]")
+            arrays.append(probs)
+    return np.mean(np.stack(arrays), axis=0)
 
 
 def load_probs(archive: Path, dataset: str, member: str,
@@ -122,14 +119,18 @@ def _score_ensemble(labels: np.ndarray, ensemble_preds: np.ndarray) -> dict:
 
 
 def _score_typology(gt_typ: np.ndarray, ensemble_preds: np.ndarray,
-                    member_typ_preds: List[np.ndarray]) -> dict:
+                    member_typ_preds: List[np.ndarray],
+                    tie_rule: str = "lowest") -> dict:
     """Typology metrics over the edges the ensemble flagged and truth types.
 
-    The typology prediction is a plurality vote across members. Ties go to
-    whichever class ``Counter.most_common`` reports first, which is insertion
-    order, which is member order.
+    The primary evaluator resolves ties to the lowest canonical class index,
+    matching triage. Historical exploratory scores use ``first_member`` to
+    reproduce the original Counter insertion-order rule.
     """
     from sklearn.metrics import accuracy_score, f1_score
+
+    if tie_rule not in ("lowest", "first_member"):
+        raise ValueError(f"unknown typology tie rule {tie_rule!r}")
 
     ill_mask = ensemble_preds == 1
     gt_mask = gt_typ >= 0
@@ -142,8 +143,11 @@ def _score_typology(gt_typ: np.ndarray, ensemble_preds: np.ndarray,
     n_eval = eval_mask.sum()
     typ_votes = np.zeros(n_eval, dtype=int)
     for i in range(n_eval):
-        counter = Counter(typ_stack[:, i].tolist())
-        typ_votes[i] = counter.most_common(1)[0][0]
+        votes = typ_stack[:, i]
+        classes, counts = np.unique(votes, return_counts=True)
+        winners = classes[counts == counts.max()]
+        typ_votes[i] = (winners[0] if tie_rule == "lowest" else
+                        next(vote for vote in votes if vote in winners))
 
     gt = gt_typ[eval_mask]
     return {
@@ -152,9 +156,89 @@ def _score_typology(gt_typ: np.ndarray, ensemble_preds: np.ndarray,
     }
 
 
+def score_evaluation_ensemble(
+    archive: Path, dataset: str, seeds: Sequence[int] = SEEDS,
+) -> List[dict]:
+    """Score the two temporal boosters at the inherited fixed threshold.
+
+    Report both the mean/std of per-seed metrics and the pooled scorer used
+    for the compact-set comparisons. Typology follows the existing conditional
+    metric, restricted to correctly detected illicit edges with known types.
+    """
+    seeds = tuple(seeds)
+    labels = load_labels(archive, dataset)
+    pooled = load_evaluation_probabilities(archive, dataset, seeds)
+    threshold = ML_THRESHOLDS[dataset]
+    gt_typ = load_typologies(archive, dataset)
+    typed = {member: load_typ_preds(archive, dataset, member, list(seeds))
+             for member in ENSEMBLE_MEMBERS}
+    has_typ = gt_typ is not None and all(
+        seed in typed[member] for member in ENSEMBLE_MEMBERS for seed in seeds)
+    if any(typed.values()) and not has_typ:
+        raise ValueError(f"{dataset}: incomplete ensemble typology predictions")
+    if has_typ and any(arr.shape != labels.shape
+                       for by_seed in typed.values() for arr in by_seed.values()):
+        raise ValueError(f"{dataset}: typology shapes do not match full-test labels")
+
+    per_seed = []
+    for seed in seeds:
+        probs = load_evaluation_probabilities(archive, dataset, [seed])
+        preds = (probs >= threshold).astype(int)
+        metrics = _score_ensemble(labels, preds)
+        if has_typ:
+            metrics.update(_score_typology(
+                gt_typ, preds, [typed[member][seed] for member in ENSEMBLE_MEMBERS]))
+        per_seed.append(metrics)
+
+    pooled_preds = (pooled >= threshold).astype(int)
+    pooled_metrics = _score_ensemble(labels, pooled_preds)
+    if has_typ:
+        # Match triage: a mode over seeds per member, then a mode over members.
+        from scipy.stats import mode
+        eval_mask = (pooled_preds == 1) & (gt_typ >= 0)
+        # Only true-positive typed edges enter this conditional metric. Avoid
+        # computing millions of modes for edges the metric will discard.
+        if eval_mask.any():
+            member_modes = [mode(np.stack([typed[m][seed][eval_mask] for seed in seeds]),
+                                 axis=0, keepdims=False).mode
+                            for m in ENSEMBLE_MEMBERS]
+            pooled_metrics.update(_score_typology(
+                gt_typ[eval_mask], pooled_preds[eval_mask], member_modes))
+        else:
+            pooled_metrics.update(typ_f1=0.0, typ_acc=0.0)
+
+    def row(method, metrics, n_seeds):
+        result = dict(method=method, model="non-llm", dataset=dataset,
+                      n_seeds=n_seeds, threshold=threshold,
+                      ensemble_members=";".join(ENSEMBLE_MEMBERS),
+                      score_aggregation=("mean/std across seeds" if len(metrics) > 1
+                                         else "score of pooled probabilities"))
+        for name, metric in [("detection_f1", "f1"),
+                             ("detection_precision", "prec"),
+                             ("detection_recall", "rec"),
+                             ("detection_accuracy", "acc"),
+                             ("typology_macro_f1", "typ_f1"),
+                             ("typology_accuracy", "typ_acc")]:
+            if metric not in metrics[0]:
+                result[name] = EMPTY_CELL
+            elif len(metrics) > 1:
+                result[name] = _fmt([m[metric] for m in metrics])
+            else:
+                result[name] = f"{metrics[0][metric] * 100:.1f}"
+        for name in ("verifier_pass_rate", "evidence_precision", "evidence_recall",
+                     "evidence_f1", "unsupported_claim_rate"):
+            result[name] = EMPTY_CELL
+        return result
+
+    return [row("Ensemble-GBT (Fixed Threshold)", per_seed, len(seeds)),
+            row("Ensemble-GBT (Pooled, Fixed Threshold)", [pooled_metrics], len(seeds))]
+
+
 def ensemble_score(dataset: str, members: List[str], seeds: List[int],
                    archive: Path) -> List[dict]:
     """Score every combination rule for one dataset. Returns summary rows."""
+    from ..metrics import find_optimal_threshold
+
     print(f"\n{'='*60}")
     print(f"  Ensemble scoring --- {dataset}")
     print(f"  Members: {members}")
@@ -299,7 +383,8 @@ def ensemble_score(dataset: str, members: List[str], seeds: List[int],
                 if len(typ_members) >= 2:
                     typ_list = [all_member_typ[m][seed] for m in typ_members]
                     metrics.update(
-                        _score_typology(test_gt_typ, ensemble_preds, typ_list))
+                        _score_typology(test_gt_typ, ensemble_preds, typ_list,
+                                        tie_rule="first_member"))
             seed_metrics.append(metrics)
 
         f1s = [m["f1"] for m in seed_metrics]
@@ -372,8 +457,10 @@ def write_summary(rows: List[dict], results_dir: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Soft and hard vote over the supervised ensemble members")
+        description="Score the temporal two-booster ensemble at fixed thresholds")
     parser.add_argument("--datasets", nargs="+", default=list(DATASETS))
+    parser.add_argument("--exploratory", action="store_true",
+                        help="Historical vote/oracle comparisons; sweeps test thresholds")
     parser.add_argument("--members", nargs="+", default=list(ENSEMBLE_MEMBERS),
                         help="Paper member names; archive resolves each to "
                              "its archive directory")
@@ -393,7 +480,12 @@ def main():
 
     all_rows = []
     for dataset in args.datasets:
-        all_rows.extend(ensemble_score(dataset, args.members, args.seeds, archive))
+        if args.exploratory:
+            all_rows.extend(ensemble_score(dataset, args.members, args.seeds, archive))
+        else:
+            if tuple(args.members) != ENSEMBLE_MEMBERS:
+                parser.error("custom --members require --exploratory")
+            all_rows.extend(score_evaluation_ensemble(archive, dataset, args.seeds))
 
     if all_rows:
         write_summary(all_rows, results_dir)

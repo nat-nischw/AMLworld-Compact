@@ -182,24 +182,28 @@ across inference seeds does not measure variation across newly sampled coresets.
 
 ### Supervised models
 
-GFP means **Graph Feature Preprocessor**. The ensemble averages the three members'
-probabilities and uses thresholds 0.80 for HI-Small and 0.48 for LI-Small.
+GFP means **Graph Feature Preprocessor**. The primary ensemble averages
+LightGBM and XGBoost probabilities across five seeds. It retains thresholds
+0.80 for HI-Small and 0.48 for LI-Small from the original construction study;
+these operating points were selected on the full test split.
 
 | Full baseline name | Loader ID |
 |---|---|
 | LightGBM + Graph Feature Preprocessor | `LightGBM+GFP` |
 | XGBoost + Graph Feature Preprocessor | `XGBoost+GFP` |
-| Graph Contrastive Pre-training for Anti-money Laundering + Graph Feature Preprocessor | `GCPAL+GFP` |
 
 The released ensemble's HT-weighted P / R / F1 (%) is
-**93.4555 / 57.0743 / 70.8685** on HI-Small and
-**73.2984 / 18.5185 / 29.5671** on LI-Small. Its full-split and coreset values
+**84.8449 / 56.8345 / 68.0708** on HI-Small and
+**60.1695 / 18.7831 / 28.6290** on LI-Small. Its full-split and coreset values
 coincide because all edges contributing to its TP, FP, and FN counts are retained
 with weight one. This exact equality does not extend to arbitrary predictors.
 
-GCPAL was fine-tuned with a random split that overlaps roughly 60% of the temporal
-test edges. Interpret its scores and the resulting ensemble comparison with that
-overlap in mind. The released thresholds are test-selected operating points.
+The frozen sampling design originally used a third scorer, **Graph Contrastive
+Pre-training for Anti-money Laundering + GFP (GCPAL+GFP)**. Its random fine-tuning
+split overlaps the temporal test set. We preserve that construction history and
+its original inclusion weights, while the primary evaluation ensemble uses only
+the two temporally trained boosters. GCPAL checkpoints remain available as
+construction assets.
 
 Checkpoints and full-test probabilities are available through `hub.load_ml_weights()`
 and `hub.load_test_probs()`. Use `d["subset_idx"]` to align full-test predictions

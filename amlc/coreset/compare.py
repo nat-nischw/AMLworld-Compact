@@ -59,7 +59,7 @@ from typing import Optional, Sequence
 import numpy as np
 
 from .. import paths
-from ..config import DATASETS, ENSEMBLE_MEMBERS, SEEDS
+from ..config import DATASETS, CONSTRUCTION_MEMBERS, SEEDS
 from .common import (
     EVALUATION_THRESHOLD_GRID,
     ensemble_soft_avg,
@@ -159,7 +159,7 @@ def _print_row(r: dict) -> None:
 
 
 def run(datasets: Sequence[str] = DATASETS,
-        members: Sequence[str] = ENSEMBLE_MEMBERS,
+        members: Sequence[str] = CONSTRUCTION_MEMBERS,
         seeds: Sequence[int] = SEEDS,
         naive_subsets: Optional[dict] = None,
         archive: Optional[Path] = None,
@@ -349,7 +349,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="Per-model comparison of the Naive Coreset and the HT-Coreset")
     ap.add_argument("--datasets", nargs="+", default=list(DATASETS))
-    ap.add_argument("--members", nargs="+", default=list(ENSEMBLE_MEMBERS))
+    ap.add_argument("--members", nargs="+", default=list(CONSTRUCTION_MEMBERS))
     ap.add_argument("--seeds", nargs="+", type=int, default=list(SEEDS))
     ap.add_argument("--naive-subset", action="append", metavar="DATASET=PATH",
                     help="Naive Coreset index file for one dataset; repeatable. "

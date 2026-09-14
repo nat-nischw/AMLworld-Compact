@@ -90,7 +90,8 @@ def canonical_strategy(strategy: str) -> str:
 def legacy_path(archive: Path, kind: str, dataset: str, **kw) -> Path:
     """Build a path into the archived experiment tree.
 
-    ``kind`` is one of ``subset``, ``weights``, ``ensemble_probs``,
+    ``kind`` is one of ``subset``, ``weights``, ``construction_probs``,
+    ``ensemble_probs`` (legacy alias for construction scores),
     ``test_labels``, ``test_typologies``, ``member_probs``, ``member_typology``,
     ``serialised``, ``predictions``.
     """
@@ -102,7 +103,9 @@ def legacy_path(archive: Path, kind: str, dataset: str, **kw) -> Path:
         return es / f"subset_{dataset}_{draw_stem(kw['draw'])}.npy"
     if kind == "weights":
         return es / f"weights_{dataset}_{draw_stem(kw['draw'])}.npy"
-    if kind == "ensemble_probs":
+    if kind in ("construction_probs", "ensemble_probs"):
+        # Frozen three-scorer construction array. Never replace with evaluation
+        # scores: the released subset and its weights depend on these values.
         return es / f"ens_probs_{dataset}.npy"
     if kind == "test_labels":
         return tp / "test_labels.npy"

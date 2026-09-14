@@ -66,7 +66,7 @@ train-gcpal: ## 04  The GCPAL graph baseline
 infer-gcpal: ## 05  Re-infer GCPAL on the temporal split
 	$(PY) $(SCRIPTS)/05_infer_gcpal_temporal.py --datasets $(DATASETS)
 
-ensemble: ## 06  Soft-vote the three members
+ensemble: ## 06  Score the two temporal boosters at fixed thresholds
 	$(PY) $(SCRIPTS)/06_score_ensemble.py --datasets $(DATASETS)
 
 # ── stages 07 to 12: the coreset and its prompts ───────────────────────

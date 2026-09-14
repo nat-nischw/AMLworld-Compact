@@ -11,8 +11,9 @@ supervised-baseline artefacts that go with it.
     ml_baselines/weights/           LightGBM and XGBoost boosters, per seed
     ml_baselines/test_probs/        full-test-split probabilities, 3 members
 
-Weights come from ``data/coreset/<dataset>/ht_weights.npy`` in this repo, never
-from the archived column, which double-counts the LI-Small benign population.
+Weights are repaired from the frozen construction scorer and original draw,
+not recomputed with the primary evaluation ensemble. The archived LI-Small
+column double-counts the benign population.
 The build refuses to write unless they sum to the full test-split size.
 """
 
@@ -31,7 +32,9 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 from amlc.case_ids import case_id, retag
 from amlc.coreset.ht_weights import repair_archived_weights
-from amlc.config import DATASETS, ENSEMBLE_MEMBERS, N_TEST_FULL, SEEDS
+from amlc.config import (CONSTRUCTION_MEMBERS, CONSTRUCTION_THRESHOLDS,
+                         DATASETS, ENSEMBLE_MEMBERS, ML_THRESHOLDS, N_TEST_FULL, SEEDS)
+from amlc.baselines.ml.ensemble import load_evaluation_probabilities
 from amlc.archive import (
     SERIALISED_DIR, legacy_path, member_dir, member_weights_dir,
 )
@@ -39,14 +42,14 @@ from amlc.typology import TYPOLOGY_TO_IDX
 
 
 
-# Only the members the paper reports. PNA appears in no table and is not shipped.
+# Keep both temporal evaluation members and all historical construction assets.
 #
 # The two boosters keep their weights under saved_models/. GCPAL does not: the
 # reported member GCPAL_knn_temporal is not separately trained, it is the
 # GCPAL_knn checkpoints re-inferred on the temporal split by
 # gcpal_infer_temporal.py. So its weights live under models/<ds>/GCPAL_knn/ and
 # its probabilities under test_probs/<ds>/GCPAL_knn_temporal/.
-ML_MEMBERS = {m: member_dir(m) for m in ENSEMBLE_MEMBERS}
+ML_MEMBERS = {m: member_dir(m) for m in CONSTRUCTION_MEMBERS}
 
 #: paper name -> (directory under outputs/, subdirectory holding the weights)
 ML_WEIGHT_SOURCE = {m: member_weights_dir(m) for m in ML_MEMBERS}
@@ -60,6 +63,30 @@ SHARD_ROWS = 100_000
 # 150 MB to render the first screen. At 100 rows a group is 7.8 MB, the first
 # 100 rows read 7.7x faster (138 ms -> 18 ms), and the file grows 1.0%.
 ROW_GROUP_ROWS = 100
+
+
+def scoring_metadata(dataset: str) -> dict:
+    """Explicitly separate the frozen sampling design from its evaluator."""
+    return {
+        "dataset": dataset,
+        "evaluation": {
+            "file": "ensemble_probs_coreset.npy",
+            "members": list(ENSEMBLE_MEMBERS), "seeds": list(SEEDS),
+            "aggregation": "arithmetic mean over members and seeds",
+            "threshold": ML_THRESHOLDS[dataset],
+            "threshold_provenance": "inherited from original construction; not retuned",
+            "training_split": "temporal 60/20/20",
+        },
+        "construction": {
+            "file": "construction_probs_coreset.npy",
+            "members": list(CONSTRUCTION_MEMBERS), "seeds": list(SEEDS),
+            "threshold": CONSTRUCTION_THRESHOLDS[dataset],
+            "frozen": True,
+            "note": "GCPAL used random-split fine-tuning and temporal inference; "
+                    "these historical scores determine the existing strata, "
+                    "targets, and HT weights only.",
+        },
+    }
 
 
 def build_split(archive: Path, dataset: str, out: Path) -> dict:
@@ -162,20 +189,17 @@ def build_split(archive: Path, dataset: str, out: Path) -> dict:
             row_group_size=ROW_GROUP_ROWS,
         )
 
-    # The ensemble probability per row, so the headline supervised number can
-    # be reproduced without pulling the 458 MB of full-split probabilities.
-    probs = [
-        np.load(legacy_path(archive, "member_probs", dataset,
-                            member=member_dir(m), seed=seed))[idx]
-        for m in ENSEMBLE_MEMBERS for seed in SEEDS
-        if legacy_path(archive, "member_probs", dataset,
-                       member=member_dir(m), seed=seed).exists()
-    ]
-    ensemble = np.mean(probs, axis=0)
+    # Evaluation scores can change without altering the historical sampling
+    # design. A complete two-member x five-seed mean is required.
+    ensemble = load_evaluation_probabilities(archive, dataset)[idx]
+    construction = np.load(legacy_path(archive, "construction_probs", dataset))[idx]
 
     extras = out / "extras" / dataset
     extras.mkdir(parents=True, exist_ok=True)
     np.save(extras / "ensemble_probs_coreset.npy", ensemble)
+    np.save(extras / "construction_probs_coreset.npy", construction)
+    metadata = scoring_metadata(dataset)
+    (extras / "scoring_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
     np.save(extras / "ht_subset_indices.npy", idx)
     np.save(extras / "ht_weights.npy", weights)
     np.save(extras / "labels.npy", labels)

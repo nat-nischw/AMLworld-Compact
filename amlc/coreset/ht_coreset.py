@@ -2,8 +2,9 @@
 
 Stage 1 keeps every illicit edge, so recall is exact. Stage 2 samples benign
 edges from four strata (hard negatives, then difficulty terciles over the rest).
-Stage 3 attaches Horvitz-Thompson weights, so precision, recall and F1 computed
-on the subset are unbiased estimators of the full-split values.
+Stage 3 attaches Horvitz-Thompson weights, giving unbiased full-split confusion
+count estimates for fixed predictions and known positive inclusion probabilities.
+Precision and F1 are ratio estimates and can have finite-sample bias.
 
 This module drives that construction. It sweeps benign budgets on a geometric
 grid, evaluates each budget over ``k`` random draws, reports HT-weighted and
@@ -58,7 +59,7 @@ from .. import paths
 from ..config import (
     BENIGN_MULTIPLIER,
     DATASETS,
-    ENSEMBLE_MEMBERS,
+    CONSTRUCTION_MEMBERS,
     HARD_NEG_RATIO,
     HARD_NEG_THRESHOLD_FRAC,
     SEEDS,
@@ -338,7 +339,7 @@ def save_comparison_csv(path: Path, dataset: str, n_full: int,
 # ─────────────────────────────────────────────────────────────────────────
 
 def build_ht_coreset(dataset: str, out_dir: Path,
-                     members: Sequence[str] = ENSEMBLE_MEMBERS,
+                     members: Sequence[str] = CONSTRUCTION_MEMBERS,
                      seeds: Sequence[int] = SEEDS,
                      archive: Optional[Path] = None,
                      seed_rng: int = 0,
@@ -615,7 +616,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="Build the HT-Coreset and sweep the benign budget")
     ap.add_argument("--datasets", nargs="+", default=list(DATASETS))
-    ap.add_argument("--members", nargs="+", default=list(ENSEMBLE_MEMBERS),
+    ap.add_argument("--members", nargs="+", default=list(CONSTRUCTION_MEMBERS),
                     help="ensemble members, by their paper names")
     ap.add_argument("--seeds", nargs="+", type=int, default=list(SEEDS))
     ap.add_argument("--archive", type=Path, default=None,

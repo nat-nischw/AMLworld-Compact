@@ -23,19 +23,29 @@ import pandas as pd
 from sklearn.metrics import f1_score
 
 from .. import archive, config, paths
+from ..baselines.ml.ensemble import load_evaluation_probabilities
 from ..case_ids import CASE_ID_WIDTH, LEGACY_CASE_ID_PREFIX, case_id
-from ..config import DATASETS, LLM_MODELS as CONFIG_LLM_MODELS
-from ..config import ML_THRESHOLDS as THRESHOLDS, N_TEST_FULL
+from ..config import DATASETS, N_TEST_FULL
+from ..config import LLM_MODELS as CONFIG_LLM_MODELS
+from ..config import ML_THRESHOLDS as THRESHOLDS
 from ..coreset.ht_weights import repair_archived_weights
 from ..figures._paper_style import (
-    COLORS, FIG_TEXT, FIG_TEXT_TALL, LLM_PALETTE, TYPOLOGY_PALETTE,
-    apply_style, short_model,
+    COLORS,
+    FIG_TEXT,
+    FIG_TEXT_TALL,
+    LLM_PALETTE,
+    TYPOLOGY_PALETTE,
+    apply_style,
+    short_model,
 )
+
 # The typology encoding lives in amlc.typology. The permutation that used to be
 # hardcoded in this module agreed with the ground-truth string column on 0.00%
 # of typed rows; see that module for the evidence.
 from ..typology import (
     TYPOLOGY_CLASSES as _CANONICAL_TYPOLOGY_CLASSES,
+)
+from ..typology import (
     TYPOLOGY_INT_MAP as _CANONICAL_TYPOLOGY_MAP,
 )
 
@@ -188,10 +198,9 @@ if set(LLM_MODELS) != set(CONFIG_LLM_MODELS):
     )
 LLM_METHOD = archive.prompting_dir("ICL-FS")
 
-# The "Ensemble (Soft)" reference: two GFP-feature gradient-boosted trees plus
-# the kNN-temporal GCPAL GNN. Their soft average reproduces Table 4's F1 70.8
-# and TF1 72.3 on HI-Small. archive maps each paper name to its archived
-# directory name.
+# The evaluation reference averages the two GFP-feature boosted trees and all
+# five seeds. The original three-member construction scores remain attached to
+# the frozen coreset design; they do not supply the predictions compared here.
 ENSEMBLE_MEMBERS    = [archive.member_dir(m) for m in config.ENSEMBLE_MEMBERS]
 ML_BASELINES_EXTRA  = []
 ML_MODELS           = ENSEMBLE_MEMBERS + ML_BASELINES_EXTRA
@@ -200,8 +209,7 @@ SEEDS = list(config.SEEDS)
 # Fallback for a dataset with no tuned operating point. Both evaluated splits
 # have one in THRESHOLDS, so this is only reached by a caller that adds a third.
 # It is deliberately not 0.80 or 0.48: at a 0.05-0.12% illicit rate a threshold
-# tuned for one split is not a sensible default for another. Scoring HI-Small at
-# 0.5 gives TP-conditional macro-F1 71.6 against the paper's 72.3.
+# tuned for one split is not a sensible default for another.
 THRESHOLD  = 0.5
 
 
@@ -257,7 +265,14 @@ def load_coreset_subset(dataset):
 # 2. Load ML predictions (ensemble over 5 seeds)
 # ══════════════════════════════════════════════════════════════════════
 def load_ml_predictions(dataset, v2_indices):
-    """Load ML predictions on HT-Coreset, ensemble across seeds."""
+    """Load all evaluation members/seeds on the frozen coreset.
+
+    Typology uses the mode across seeds within each member, then the mode
+    across members. Ties resolve to the lowest canonical typology index,
+    preserving the existing diagnostic and triage convention.
+    """
+    from scipy.stats import mode
+
     results = {}
     typ_results = {}
     for model in ML_MODELS:
@@ -266,34 +281,25 @@ def load_ml_predictions(dataset, v2_indices):
         for seed in SEEDS:
             p = _archive_root() / "outputs" / "test_probs" / dataset / model / f"seed_{seed}.npy"
             pt = _archive_root() / "outputs" / "test_probs" / dataset / model / f"seed_{seed}_typ.npy"
-            if p.exists():
-                probs = np.load(p)
-                probs_list.append(probs[v2_indices])
-            if pt.exists():
-                typ = np.load(pt)
-                typ_list.append(typ[v2_indices])
-        if probs_list:
-            avg_probs = np.mean(probs_list, axis=0)
-            results[model] = avg_probs
-        if typ_list:
-            # Majority vote across seeds for typology
-            typ_stack = np.stack(typ_list, axis=0)  # (n_seeds, n_v2)
-            from scipy.stats import mode
-            maj, _ = mode(typ_stack, axis=0, keepdims=False)
-            typ_results[model] = maj
+            probs = np.load(p)
+            typ = np.load(pt)
+            expected_shape = (N_TEST_FULL[dataset],)
+            if probs.shape != expected_shape or typ.shape != expected_shape:
+                raise ValueError(f"{dataset}/{model}/seed_{seed}: wrong full-test shape")
+            if not np.isfinite(probs).all() or np.any((probs < 0) | (probs > 1)):
+                raise ValueError(f"{p}: invalid probability values")
+            if not np.isin(typ, np.arange(len(TYPOLOGY_CLASSES))).all():
+                raise ValueError(f"{pt}: invalid canonical typology indices")
+            probs_list.append(probs[v2_indices])
+            typ_list.append(typ[v2_indices])
+        results[model] = np.mean(probs_list, axis=0)
+        typ_results[model] = mode(np.stack(typ_list), axis=0, keepdims=False).mode
 
-    # Soft ensemble — average ONLY ENSEMBLE_MEMBERS (LightGBM+GFP, XGBoost+GFP)
-    # to match the paper's Table 4 numbers; GCPAL is held out as a standalone
-    # baseline.
-    member_probs = [results[m] for m in ENSEMBLE_MEMBERS if m in results]
-    if member_probs:
-        results["Ensemble (Soft)"] = np.mean(member_probs, axis=0)
-    member_typ = [typ_results[m] for m in ENSEMBLE_MEMBERS if m in typ_results]
-    if member_typ:
-        from scipy.stats import mode
-        typ_stack = np.stack(member_typ, axis=0)
-        maj, _ = mode(typ_stack, axis=0, keepdims=False)
-        typ_results["Ensemble (Soft)"] = maj
+    results["Ensemble (Soft)"] = load_evaluation_probabilities(
+        paths.archive(), dataset, seeds=SEEDS)[v2_indices]
+    member_typ = [typ_results[m] for m in ENSEMBLE_MEMBERS]
+    typ_results["Ensemble (Soft)"] = mode(
+        np.stack(member_typ), axis=0, keepdims=False).mode
 
     return results, typ_results
 
@@ -302,14 +308,12 @@ def load_ml_predictions(dataset, v2_indices):
 # 3. Load LLM predictions
 # ══════════════════════════════════════════════════════════════════════
 def load_llm_predictions(dataset, n_v2):
-    """Load LLM predictions from JSON seed files."""
+    """Load the available seed-42 traces used for the diagnostic analysis."""
     results = {}
     for model in LLM_MODELS:
         preds_per_seed = []
-        for seed in SEEDS:
+        for seed in [42]:
             p = _archive_root() / "outputs" / model / LLM_METHOD / dataset / f"seed_{seed}.json"
-            if not p.exists():
-                continue
             with open(p) as f:
                 data = json.load(f)
 
@@ -317,6 +321,8 @@ def load_llm_predictions(dataset, n_v2):
             pred_map = {}
             for pred in data.get("predictions", []):
                 cid = pred.get("case_id", "")
+                if cid in pred_map:
+                    raise ValueError(f"{p}: duplicate case_id {cid!r}")
                 # Patched typology extraction: GPT-OSS emits Unicode
                 # non-breaking hyphen (U+2011) which was missed by the
                 # original parser. Recover from raw_response when needed.
@@ -326,13 +332,13 @@ def load_llm_predictions(dataset, n_v2):
                     "typology": typ,
                     "confidence": pred.get("confidence", 0.5),
                 }
+            expected = {_archive_case_id(i) for i in range(n_v2)}
+            if set(pred_map) != expected:
+                raise ValueError(f"{p}: seed-42 predictions do not cover the frozen coreset")
             preds_per_seed.append(pred_map)
 
         if preds_per_seed:
-            # The published error analysis uses a single seed per model, not a
-            # majority vote across the five. Stated rather than silently
-            # assumed: the per-seed detection spread is under 0.5 pp on 26 of
-            # 28 cells, so the choice is not load-bearing, but it is a choice.
+            # Five-seed task evaluation is separate from this diagnostic slice.
             results[model] = preds_per_seed[0]
     return results
 
@@ -346,6 +352,11 @@ def build_comparison_df(dataset):
 
     gt_labels = labels[v2_idx]
     gt_typo = np.array([TYPOLOGY_MAP.get(t, "legit") for t in typologies[v2_idx]])
+    # The -1 typology sentinel also occurs on illicit edges without a typed
+    # annotation. Their detection label remains illicit, not benign.
+    if not _USE_LEGACY_MAP:
+        gt_typo = gt_typo.astype(object)
+        gt_typo[(gt_labels == 1) & (typologies[v2_idx] < 0)] = "unknown"
     n_v2 = len(v2_idx)
 
     df = pd.DataFrame({
@@ -602,7 +613,7 @@ def plot_typology_f1(typo_f1_df, dataset):
     # active parameter count. Model names here are the spelling used inside the
     # results CSVs, where the separator is a hyphen ("Qwen3-5") rather than the
     # paper's dot; _paper_style.pretty_model maps them back for display.
-    ml_order  = ["LightGBM-GFP", "XGBoost-GFP", "GCPAL-knn-temporal", "Ensemble-Soft"]
+    ml_order  = ["LightGBM-GFP", "XGBoost-GFP", "Ensemble-Soft"]
     llm_order = ["GPT-OSS-20B", "Nemotron-3-Nano-30B", "GPT-OSS-120B",
                  "Nemotron-3-Super-120B", "Qwen3-5-397B-A17B"]
     desired   = ml_order + llm_order
@@ -770,7 +781,9 @@ def error_transition_deep_analysis(df, dataset):
                 "ml_prob_std": round(float(np.std(probs)), 4) if len(probs) > 0 else None,
             }
             # Add typology counts
-            for typo in TYPOLOGY_CLASSES + ["legit"]:
+            # Do not overwrite n_legit: it counts ground-truth benign edges,
+            # while missing typology annotations may occur on illicit edges.
+            for typo in TYPOLOGY_CLASSES + ["unknown"]:
                 row[f"n_{typo}"] = typo_dist.get(typo, 0)
             all_rows.append(row)
 

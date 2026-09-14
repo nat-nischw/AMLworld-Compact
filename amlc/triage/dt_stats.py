@@ -177,6 +177,8 @@ def run(results: Path, out: Path) -> dict:
     fried.to_csv(out / "dt_friedman.csv", index=False)
     summary = pooled(frame)
     summary["by_dataset"] = pooled_by_dataset(frame)
+    if "evaluation_members" in frame.columns:
+        summary["evaluation_members"] = sorted(frame.evaluation_members.unique())
     draws = sorted(frame.draw.unique())
     summary["draw"] = draws[0] if len(draws) == 1 else draws
     (out / "dt_pooled_stats.json").write_text(json.dumps(summary, indent=2))

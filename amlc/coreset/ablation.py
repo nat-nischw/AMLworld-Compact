@@ -71,7 +71,7 @@ import numpy as np
 from .. import paths
 from ..config import (
     DATASETS,
-    ENSEMBLE_MEMBERS,
+    CONSTRUCTION_MEMBERS,
     HARD_NEG_RATIO,
     HARD_NEG_THRESHOLD_FRAC,
     SEEDS,
@@ -492,7 +492,7 @@ def eval_on_subset(probs: np.ndarray, labels: np.ndarray, threshold: float,
 
 
 def run_ablation(dataset: str, out_dir: Path,
-                 members: Sequence[str] = ENSEMBLE_MEMBERS,
+                 members: Sequence[str] = CONSTRUCTION_MEMBERS,
                  seeds: Sequence[int] = SEEDS,
                  archive: Optional[Path] = None,
                  coreset_dir: Optional[Path] = None,
@@ -839,7 +839,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="Construction ablation for the HT-Coreset")
     ap.add_argument("--datasets", nargs="+", default=list(DATASETS))
-    ap.add_argument("--members", nargs="+", default=list(ENSEMBLE_MEMBERS))
+    ap.add_argument("--members", nargs="+", default=list(CONSTRUCTION_MEMBERS))
     ap.add_argument("--seeds", nargs="+", type=int, default=list(SEEDS))
     ap.add_argument("--archive", type=Path, default=None,
                     help="run directory outputs/; defaults to AMLC_ARCHIVE")

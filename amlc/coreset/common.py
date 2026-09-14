@@ -52,7 +52,7 @@ from scipy.stats import entropy as kl_entropy
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from .. import paths
-from ..config import ENSEMBLE_MEMBERS, SEEDS
+from ..config import CONSTRUCTION_MEMBERS, SEEDS
 from ..archive import legacy_path, member_dir
 from ..typology import TYPOLOGY_CLASSES
 from .sampler import difficulty_from_probs
@@ -104,7 +104,7 @@ MOCK_CASE_CHARS: dict[str, int] = {
 
 def load_test_data(
     dataset: str,
-    members: Sequence[str] = ENSEMBLE_MEMBERS,
+    members: Sequence[str] = CONSTRUCTION_MEMBERS,
     seeds: Sequence[int] = SEEDS,
     archive: Optional[Path] = None,
     workers: int = DEFAULT_WORKERS,
@@ -155,7 +155,7 @@ def load_test_data(
 
 def load_member_typologies(
     dataset: str,
-    members: Sequence[str] = ENSEMBLE_MEMBERS,
+    members: Sequence[str] = CONSTRUCTION_MEMBERS,
     seeds: Sequence[int] = SEEDS,
     archive: Optional[Path] = None,
 ) -> dict[tuple[str, int], np.ndarray]:

@@ -7,12 +7,10 @@ Triage is therefore an upper bound on what selective deferral can buy, and this
 module is the comparison that is actually implementable: gate on the supervised
 ensemble score alone, and grid search the gate.
 
-The appendix reports the peak at 66.0% weighted F1 on HI-Small. The archived
-per-cell grids bracket that figure: the ten HI-Small cells peak between 65.9%
-and 67.2%, against 65.9% for the ensemble alone at the same gate. The gain is
-that small because any band wide enough to admit sampled-stratum edges pays
-that stratum's weight, about 470 on HI-Small, for every benign edge the LLM
-flags.
+The evaluation scorer is the mean of LightGBM+GFP and XGBoost+GFP across the
+five released seeds. The targets and HT weights remain those of the original
+construction scorer. This evaluates a score-only alternative on the same fixed
+coreset as Doubt Triage without changing its sampling design.
 
 Two gates, searched independently, as in the archived script:
 
@@ -26,10 +24,10 @@ Two gates, searched independently, as in the archived script:
     below ``tau``, consult the LLM and flip to legit when it disagrees. The LLM
     can only remove detections.
 
-The ensemble decision threshold used by both gates is 0.5, which is what the
-archived grid ran. The paper's operating points are :data:`config.ML_THRESHOLDS`
-(0.80 and 0.48), so the ensemble-only reference inside this grid is 65.9% on
-HI-Small rather than Table 4's 70.9%. Pass ``ml_threshold`` to move it.
+Both gates sit around the evaluation decision threshold from
+:data:`config.ML_THRESHOLDS`. The fixed historical tau grids are retained;
+reported best values are selected on this evaluation set and are diagnostic
+optima, not an independently tuned deployment policy.
 
 Reads
     The archived run directory, because the LLM predictions only exist there:
@@ -55,18 +53,9 @@ routing array is built with dtype ``object`` here so the labels survive. No F1
 column moves: the predictions themselves are assigned through boolean masks and
 never through the routing labels.
 
-What a rerun reproduces
------------------------
-Against ``--draw ablation-redraw --archived-weights``, which is the
-configuration the archived grids were written under, the ensemble half comes
-back to the digit: the ungated row at tau = 0.5 gives TP 744, FP 263 and F1
-0.659 on HI-Small with GPT-OSS-120B, matching
-``results/triage/grid_HI-Small_GPT-OSS-120B_LLM+ICL-AML.csv`` exactly. Every
-gated row moves, by up to 1.1 pp F1, and that cell's peak goes from 66.1% to
-66.9%. The cause is on the LLM side: the prediction JSONs were repatched after
-the grid was written, so a rerun scores verdicts the archived grid never saw.
-Nothing in this module explains the difference, and the ungated row is the
-control that shows it.
+Historical grids under ``ablation-redraw`` used a different coreset and the
+three-member construction ensemble. Current runs use the two-booster evaluation
+scorer, so selecting the old draw alone does not reproduce those old numbers.
 
 Dropped
 -------
@@ -90,15 +79,22 @@ from .. import config
 from ..config import CORESET_DRAWS
 from .doubt_triage import (
     ht_weighted_prf,
+    ht_weighted_typology,
     load_coreset_from_archive,
+    load_ensemble_typology,
     load_llm_predictions,
     resolve_archive,
 )
 
-#: Ensemble decision threshold the archived grid gated on. Deliberately not
-#: config.ML_THRESHOLDS: the grid searched around 0.5 on both datasets, and
-#: moving it would change every number in Appendix G.3.
+#: Fallback ensemble decision threshold, used only for a dataset that is not in
+#: config.ML_THRESHOLDS. The per-split operating points are what the archived
+#: grid actually ran; see the module docstring.
 GRID_ML_THRESHOLD = 0.5
+
+
+def _default_threshold(dataset: str) -> float:
+    """The split's operating point, or 0.5 for an unknown split."""
+    return float(config.ML_THRESHOLDS.get(dataset, GRID_ML_THRESHOLD))
 
 #: Gate sweeps, unchanged from the archived script: 100 points below the
 #: decision threshold for the recall gate, 98 above it for the precision gate.
@@ -197,9 +193,19 @@ def grid_search(
     prompting: str,
     seed: int,
     ml_threshold: float = GRID_ML_THRESHOLD,
+    llm_typ: Optional[np.ndarray] = None,
+    ml_typ: Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
-    """Sweep both gates for one (dataset, model, prompting, seed) cell."""
+    """Sweep both gates for one (dataset, model, prompting, seed) cell.
+
+    When the two typology heads are supplied the sweep also scores typology
+    under the same fusion rule as Doubt Triage: a true positive the ensemble
+    found keeps the ML typology, one the gate deferred takes the LLM's. The
+    grid shipped with the ARR submission had no typology column at all, so the
+    Score-gate row of Table 3 could not be reproduced from it.
+    """
     labels, weights = data["labels"], data["weights"]
+    gt_typ = data.get("gt_typo_str")
     rows = []
     for gate in GATES:
         for tau in _GATE_TAUS[gate]:
@@ -210,12 +216,26 @@ def grid_search(
             n_consulted = int(((routing == "llm_consulted")
                                | (routing == "llm_flipped")).sum())
             n_flipped = int((routing == "llm_flipped").sum())
+
+            wtf1 = wtacc = None
+            if gt_typ is not None and (llm_typ is not None or ml_typ is not None):
+                tp_mask = (preds == 1) & (labels == 1)
+                fused = np.full(len(preds), "unknown", dtype=object)
+                ml_hit = (data["ml_probs"] >= ml_threshold).astype(int) == 1
+                if ml_typ is not None:
+                    fused[tp_mask & ml_hit] = ml_typ[tp_mask & ml_hit]
+                if llm_typ is not None:
+                    consulted = (routing == "llm_consulted") | (routing == "llm_flipped")
+                    fused[tp_mask & consulted] = llm_typ[tp_mask & consulted]
+                wtf1, wtacc, _ = ht_weighted_typology(fused, gt_typ, tp_mask, weights)
+
             rows.append({
                 "strategy": gate,
                 "dataset": dataset,
                 "llm_model": model,
                 "prompting": prompting,
                 "seed": seed,
+                "ml_threshold": ml_threshold,
                 "tau": round(float(tau), 3),
                 "n_llm_consulted": n_consulted,
                 "n_llm_flipped": n_flipped,
@@ -227,6 +247,8 @@ def grid_search(
                 "uw_precision": round(up, 4),
                 "uw_recall": round(ur, 4),
                 "uw_f1": round(uf1, 4),
+                "w_typ_f1": None if wtf1 is None else round(wtf1, 4),
+                "w_typ_acc": None if wtacc is None else round(wtacc, 4),
             })
     return pd.DataFrame(rows)
 
@@ -248,9 +270,11 @@ def run_cell(
     loaded = load_llm_predictions(archive, dataset, model, prompting, seed, data["n"])
     if loaded is None:
         return None
-    llm_preds, _, _ = loaded
+    llm_preds, llm_typ, _ = loaded
+    ml_typ = load_ensemble_typology(archive, dataset, data["subset_idx"], seed)
 
-    grid = grid_search(data, llm_preds, dataset, model, prompting, seed, ml_threshold)
+    grid = grid_search(data, llm_preds, dataset, model, prompting, seed,
+                       ml_threshold, llm_typ=llm_typ, ml_typ=ml_typ)
 
     ml_only = (data["ml_probs"] >= ml_threshold).astype(int)
     ml_f1 = ht_weighted_prf(ml_only, data["labels"], data["weights"])[2]
@@ -269,6 +293,8 @@ def summarise(cell: dict, dataset: str, model: str, prompting: str, seed: int) -
     """One summary row per cell: the best tau and F1 of each gate."""
     row = {
         "dataset": dataset, "llm_model": model, "prompting": prompting, "seed": seed,
+        "evaluation_members": ";".join(config.ENSEMBLE_MEMBERS),
+        "ml_threshold": float(cell["grid"]["ml_threshold"].iloc[0]),
         "ml_f1": round(cell["ml_f1"], 4), "llm_f1": round(cell["llm_f1"], 4),
     }
     for gate in GATES:
@@ -278,6 +304,8 @@ def summarise(cell: dict, dataset: str, model: str, prompting: str, seed: int) -
         row[f"best_{gate}_delta"] = (round(float(b["w_f1"]) - cell["ml_f1"], 4)
                                      if b is not None else None)
         row[f"best_{gate}_consult_pct"] = float(b["llm_pct"]) if b is not None else None
+        tf = None if b is None else b.get("w_typ_f1")
+        row[f"best_{gate}_typ_f1"] = None if tf is None else float(tf)
     return row
 
 
@@ -297,8 +325,9 @@ def main() -> None:
     ap.add_argument("--model", choices=config.LLM_MODELS)
     ap.add_argument("--prompting", choices=config.PROMPTINGS)
     ap.add_argument("--seed", type=int, default=config.SEEDS[0])
-    ap.add_argument("--ml-threshold", type=float, default=GRID_ML_THRESHOLD,
-                    help="ensemble decision threshold the gates sit around")
+    ap.add_argument("--ml-threshold", type=float, default=None,
+                    help="ensemble decision threshold the gates sit around; "
+                         "defaults to the split's config.ML_THRESHOLDS entry")
     args = ap.parse_args()
 
     from ..paths import ensure, results  # local: keeps the module import light
@@ -318,8 +347,10 @@ def main() -> None:
                                          repair_weights=not args.archived_weights)
         for model in models:
             for prompting in promptings:
+                thr = (args.ml_threshold if args.ml_threshold is not None
+                       else _default_threshold(dataset))
                 cell = run_cell(archive, data, dataset, model, prompting,
-                                args.seed, args.ml_threshold)
+                                args.seed, thr)
                 if cell is None:
                     print(f"  {dataset:9s} | {model:24s} | {prompting:7s} | no predictions")
                     continue

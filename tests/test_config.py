@@ -116,3 +116,12 @@ def test_an_override_reaches_the_loader(monkeypatch, tmp_path):
     finally:
         monkeypatch.delenv("AMLC_DATASET")
         importlib.reload(config)
+
+
+def test_evaluation_and_frozen_construction_are_separate():
+    assert config.ENSEMBLE_MEMBERS == ("LightGBM+GFP", "XGBoost+GFP")
+    assert config.CONSTRUCTION_MEMBERS == ("LightGBM+GFP", "XGBoost+GFP", "GCPAL+GFP")
+    assert config.CONSTRUCTION_THRESHOLDS == {"HI-Small": 0.80, "LI-Small": 0.48}
+    assert config.CONSTRUCTION_THRESHOLDS is not config.ML_THRESHOLDS
+    from amlc.coreset.ht_weights import NOMINAL_THRESHOLDS
+    assert NOMINAL_THRESHOLDS == config.CONSTRUCTION_THRESHOLDS

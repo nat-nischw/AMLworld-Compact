@@ -72,7 +72,7 @@ from ..config import HARD_NEG_THRESHOLD_FRAC
 # the threshold its own run computed, and the ablation re-draw used a different
 # one (0.78809 / 0.48769 rather than the paper's rounded 0.80 / 0.48). Prefer
 # :func:`infer_hard_neg_cut`.
-from ..config import ML_THRESHOLDS as NOMINAL_THRESHOLDS
+from ..config import CONSTRUCTION_THRESHOLDS as NOMINAL_THRESHOLDS
 
 # A draw may carry a handful of spare-fill edges. More anomalous weights than
 # this inside one stratum means the stratification itself is wrong.
@@ -324,14 +324,15 @@ def repair_archived_weights(
 
     ``draw`` takes a paper name; :mod:`amlc.archive` resolves it to
     the filenames used inside the archived run directory. Reads only; the
-    caller decides whether to write the result.
+    caller decides whether to write the result. Uses only the frozen historical
+    construction scores and thresholds, independently of the evaluation ensemble.
     """
     from ..archive import legacy_path
 
     archive = Path(archive)
     subset_idx = np.load(legacy_path(archive, "subset", dataset, draw=draw))
     saved = np.load(legacy_path(archive, "weights", dataset, draw=draw))
-    ens_probs = np.load(legacy_path(archive, "ensemble_probs", dataset))
+    ens_probs = np.load(legacy_path(archive, "construction_probs", dataset))
     labels = np.load(legacy_path(archive, "test_labels", dataset))
     thr = NOMINAL_THRESHOLDS[dataset] if threshold is None else threshold
 

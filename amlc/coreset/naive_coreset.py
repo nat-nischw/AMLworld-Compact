@@ -57,7 +57,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 
 from .. import paths
-from ..config import DATASETS, ENSEMBLE_MEMBERS, SEEDS
+from ..config import DATASETS, CONSTRUCTION_MEMBERS, SEEDS
 from .common import (
     AVG_EDGES_PER_CASE,
     DEFAULT_WORKERS,
@@ -568,7 +568,7 @@ def exhaustive_search(
 # ─────────────────────────────────────────────────────────────────────────
 
 def build_naive_coreset(dataset: str, out_dir: Path,
-                        members: Sequence[str] = ENSEMBLE_MEMBERS,
+                        members: Sequence[str] = CONSTRUCTION_MEMBERS,
                         seeds: Sequence[int] = SEEDS,
                         archive: Optional[Path] = None,
                         n_sizes: int = 8,
@@ -752,7 +752,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(
         description="Build the Naive Coreset and search for its minimum size")
     ap.add_argument("--datasets", nargs="+", default=list(DATASETS))
-    ap.add_argument("--members", nargs="+", default=list(ENSEMBLE_MEMBERS),
+    ap.add_argument("--members", nargs="+", default=list(CONSTRUCTION_MEMBERS),
                     help="ensemble members, by their paper names")
     ap.add_argument("--seeds", nargs="+", type=int, default=list(SEEDS))
     ap.add_argument("--archive", type=Path, default=None,

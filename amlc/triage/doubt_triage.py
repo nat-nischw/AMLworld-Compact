@@ -3,10 +3,11 @@
 Horvitz-Thompson importance weights partition the coreset into a *census
 stratum* (weight = 1: every illicit edge plus the retained hard-negative
 benign edges) and a *sampled stratum* (weight >> 1: easy benign). The
-supervised ensemble has near-zero false positives on the sampled stratum, so
-deferring to the LLM only inside the census stratum bounds the false-positive
-cost to 1 per error instead of ~470x, which lets the LLM's high recall raise
-F1 over the ensemble alone.
+rule consults the LLM only inside the census stratum, where each additional
+false positive carries weight one. Evaluation uses the two temporal-trained
+boosters; the original construction scorer still defines the frozen strata and
+weights. This label-informed rule is a diagnostic use case, not a deployment
+policy.
 
 Reference:
   Horvitz & Thompson (1952). JASA 47(260): 663-685.
@@ -61,7 +62,8 @@ import numpy as np
 from ..case_ids import is_case_id, position as case_position
 from ..typology import TYPOLOGY_CLASSES, TYPOLOGY_INT_MAP
 from ..archive import canonical_strategy, legacy_path, member_dir
-from ..config import CORESET_DRAWS, ENSEMBLE_MEMBERS, ML_THRESHOLDS, SEEDS
+from ..config import (CORESET_DRAWS, CONSTRUCTION_THRESHOLDS, ENSEMBLE_MEMBERS,
+                      ML_THRESHOLDS)
 
 
 # ── Unicode-aware typology extraction ────────────────────────────────────
@@ -179,7 +181,7 @@ class DoubtTriage:
         HT importance weights: 1.0 in the census stratum, > 1 in the sampled
         stratum.
     ml_threshold : float
-        Ensemble decision threshold (0.80 HI-Small, 0.48 LI-Small).
+        Evaluation ensemble decision threshold from ``config.ML_THRESHOLDS``.
     weight_threshold : float
         Edges with weight <= this are census stratum. Default 1.01 for float
         tolerance.
@@ -193,7 +195,7 @@ class DoubtTriage:
         self,
         ml_probs: np.ndarray,
         weights: np.ndarray,
-        ml_threshold: float = 0.80,
+        ml_threshold: float = ML_THRESHOLDS["HI-Small"],
         weight_threshold: float = 1.01,
         strategy: str = "dt",
         confidence_delta: float = 0.10,
@@ -247,7 +249,7 @@ class DoubtTriage:
             )
         consult_mask = self._consult_mask_for(llm_preds)
         preds = self.ml_preds.copy()
-        routing = np.where(self.ml_preds == 1, "ml_illicit", "ml_legit")
+        routing = np.where(self.ml_preds == 1, "ml_illicit", "ml_legit").astype(object)
 
         preds[consult_mask] = llm_preds[consult_mask]
         routing[consult_mask] = np.where(
@@ -472,21 +474,19 @@ def load_coreset_from_archive(
     if repair_weights:
         from ..coreset.ht_weights import recompute_weights
         full_labels = np.load(legacy_path(archive, "test_labels", dataset))
-        ens_full = np.load(legacy_path(archive, "ensemble_probs", dataset))
-        weights, _ = recompute_weights(idx, full_labels, ens_full,
-                                       ML_THRESHOLDS[dataset])
+        construction_scores = np.load(legacy_path(archive, "construction_probs", dataset))
+        weights, _ = recompute_weights(
+            idx, full_labels, construction_scores, CONSTRUCTION_THRESHOLDS[dataset])
 
-    probs = []
-    for member in ENSEMBLE_MEMBERS:
-        for seed in SEEDS:
-            p = legacy_path(archive, "member_probs", dataset,
-                            member=member_dir(member), seed=seed)
-            if p.exists():
-                probs.append(np.load(p)[idx])
-    ens = np.mean(probs, axis=0)
+    # Local import avoids the shared metrics module importing this module back.
+    from ..baselines.ml.ensemble import load_evaluation_probabilities
+
+    # Evaluation changes the scorer, never the frozen draw or its design weights.
+    ens = load_evaluation_probabilities(archive, dataset)[idx]
 
     return {
         "source": "archive",
+        "evaluation_members": list(ENSEMBLE_MEMBERS),
         "draw": draw,
         "weights_repaired": repair_weights,
         "subset_idx": idx,
@@ -507,20 +507,31 @@ def load_ensemble_typology(
     subset_idx: np.ndarray = None,
     seed: int = 42,
 ) -> Optional[np.ndarray]:
-    """Majority-vote typology prediction across the three ensemble members."""
-    from scipy.stats import mode
+    """Vote over evaluation heads; ties use the lowest canonical class index.
 
+    With two members, a disagreement therefore uses the smaller stored index
+    from ``amlc.typology``. Both heads are required so missing files cannot
+    silently change the ensemble.
+    """
     archive = resolve_archive(archive)
     preds = []
     for member in ENSEMBLE_MEMBERS:
         p = legacy_path(archive, "member_typology", dataset,
                         member=member_dir(member), seed=seed)
-        if p.exists():
-            preds.append(np.load(p)[subset_idx])
-    if not preds:
-        return None
-    maj, _ = mode(np.stack(preds), axis=0, keepdims=False)
-    return np.array([TYPOLOGY_INT_MAP.get(int(t), "unknown") for t in maj])
+        if not p.exists():
+            raise FileNotFoundError(f"missing evaluation typology head: {p}")
+        values = np.load(p)
+        if subset_idx is not None:
+            values = values[subset_idx]
+        if values.ndim != 1 or not np.isin(values, np.arange(len(TYPOLOGY_CLASSES))).all():
+            raise ValueError(f"invalid canonical typology indices: {p}")
+        preds.append(values)
+    stacked = np.stack(preds)
+    counts = np.stack([(stacked == i).sum(axis=0)
+                       for i in range(len(TYPOLOGY_CLASSES))])
+    # argmax chooses the first (smallest canonical) class in a tie.
+    voted = counts.argmax(axis=0)
+    return np.array([TYPOLOGY_INT_MAP[int(t)] for t in voted])
 
 
 def load_llm_predictions(

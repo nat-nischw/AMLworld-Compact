@@ -11,14 +11,10 @@ with the dataset, thresholded at the operating point the paper reports.
     python -m amlc.selftest          # both splits
     make selftest
 
-What passing does and does not prove
-------------------------------------
-The weight-sum assertion is the one that matters. At the operating thresholds
-the ensemble flags 50 benign edges on HI-Small and 51 on LI-Small, and every
-one of them carries weight 1.0, so weighted and unweighted F1 agree to the
-digit. **A user who ignored the weights entirely would still pass the F1
-check.** They would not pass ``weights.sum() == N_TEST_FULL``, which is why
-that assertion is here and why the message below says so out loud.
+The targets and HT weights were selected with a separate, frozen construction
+scorer. This check validates the two-booster evaluation export at its inherited
+thresholds; it does not re-estimate the sampling design or establish unbiased
+precision/F1 ratios. HT weights are required when evaluating other predictors.
 """
 
 from __future__ import annotations
@@ -30,10 +26,10 @@ import numpy as np
 from . import config, hub
 from .triage.doubt_triage import ht_weighted_prf
 
-#: Published values, Table 1 of the paper. Regenerate with ``make coreset``.
+#: Two-booster evaluation on the frozen released targets; no coreset rebuild.
 EXPECTED = {
-    "HI-Small": (93.4555, 57.0743, 70.8685),
-    "LI-Small": (73.2984, 18.5185, 29.5671),
+    "HI-Small": (84.8449, 56.8345, 68.0708),
+    "LI-Small": (60.1695, 18.7831, 28.6290),
 }
 
 #: Absolute tolerance in percentage points. The arithmetic is deterministic, so
@@ -77,8 +73,8 @@ def main(argv=None) -> int:
 
     if ok:
         print("\nself-test passed: loaded arrays, weight sums, and ensemble metrics match.")
-        print("The ensemble's metrics also agree without weighting; use the HT weights")
-        print("when scoring other predictors to estimate full-split performance.")
+        print("Use the original HT weights to estimate full-split counts; the")
+        print("two-booster evaluator does not redefine the sampling design.")
     else:
         print("\nself-test failed. Check the reported mismatch and the dataset files")
         print("selected by AMLC_CORESET_DIR or AMLC_DATASET.")
