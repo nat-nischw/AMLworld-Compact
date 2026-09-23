@@ -764,7 +764,7 @@ def save_summary(cfg: RunConfig, rows: Sequence[dict]) -> Path:
 
 def main(argv: Optional[Sequence[str]] = None) -> None:
     ap = argparse.ArgumentParser(
-        description="Run one AMLCompact evaluation.",
+        description="Run one AMLworld-Compact evaluation.",
         epilog="examples:\n"
                "  python -m amlc.llm.runner --mode llm "
                "--model GPT-OSS-120B --vllm-url http://node:18809/v1\n"
@@ -817,7 +817,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         tuned=not args.no_tuned_params,
     )
 
-    print("AMLCompact evaluation")
+    print("AMLworld-Compact evaluation")
     print(f"  mode      {cfg.mode}")
     print(f"  datasets  {list(cfg.datasets)}")
     print(f"  seeds     {list(cfg.seeds)}")

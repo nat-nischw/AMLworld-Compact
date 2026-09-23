@@ -1,5 +1,9 @@
 # AMLworld-Compact
 
+<!-- dataset id: natnitaract/AMLworldCompactEval. If it ever changes, update it
+     in: this badge, the two links below (intro and Dataset section),
+     pyproject [project.urls] Dataset, and amlc/config.yaml sources.dataset_repo. -->
+
 [![CI](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-AMLworldCompactEval-yellow)](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
 [![Code MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
