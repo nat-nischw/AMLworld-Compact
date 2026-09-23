@@ -1,0 +1,1379 @@
+{
+  "schema_version": 1,
+  "dataset": "HI-Small",
+  "tensor_axes": [
+    "released_target_position",
+    "model_prompting_cell",
+    "inference_seed"
+  ],
+  "prediction_shape": [
+    3753,
+    14,
+    5
+  ],
+  "prediction_rule": "int(bool(record.get('illicit', False)))",
+  "missing_target_rule": "error; no target records imputed",
+  "population_sizes": {
+    "illicit": 1251,
+    "hard_neg": 363,
+    "easy_t1": 334638,
+    "easy_t2": 344779,
+    "easy_t3": 334638
+  },
+  "sample_sizes": {
+    "illicit": 1251,
+    "hard_neg": 363,
+    "easy_t1": 713,
+    "easy_t2": 713,
+    "easy_t3": 713
+  },
+  "full_population_size": 1015669,
+  "n_illicit": 1251,
+  "construction_threshold": 0.8,
+  "sampling_conditioning": "Fixed construction strata, fixed contexts and per-edge prediction vectors; conditional on realized stratum allocation. LI-Small includes one residual-fill target in easy_t1; the original archived LI weights are not used for scoring.",
+  "archive_sources": {
+    "full_labels": {
+      "path": "test_probs/HI-Small/test_labels.npy",
+      "sha256": "b309e585afbed9b55ed346adc37a25bd986fbf1c6782024c0b3208968bd1ee5a",
+      "bytes": 8125480
+    },
+    "construction_probs": {
+      "path": "eval_subsets/HI-Small/ens_probs_HI-Small.npy",
+      "sha256": "01a0ca8e52e3149d8e5d8d6c56473047bfe7c485d3ce3e7bb45c99c3c7405974",
+      "bytes": 8125480
+    },
+    "subset_idx": {
+      "path": "eval_subsets/HI-Small/subset_HI-Small_v2_best.npy",
+      "sha256": "a4eb047b6bb35df72814c79b229b665572f01013321a92ae07c61ee1811eb70c",
+      "bytes": 30152
+    },
+    "original_weights": {
+      "path": "eval_subsets/HI-Small/weights_HI-Small_v2_best.npy",
+      "sha256": "ec85ecc2ef1c81cca31361afab04a66395478244586edb35ddcef0723c6dcac9",
+      "bytes": 30152
+    }
+  },
+  "released_sources": {
+    "labels": {
+      "path": "HI-Small/labels.npy",
+      "sha256": "017256cd1ca7391cb56f0cd34e383b46e891df7f19dc13bc80564a08e6877c99",
+      "bytes": 30152
+    },
+    "weights": {
+      "path": "HI-Small/ht_weights.npy",
+      "sha256": "ec85ecc2ef1c81cca31361afab04a66395478244586edb35ddcef0723c6dcac9",
+      "bytes": 30152
+    },
+    "subset_idx": {
+      "path": "HI-Small/ht_subset_indices.npy",
+      "sha256": "a4eb047b6bb35df72814c79b229b665572f01013321a92ae07c61ee1811eb70c",
+      "bytes": 30152
+    },
+    "construction_probs": {
+      "path": "HI-Small/construction_probs_coreset.npy",
+      "sha256": "35fa27b0eb390326d9fbcf7a3b468957fec379821aa17fae9eebbbd4d41b9f9b",
+      "bytes": 30152
+    },
+    "case_index": {
+      "path": "HI-Small/case_index.csv",
+      "sha256": "de0d486fb3bca4718088e38429ad825839170902fbcd870a98fa1a49c6aa9ffd",
+      "bytes": 185376
+    }
+  },
+  "prediction_sources": [
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "8c831864b12908f8e39e8b8efa3f4cddc6dd91bd1d0e9a773f3de9cf102abe79",
+      "bytes": 37230421
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "6a27254f3bb7df3d8b47038103057c92cf88ecae8eae031d2b27de0deb50fdc6",
+      "bytes": 11827279
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "1f935eb0327c9c726ae75257bdc761a72542700ea07fe5af3b4d88881cc4b56c",
+      "bytes": 11840555
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "c1b260f3155e8659180c2c4feded9389423b003ae9a8f849d9c9c1b9c3a3a4be",
+      "bytes": 11846605
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "d284c9f5f58e105f12eb84205f714ee5cfa3bf745112fe7127092c5e3be33180",
+      "bytes": 11859860
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "11948c7be2f80bfbe5aa7bd0ad8df4df7aaced0f267955c99ba1e43888662696",
+      "bytes": 30519050
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "cd36e5afeb0f8b1949cb1cebadfdb91aee51698c5431b9566da112fd193542b2",
+      "bytes": 13866921
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "6a3cb90bd4dc7589198f368ef4abb8a82c84c0e365261679dc888023b57ba82c",
+      "bytes": 13863623
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "c3cd645a4bb07a1f96a51ce307c2d03dc0dc430e339efada05d9c036a93cc959",
+      "bytes": 13902532
+    },
+    {
+      "path": "GPT-OSS-20B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "9d6d70952edac3413767651fcc2f1cc9838e3a7757589cb16439d37e73752955",
+      "bytes": 13894121
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "3bb5e57977ee8a8d0887a0914e5288c62fbac9ff4e447bdc65a8246cc8d5d544",
+      "bytes": 78082468
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "427b91500a344a07730c0fec53e45d078f17d864374269fc1681ac7ab67a0a12",
+      "bytes": 9935301
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "5e77ec8e848b8556e2855e880b464d31c62861b9f5ced35a398087ced0f24456",
+      "bytes": 9936494
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "b1f17cda2f2c96ed1b26eda87aa73380e5137eaf3625be1d42bb3adf24b69609",
+      "bytes": 9904471
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "9b4cbd58509acd1f83d8b96b0468633a76b3fa39ae24c3f7b64f3ebeeeafd0ce",
+      "bytes": 9927801
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "2672d6cd1a30c9a6598c74d8dec9e81e99b9351b7dcfbca26ebb25866a29a4a7",
+      "bytes": 97208342
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "d15c94c36416e10e09b67a3e3ae346bb4d8b03936cfe3acb60da7ad65efd2698",
+      "bytes": 13649308
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "b9687944928db70d6ffbe73ca20843313c4592a53d2eed4e4b488bbd8b3cb71c",
+      "bytes": 13568061
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "55beb4cd34779b40f80cd8a5e0eb9473d197fc2aff5f5748e66ab81284239cfb",
+      "bytes": 13630207
+    },
+    {
+      "path": "Qwen3.5-27B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "b5623b50c85733651a1ffcf61df2010048d7ca0fb32b136348a32448475c74e3",
+      "bytes": 13639439
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "331b6d9d27671e88f7459dcd876a9174b6cfc40a23ae3774ce2234f9c9e98d93",
+      "bytes": 33641822
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "9cc1c8e09014573679ce22f5148a446eed78ae9828c5feb3fe71d30f60b2a737",
+      "bytes": 12712576
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "021c76d61640d9783bc3a66b708e1284f442d3cc1bf6f1d4922a00a42197f51f",
+      "bytes": 12654852
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "cb224f6dd435089328f4effd3c4c0a7d3c77f0229ebf481cccc1febd447ef97e",
+      "bytes": 12649554
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "c81a184d47d6aab9a72f7043d90e33b46c3dcd89c13dcd2ad1175818c9346b82",
+      "bytes": 12695071
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "a7a8bf553fda0ce50aec86f622affb494c5f93e153118436f8b8a38c4143a481",
+      "bytes": 25836963
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "5f6a346882689b5e23b914ded238d73968b69540e8943485f353545909ee7a3e",
+      "bytes": 14496718
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "1b4813a2208b1f814c9f8e3ade6e3aa984436e9d212c492c4b66623ff198d745",
+      "bytes": 14477550
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "2aa8089ca859b94d721afabfc977279cb3226896a8e764fb0edc4354a925c0da",
+      "bytes": 14484338
+    },
+    {
+      "path": "Nemotron-3-Nano-30B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "e88becd345316ee025dccbd3ab378312d7e60cc19f97f8b9a7d4091446973211",
+      "bytes": 14483988
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "e318c14b22e63e244a76f53dfa1b07cff55ca6711b10771d5cddf41aa660a9d8",
+      "bytes": 178559257
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "a34d4cc2191bc3ec57691d3cd00cfc97080562d1be9b203cdb9790f01aa30a57",
+      "bytes": 10993915
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "1b675638fbf8a76751c049885fcccb71af6ed17adace481f7ce44cefffa16ae3",
+      "bytes": 11121748
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "a369bbc1513f16ab00e74fde796dca03f5e802b6ff1d8120fe78dc3911ed8521",
+      "bytes": 11088516
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "dc80c6495d9fa85390e54fd4a9c1ae64759cbddea508fdfc000aeda3a0814d15",
+      "bytes": 11107805
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "1dc8365062646f3d92a2568cd77f6a338bc57170eb2e133c1071dc41bf8d17f3",
+      "bytes": 131259655
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "21a4dbf81d0741bfe5d14d5a307854bf7ef05fe0107fce67cdaca865d1a1fc8c",
+      "bytes": 12215155
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "aaa583fdad29bade918a71c3daa3bd6a3747884277bc616e85439236536ed198",
+      "bytes": 12228587
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "5bc37f97c9fb37d69d60738a7e618b2e7adf73a430f09723cc05b4c0c2accab6",
+      "bytes": 12206320
+    },
+    {
+      "path": "Qwen3.5-35B-A3B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "0483672d90d72d924e122574c6e111ff5ca8796ed448a0b6762c2c4b13324aa0",
+      "bytes": 12281487
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "2ee351403359b2f7fadae9a641752bd5fd03b0c919d69b1a3db7ff93ff7c74b8",
+      "bytes": 25266610
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "05022721c9edcc07e21f983983ad5e3ef0f8556e49015db378d363e4f582d4a0",
+      "bytes": 12768655
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "99c6fc22b357da14fce91034ff625251be04aa51eb68735d198955d9fb642865",
+      "bytes": 12785480
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "d2b8b449a8b114a1bea8b28c6b7ded95f74b183fbec50d6d19a0a69282a0c777",
+      "bytes": 12789455
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "01b549a51e1782a72d99cf0879f331cfb3e0a8de362e91f0aef032b801b06147",
+      "bytes": 12776325
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "b47f806681b2332da2719b4b7eca6f57da28008defd11579eb52f65ab113f364",
+      "bytes": 22647183
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "80ed0b6ee9c46890da5a294f3262aec222d04763ffe341546e67b2f3cfbb4198",
+      "bytes": 13972891
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "1674a3f369c533d26a11e982b2bda36a9abbdab96e7c445ab950660e21ba36e4",
+      "bytes": 14024218
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "3498d6dc4eb563c30523dbb4fabe670a44489578ed7c815025d6e1d1bda5694d",
+      "bytes": 13978761
+    },
+    {
+      "path": "GPT-OSS-120B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "7b96bbabdf277252323f20e6e95c16cb853df9b55dbdd507ecf2e5bae8cb0d69",
+      "bytes": 13990062
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "bdc87b1d81606c9c7e7b3b28819b06380e99bbc30365fe9b183317015c4d10dc",
+      "bytes": 59983721
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "8a4c9c68b15a462608ccfeec8d79b9640ce3f1a7aaae77ed3d4e2e7154b98973",
+      "bytes": 11856869
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "af0dbb24628e15961b9a81763f4e02c8914cae054d189b2c6fb1b77c7840689e",
+      "bytes": 11896232
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "00e2fa149974341dca66680aff59c911c3939d11f843644f4aa9c7e52be01433",
+      "bytes": 11867688
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "ccf84d1ed9277b72ba0dd0047062a7e65c98861443a22ac8e554fbdfbfa27553",
+      "bytes": 11876901
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "84c653e161108e41a424ae0ca28c0cf7d7461272f31d2f5c9e3709e719c59a5c",
+      "bytes": 36478523
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "ce90415a3395ff0f2a1cc430b940a5919704b9dcba22a8fc983d605b79f0543d",
+      "bytes": 14242305
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "b4d006e97e460007fc200c7690c91457516d05e0f6e62a4e27a40768a998b296",
+      "bytes": 14253207
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "b01e458a7a435c09c30e52c1e7769a58217b52205150243671730669ca3f6344",
+      "bytes": 14246358
+    },
+    {
+      "path": "Nemotron-3-Super-120B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "fb74ff2bdf532bb8e174d0d359d7a8b7833d490add420c6b41c17af4a36171ca",
+      "bytes": 14219653
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "4be7b5883137f01c07198e47cd9cae6402296c34692ce5610c8cf1784b1c20a8",
+      "bytes": 99642711
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_123.json",
+      "sha256": "16f5dcded80b9aac29178bfe3bd6dee5fa6bc155805452b86a3bc134f7531809",
+      "bytes": 12483141
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_456.json",
+      "sha256": "068144a9a6162c3ccbf96d2295fc5b0768829d45c98c30c8d201cabac3c91f74",
+      "bytes": 12452739
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_789.json",
+      "sha256": "e49b49195a84d802008ffc71018700a02ff75fbc29b113552341474bbfcd0f18",
+      "bytes": 12475424
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_1011.json",
+      "sha256": "35cd21503f654c988bdc00c99d478caaaf24fd35df99d3c045e67b4e5b6db2aa",
+      "bytes": 12465042
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML-NoFS/HI-Small/seed_42.json",
+      "sha256": "5b79d6cb3a518c2d5ae6dd34f49bd61d94175e04d629e6b8cff4f965248a7b3f",
+      "bytes": 92799831
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML-NoFS/HI-Small/seed_123.json",
+      "sha256": "e6f631e3afe4f53dbc8ebd53adf44d9356df3d5ce5d712a08612fe8eaeb08bff",
+      "bytes": 12961051
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML-NoFS/HI-Small/seed_456.json",
+      "sha256": "53ee001fc843456d68d8a5a6725a0029139ada20f0313d7ed4889008a46065fe",
+      "bytes": 12978691
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML-NoFS/HI-Small/seed_789.json",
+      "sha256": "d0f9d2aab809a3b653357cba24d7751dab7019c650b814c875214746365d4711",
+      "bytes": 12956489
+    },
+    {
+      "path": "Qwen3.5-397B-A17B/LLM+ICL-AML-NoFS/HI-Small/seed_1011.json",
+      "sha256": "ebc895ef00bf1bf6dc19a681c456044dc5252c6d06c41e3dde2d1683d5e0685d",
+      "bytes": 12956956
+    }
+  ],
+  "reference_scores": {
+    "filename": "llm_ht_weighted.csv",
+    "sha256": "5e4233cd417821914204c77ec62ca11af9e411d566a57903e2d03c52a3d10e75"
+  },
+  "preparation_script": {
+    "filename": "24_prepare_sampling_uncertainty.py",
+    "sha256": "7550583c85270d2e34269fc55e5d7c6d2e19bcef602cf4b2b3e8bd317e0cd39c"
+  },
+  "validation": {
+    "targets_match_archive": true,
+    "labels_match_archive": true,
+    "targets_bitwise_equal_archive": true,
+    "construction_scores_match_archive": true,
+    "reconstructed_weights_bitwise_equal": true,
+    "census_strata_complete": true,
+    "all_target_records_present": true,
+    "reference_runs_reproduced": 70,
+    "predict_all_reference_reproduced": true,
+    "maximum_absolute_metric_error_percentage_points": 1.4210854715202004e-14,
+    "runs": [
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 4.163336342344337e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 7.105427357601002e-15
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-20B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 7.105427357601002e-15
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 7.105427357601002e-15
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 3.552713678800501e-15
+      },
+      {
+        "model": "Qwen3.5-27B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 4.163336342344337e-17
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Nano-30B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 0.0
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 9.71445146547012e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-35B-A3B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "GPT-OSS-120B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.3877787807814457e-17
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 6.938893903907228e-17
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 7.105427357601002e-15
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Nemotron-3-Super-120B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 7.105427357601002e-15
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-FS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-FS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-FS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-FS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-FS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-ZS",
+        "seed": 42,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-ZS",
+        "seed": 123,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 8.326672684688674e-17
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-ZS",
+        "seed": 456,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 2.7755575615628914e-17
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-ZS",
+        "seed": 789,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 1.4210854715202004e-14
+      },
+      {
+        "model": "Qwen3.5-397B-A17B",
+        "prompting": "ICL-ZS",
+        "seed": 1011,
+        "records": 3753,
+        "missing_illicit_field": 0,
+        "null_illicit": 0,
+        "non_binary_illicit": 0,
+        "missing_center_edge_id": 0,
+        "checked_center_edge_id": 3753,
+        "checked_gt_label": 3753,
+        "maximum_score_error": 5.551115123125783e-17
+      }
+    ]
+  },
+  "outputs": {
+    "npz": {
+      "path": "HI-Small.npz",
+      "sha256": "99f4f1957b20ab6efb5387ea8ab67979f6e1adf8c9abf5e34b2b4b2f36c7eb1f",
+      "bytes": 54424
+    },
+    "stratum_manifest": {
+      "path": "HI-Small_strata.csv",
+      "sha256": "443dcf3743561aeea1af30bd1479f81169b4304afbdb3e61e65f79df124863da",
+      "bytes": 283297
+    }
+  }
+}

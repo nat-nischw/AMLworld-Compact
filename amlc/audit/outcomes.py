@@ -11,7 +11,19 @@ annotator scored them.
 Conclude is re-derived under the uniform parser-extraction rule, the same rule
 the human-rating pack applies: Conclude passes when the extracted prediction
 matches ground truth on the binary verdict, and on the typology label where the
-ground truth has one.
+ground truth has one. The judge tables name their Conclude columns
+``ds_conclude``, ``op_conclude`` or ``gm_conclude``; :func:`conclude_column`
+finds the column whatever its prefix.
+
+Applying the uniform rule has a consequence worth stating plainly, because it
+changes a published table. Conclude under the uniform rule is a deterministic
+function of the prediction and ground truth, identical for every annotator.
+Applying it to all four files makes the four Conclude pass rates identical and
+the Conclude row of the multi-judge agreement table degenerate: Fleiss' kappa
+becomes 1 by construction. The per-judge Conclude spread the appendix reports
+(24.0% for DeepSeek, 27.1% for Opus, 20.9% for Gemini against the heuristic's
+20.4%) is each judge's own verdict. Run this stage when you want the uniform
+rule; keep the judge verdicts when you want to measure whether judges agree.
 
 Idempotent. Running it twice changes nothing the second time.
 
@@ -21,40 +33,6 @@ Reads
 
 Writes
     The same annotation CSVs, in place.
-
-Fixed here
-----------
-**The archive location was a hardcoded absolute path** to one machine's home
-directory. It now comes from :func:`amlc.paths.archive`, which raises when
-``AMLC_ARCHIVE`` is unset rather than reading from a path that happens to
-exist.
-
-**The Conclude recomputation never ran on the judge tables.** The guard was
-``"conclude" in fieldnames``, and the judge tables name that column
-``ds_conclude``, ``op_conclude`` or ``gm_conclude``, so the condition was false
-for three of the four files. Their outcome column was rewritten while their
-Conclude column was left on the old typology extraction.
-:func:`conclude_column` now finds the column whatever its prefix.
-
-That fix has a consequence worth stating plainly, because it changes a
-published table. Conclude under the uniform rule is a deterministic function of
-the prediction and ground truth, identical for every annotator. Applying it to
-all four files makes the four Conclude pass rates identical and the Conclude
-row of the multi-judge agreement table degenerate: Fleiss' kappa becomes 1 by
-construction. The per-judge Conclude spread the appendix reports (24.0% for
-DeepSeek, 27.1% for Opus, 20.9% for Gemini against the heuristic's 20.4%) is
-each judge's own verdict, from tables this recomputation had never reached. Run
-this stage when you want the uniform rule; keep the judge verdicts when you want
-to measure whether judges agree.
-
-Dropped
--------
-The pre-release script also rewrote ``rubric_n1000_summary.json`` from a
-reduced copy of the pass-rate code, with no intervals and no agreement
-statistics, over the same filename
-:mod:`amlc.audit.analyze_rubric` writes. Whichever stage ran last decided
-what the file contained. That copy is gone; rerun ``analyze_rubric`` after this
-stage.
 """
 
 from __future__ import annotations

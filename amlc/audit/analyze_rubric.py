@@ -22,13 +22,10 @@ Writes
 
 Outcome vocabulary
 ------------------
-The pre-release version iterated a hardcoded outcome list containing
-``correct_benign`` while the recomputation stage had already rewritten that
-class to ``correct_legit`` in every CSV. The two never matched, so the
-benign-and-correct row was silently absent from the attribution table and no
-count went missing anywhere visible. The classes now come from
-:data:`amlc.audit.sample_traces.OUTCOMES`, and the old spelling is mapped
-onto the canonical one on read, so an older CSV still reports.
+The classes come from
+:data:`amlc.audit.sample_traces.OUTCOMES`, and the older ``correct_benign``
+spelling is mapped onto the canonical ``correct_legit`` on read, so an older
+CSV still reports.
 
 The judge column prefix (``ds_``, ``op_``, ``gm_``) is resolved from the file,
 so any of the three judges can stand in as annotator B.

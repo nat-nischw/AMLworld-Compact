@@ -21,27 +21,16 @@ Writes, into ``--out`` (default ``paths.coreset(dataset)``)
     ``case_index.csv``        the same fields as a join table
     ``metadata.json``         sizes, token statistics, typology counts
 
-Two corrections against the pre-release ``serialize_v2_subset.py``
-------------------------------------------------------------------
+Identifiers, overwriting, and weights
+-------------------------------------
 
-**Case identifiers.** The emitted ``case_id`` now comes from
-:func:`amlc.case_ids.case_id`, so a regenerated prompt carries
-``amlc_00417`` and matches the released artefacts. The pre-release built the
-string inline in the pre-release vocabulary.
+**Case identifiers.** The emitted ``case_id`` comes from
+:func:`amlc.case_ids.case_id`, so a regenerated prompt carries ``amlc_00417``
+and matches the released artefacts.
 
-**Overwriting is explicit.** The pre-release guarded the arrays with a bare
-existence check::
-
-    if not labels_path.exists():
-        np.save(labels_path, labels)
-        np.save(weights_path, weights)
-
-which reads as "do not redo work" but behaves as "keep whatever is on disk".
-The weight vector was the casualty: a re-run with a repaired or re-drawn weight
-vector wrote fresh prompts quoting fresh weights beside an ``.npy`` still
-holding the old ones, and nothing said so. The guard is now ``--force``.
-Without it an existing array is left alone and the run says which file it
-skipped; with it every output is rewritten from this run.
+**Overwriting is explicit.** The arrays are guarded by ``--force``. Without it
+an existing array is left alone and the run says which file it skipped; with
+it every output is rewritten from this run.
 
 **Weights come from the repair, never from the archive.** The archived
 LI-Small weight vector double-counts the benign population (see
@@ -59,12 +48,11 @@ released prompts never loads AMLworld. Pass an object satisfying
 :class:`AMLworldGraph`, or on the command line a ``module:factory`` dotted path
 resolved by :func:`resolve_source`. It defaults to
 ``amlc.data.loader:graph_source``, which opens a variant with this package's own
-loader; the argument used to be required with no shipped factory to give it.
+loader.
 
-The GFP feature tensors the pre-release wrote alongside the prompts are not
-produced here. No prompt depends on them, they duplicate the supervised
-pipeline's own feature extraction, and the released copy is the one that
-pipeline wrote.
+GFP feature tensors are not produced here: no prompt depends on them, they
+duplicate the supervised pipeline's own feature extraction, and the released
+copy is the one that pipeline wrote.
 """
 
 from __future__ import annotations

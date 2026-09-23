@@ -239,7 +239,7 @@ def load_coreset_subset(dataset):
                               else "ht-coreset")
     indices = np.load(base / f"subset_{dataset}_{_stem}.npy")
     if os.environ.get("AMLC_LEGACY_DRAW") == "1":
-        # Reproducing the submitted numbers, archived weights and all.
+        # Reproducing the archived numbers, archived weights and all.
         return indices, np.load(base / f"weights_{dataset}_{_stem}.npy")
     # The archived LI-Small vector double-counts the benign population and sums
     # to 2,767,353 against a test split of 1,384,810. Every weighted quantity

@@ -137,7 +137,7 @@ def main():
     ap.add_argument("--draw", choices=CORESET_DRAWS, default="ht-coreset",
                     help="ht-coreset = the released draw (default); "
                          "ablation-redraw = the same-size re-draw behind the "
-                         "ARR-submission numbers")
+                         "published ablation numbers")
     ap.add_argument("--no-verify", action="store_true",
                     help="skip the draw/serialisation alignment check "
                          "(required for --draw ablation-redraw)")

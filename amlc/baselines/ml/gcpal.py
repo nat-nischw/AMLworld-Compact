@@ -64,7 +64,7 @@ in the paper.
     Balanced-loss sampling over 34k of 5M nodes. F1 0.464 against 0.596; it
     overfitted badly.
 ``--num-neighbors``, ``--train-batch-size``
-    Already marked unused in the pre-release file.
+    Unused.
 """
 
 from __future__ import annotations
@@ -136,9 +136,6 @@ def build_line_graph(edge_index, k_neighbors: int = 1,
     Returns ``lg_edge_index``, or ``(lg_edge_index, lg_edge_attr)``. The line
     graph is undirected: every pair appears in both directions, and the sender
     flags are swapped in the reversed copy.
-
-    The pre-release signature took an ``n_nodes`` argument it never read; it is
-    gone.
     """
     import torch
 

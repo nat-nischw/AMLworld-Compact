@@ -30,21 +30,10 @@ the HT scorer can read it with ``--runs-dir`` and load labels and weights from
 the public coreset. Directory names inside it are therefore the archive's;
 everything a user types, and everything a log line says, is the paper's.
 
-Dropped against the pre-release ``run_all_baselines.py``
---------------------------------------------------------
-
-**PNA**, which is in no table and was half the file, along with its contrastive
-pre-training, its PyG graph construction and its separate label files.
-
-**The synthetic-data mode** and **the PurgedGroupTimeSeries split**: no reported
-number comes from either, and the loader in this release no longer offers them.
-
-**The 500-case stratified test sampler.** It predates the coreset. The
-supervised half now always scores the full temporal test split and the LLM half
-always scores the coreset, which is what every table reports.
-
-**Model checkpoint saving.** The released checkpoints are published with the
-dataset; a rerun that wants them can save from the returned model.
+The supervised half always scores the full temporal test split and the LLM half
+always scores the coreset, which is what every table reports. The released
+checkpoints are published with the dataset; a rerun that wants them can save
+from the returned model.
 
 Scoring lives here
 ------------------

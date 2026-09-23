@@ -200,9 +200,7 @@ def grid_search(
 
     When the two typology heads are supplied the sweep also scores typology
     under the same fusion rule as Doubt Triage: a true positive the ensemble
-    found keeps the ML typology, one the gate deferred takes the LLM's. The
-    grid shipped with the ARR submission had no typology column at all, so the
-    Score-gate row of Table 3 could not be reproduced from it.
+    found keeps the ML typology, one the gate deferred takes the LLM's.
     """
     labels, weights = data["labels"], data["weights"]
     gt_typ = data.get("gt_typo_str")

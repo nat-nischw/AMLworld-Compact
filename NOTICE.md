@@ -25,11 +25,6 @@ ships coreset indices, Horvitz-Thompson weights, labels and typologies, all
 derived. `scripts/00_download_amlworld.py` fetches the originals from Kaggle
 under the user's own account.
 
-> **Camera-ready.** The Ethics Statement promises all artefacts "under a
-> permissive licence". CDLA-Sharing is not permissive, it is copyleft, so that
-> sentence has to be narrowed: the code is permissive, the AMLworld-derived
-> data carries IBM's terms.
-
 ## Elliptic
 
 The Elliptic Data Set backs the real-data check in Appendix D. It is published

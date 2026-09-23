@@ -1,6 +1,6 @@
 # AMLworld-Compact
 
-[![CI](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLCompact/actions/workflows/ci.yml)
+[![CI](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-AMLworldCompactEval-yellow)](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
 [![Code MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
 
@@ -17,13 +17,15 @@ Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsamplin
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
 is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
 
+Release 1.0 (2026-09-23).
+
 ## Install
 
 Use Python 3.11 or later. Run commands from the code repository root:
 
 ```bash
-git clone https://github.com/nat-nischw/AMLCompact.git
-cd AMLCompact
+git clone https://github.com/nat-nischw/AMLworld-Compact.git
+cd AMLworld-Compact
 python -m pip install -e ".[hub]"
 ```
 
@@ -41,9 +43,6 @@ python -m pip install -e ".[llm]"
 The following example loads the evaluation arrays and scores the released ensemble
 without training or generating new predictions. The first Hub load downloads the
 arrays; subsequent loads use the cache.
-
-The dataset is currently private. Set `HF_TOKEN` in your environment using a
-Hugging Face token with read access before loading it from the Hub.
 
 <!--quick-start-begin-->
 ```python
@@ -282,6 +281,11 @@ released supervised model parameters and outputs are labelled MIT in the dataset
 release. The Elliptic pipeline is provided without derived Elliptic data. See
 [`NOTICE.md`](NOTICE.md) and the dataset's licence files for attribution and
 asset-specific terms.
+
+## Contact
+
+Open a [GitHub issue](https://github.com/nat-nischw/AMLworld-Compact/issues) for
+questions about the code or the dataset.
 
 ## Citation
 

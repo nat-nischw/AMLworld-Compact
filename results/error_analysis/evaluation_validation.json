@@ -1,0 +1,123 @@
+{
+  "datasets": {
+    "HI-Small": {
+      "rows": 3753,
+      "illicit": 1251,
+      "benign": 2502,
+      "typed_illicit": 791,
+      "unknown_illicit": 460,
+      "unchanged_columns": [
+        "case_id",
+        "dataset",
+        "gt_label",
+        "weight",
+        "GPT_OSS_120B_pred",
+        "GPT_OSS_120B_typo",
+        "GPT_OSS_120B_conf",
+        "GPT_OSS_20B_pred",
+        "GPT_OSS_20B_typo",
+        "GPT_OSS_20B_conf",
+        "Nemotron_3_Super_120B_pred",
+        "Nemotron_3_Super_120B_typo",
+        "Nemotron_3_Super_120B_conf",
+        "Nemotron_3_Nano_30B_pred",
+        "Nemotron_3_Nano_30B_typo",
+        "Nemotron_3_Nano_30B_conf",
+        "Qwen3_5_397B_A17B_pred",
+        "Qwen3_5_397B_A17B_typo",
+        "Qwen3_5_397B_A17B_conf",
+        "Qwen3_5_35B_A3B_pred",
+        "Qwen3_5_35B_A3B_typo",
+        "Qwen3_5_35B_A3B_conf",
+        "Qwen3_5_27B_pred",
+        "Qwen3_5_27B_typo",
+        "Qwen3_5_27B_conf"
+      ],
+      "llm_only_metrics_exactly_unchanged": true,
+      "group_class_counts_conserved": true,
+      "threshold": 0.8,
+      "pooled_full": {
+        "TP": 711.0,
+        "FP": 127.0,
+        "FN": 540.0,
+        "precision": 0.8484486873508353,
+        "recall": 0.5683453237410072,
+        "f1": 0.6807084729535663
+      },
+      "pooled_ht": {
+        "TP": 711.0,
+        "FP": 127.0,
+        "FN": 540.0,
+        "precision": 0.8484486873508353,
+        "recall": 0.5683453237410072,
+        "f1": 0.6807084729535663
+      },
+      "per_seed_full_ht_max_abs_count_difference": 0.0
+    },
+    "LI-Small": {
+      "rows": 2268,
+      "illicit": 756,
+      "benign": 1512,
+      "typed_illicit": 174,
+      "unknown_illicit": 582,
+      "unchanged_columns": [
+        "case_id",
+        "dataset",
+        "gt_label",
+        "weight",
+        "GPT_OSS_120B_pred",
+        "GPT_OSS_120B_typo",
+        "GPT_OSS_120B_conf",
+        "GPT_OSS_20B_pred",
+        "GPT_OSS_20B_typo",
+        "GPT_OSS_20B_conf",
+        "Nemotron_3_Super_120B_pred",
+        "Nemotron_3_Super_120B_typo",
+        "Nemotron_3_Super_120B_conf",
+        "Nemotron_3_Nano_30B_pred",
+        "Nemotron_3_Nano_30B_typo",
+        "Nemotron_3_Nano_30B_conf",
+        "Qwen3_5_397B_A17B_pred",
+        "Qwen3_5_397B_A17B_typo",
+        "Qwen3_5_397B_A17B_conf",
+        "Qwen3_5_35B_A3B_pred",
+        "Qwen3_5_35B_A3B_typo",
+        "Qwen3_5_35B_A3B_conf",
+        "Qwen3_5_27B_pred",
+        "Qwen3_5_27B_typo",
+        "Qwen3_5_27B_conf"
+      ],
+      "llm_only_metrics_exactly_unchanged": true,
+      "group_class_counts_conserved": true,
+      "threshold": 0.48,
+      "pooled_full": {
+        "TP": 142.0,
+        "FP": 94.0,
+        "FN": 614.0,
+        "precision": 0.6016949152542372,
+        "recall": 0.18783068783068782,
+        "f1": 0.2862903225806452
+      },
+      "pooled_ht": {
+        "TP": 142.0,
+        "FP": 94.0,
+        "FN": 614.0,
+        "precision": 0.6016949152542372,
+        "recall": 0.18783068783068782,
+        "f1": 0.2862903225806452
+      },
+      "per_seed_full_ht_max_abs_count_difference": 0.0
+    }
+  },
+  "changed_figures": [
+    {
+      "path": "paper/figures/typology_f1_hi_small.pdf",
+      "sha256": "f94976ab96e76ae7cb02d176c2a5b93463916fe5bf3c77a726670d8166bebe56"
+    },
+    {
+      "path": "paper/figures/error_transitions_hi_small.pdf",
+      "sha256": "c264079ee43847ab2167f880443a2e8daebcc61d4b040cd5f77883017741f0eb"
+    }
+  ],
+  "typology_tie_rule": "lowest canonical class index; mode across seeds per member, then mode across members"
+}

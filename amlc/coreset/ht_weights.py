@@ -82,8 +82,7 @@ MAX_EXPECTED_FILL = 8
 def difficulty_from_probs(ens_probs: np.ndarray) -> np.ndarray:
     """Per-edge difficulty: 1 at the decision boundary, 0 when confident.
 
-    Note this peaks at p = 0.5 regardless of the operating threshold tau,
-    which is a separate wording issue tracked for the camera-ready.
+    Peaks at p = 0.5 regardless of the operating threshold tau.
     """
     return 1.0 - np.abs(ens_probs - 0.5) * 2.0
 

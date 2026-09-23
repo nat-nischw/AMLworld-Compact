@@ -26,26 +26,19 @@ published dataset, which is what a fresh clone uses.
 and is only needed to regenerate results. Every pre-release identifier it has
 to touch lives in :mod:`amlc.archive`, not here.
 
-Provenance note (2026-08-10)
-----------------------------
-This module supersedes ``src/hybrid.py`` in the pre-release tree, which
-hardcoded the ablation re-draw while the serialised prompts, ``case_id``
-values, labels and weights that the LLMs were evaluated on all come from the
-released HT-Coreset draw. The two draws are the same size but share only 47.3%
-(HI-Small) / 49.4% (LI-Small) of their edges and match positionally on just
-3.0% / 8.9%, so 25.6% / 32.4% of array positions paired an LLM verdict about
-one edge with the ground-truth label and ensemble probability of a different
-edge.
-
-Fixes here:
-  1. The draw is an explicit parameter defaulting to ``"ht-coreset"``. Pass
-     ``draw="ablation-redraw"`` only to reproduce the ARR-submission numbers.
-  2. :func:`verify_alignment` cross-checks labels and weights against the
-     serialised subset the prompts were built from and raises rather than
-     silently scoring a misaligned pairing.
-  3. Archive loads repair the HT weights by default, because the archived
-     LI-Small vector double-counts almost the whole benign population
-     (see :mod:`amlc.coreset.ht_weights`).
+Draws and alignment
+-------------------
+The draw is an explicit parameter defaulting to ``"ht-coreset"``, the draw the
+serialised prompts, ``case_id`` values, labels and weights that the LLM
+predictions are indexed against come from. The archived ablation re-draw is a
+different same-size draw and shares under half its edges with it, so pairing
+verdicts from one draw with labels from the other scores the wrong edge on
+many positions. Pass ``draw="ablation-redraw"`` only to reproduce the
+published ablation numbers. :func:`verify_alignment` cross-checks labels and
+weights against the serialised subset the prompts were built from and raises
+rather than silently scoring a misaligned pairing. Archive loads repair the
+HT weights by default, because the archived LI-Small vector double-counts
+almost the whole benign population (see :mod:`amlc.coreset.ht_weights`).
 """
 
 from __future__ import annotations
@@ -442,14 +435,14 @@ def load_coreset_from_archive(
 ) -> dict:
     """Rebuild the coreset from the archived experiment tree.
 
-    Only needed to regenerate results or to reproduce the ARR submission.
-    A plain clone should call :func:`load_coreset` instead.
+    Only needed to regenerate the published results. A plain clone should
+    call :func:`load_coreset` instead.
 
     Parameters
     ----------
     draw : {"ht-coreset", "ablation-redraw"}
         ``ht-coreset`` is the released draw and the default. ``ablation-redraw``
-        is the separate same-size re-draw behind the ARR-submission Doubt
+        is the separate same-size re-draw behind the published Doubt
         Triage numbers; it does not line up with the LLM predictions, so
         ``verify`` must be off to use it.
     repair_weights : bool
@@ -457,7 +450,7 @@ def load_coreset_from_archive(
         LI-Small vectors double-count almost the whole benign population
         because of a spare-fill defect in the generator; see
         ``coreset/ht_weights.py``. Leave on unless you are reproducing the
-        submitted numbers exactly.
+        archived numbers exactly.
     """
     if draw not in CORESET_DRAWS:
         raise ValueError(f"draw must be one of {CORESET_DRAWS}, got {draw!r}")

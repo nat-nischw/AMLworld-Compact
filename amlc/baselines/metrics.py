@@ -17,16 +17,9 @@ coreset. It is **not** re-implemented here. There is one implementation, in
 caller who wants both kinds of scoring has a single import and there is no
 second copy to drift.
 
-What was dropped
-----------------
-The pre-release ``metrics.py`` also held ``MetricsCalculator``,
-``compute_metrics``, ``aggregate_metrics_across_seeds`` and
-``format_metrics_table``. Those score ``PredictionResult`` objects against
-``Case`` objects: evidence precision and recall over cited edge ids, a verifier
-pass rate, an unsupported-claim estimate, and token and latency averages. Every
-one of those fields is either an LLM-path concept or is written as a constant
-zero by the supervised baselines, and both dataclasses belong to the LLM
-evaluation path rather than here. They are not part of this group.
+Prediction-result scoring lives elsewhere: ``compute_metrics`` and
+``aggregate_metrics_across_seeds`` in :mod:`amlc.llm.runner` score
+``PredictionResult`` objects against cases on the LLM evaluation path.
 """
 
 from __future__ import annotations

@@ -16,44 +16,9 @@ Writes
     decides where per-seed probabilities and typology predictions land. Those
     are what the ensemble and the coreset read back.
 
-``build_pyg_link_data`` also lives here, because it is where the pre-release
-tree kept it and because both GCPAL stages import it. It builds one transaction
-graph for the whole dataset rather than millions of k-hop subgraphs, following
-IBM Multi-GNN.
-
-Dropped from the pre-release ``non_llm_baselines.py``
------------------------------------------------------
-**PNA.** The third baseline in that file appears in no table in the paper. Its
-class, its degree-histogram helper, its PyG conversion helpers and its factory
-entry are gone.
-
-**The four objects PNA was the last consumer of inside ``build_pyg_link_data``:**
-the train-only and validation graphs, the four raw z-normalised edge features
-(timestamp, amount, currency, payment format) that were attached as
-``edge_attr``, and the ``edge_dim`` they implied. Both GCPAL stages read only
-``te_data.edge_index``, ``te_data.y``, the split indices and the GFP matrix, so
-the output they consume is unchanged and three full copies of the edge tensors
-no longer get built.
-
-**The case-based API.** ``NonLLMBaseline``, ``fit``, ``predict``,
-``predict_batch`` and ``predict_proba`` over ``Case`` objects were reached only
-in synthetic mode and on the PNA path; every published GBT number came through
-``fit_from_features``. Dropping them also drops this module's dependency on the
-``Case`` dataclass and the per-case feature preprocessor.
-
-**The sklearn GradientBoosting fallback.** Both trainers used to catch a missing
-lightgbm or xgboost and silently substitute ``GradientBoostingClassifier``. That
-is a different model with different numbers under the same method name, which is
-the worst possible failure mode for a reproduction. Missing dependencies now
-raise.
-
-**``predict_batch_from_features``.** It wrapped the probability vector in the
-LLM path's ``PredictionResult`` dataclass so a shared metrics function could
-score it against ``Case`` objects. Both of those belong to the LLM path.
-:meth:`GFPBaseline.predict_proba_from_features` and
-:meth:`GFPBaseline.predict_typology_from_features` return the two arrays that
-wrapper was built out of, which are also exactly what the orchestrator saved to
-disk and what every downstream stage reads.
+``build_pyg_link_data`` also lives here because both GCPAL stages import it. It
+builds one transaction graph for the whole dataset rather than millions of
+k-hop subgraphs, following IBM Multi-GNN.
 """
 
 from __future__ import annotations

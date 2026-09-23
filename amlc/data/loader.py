@@ -30,19 +30,6 @@ The split
 60/20/20 by row order, computed in :mod:`amlc.data.splits` because the
 Snap ML feature stage needs the same two indices. Every edge carries its split
 in the graph and in ``_edge_split``.
-
-Dropped from the pre-release loader
------------------------------------
-``load_pgts`` and the pre-sampled-case branch it fed. The purged-group
-time-series split was built and never used: it produced no number in the paper
-and its output directory is empty. Keeping it would mean keeping a second
-labelling of every edge, a second set of split lists, and a "purge" case that
-half the accessors here had to test for.
-
-``load_synthetic`` and the ``load_dataset`` convenience wrapper. The synthetic
-random graph existed to smoke-test the pipeline without the 5 GB CSV; it
-generates cases with no relation to AMLworld and nothing in the paper is
-computed from it.
 """
 
 from __future__ import annotations

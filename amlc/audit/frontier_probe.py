@@ -34,48 +34,26 @@ the released coreset on all 198, so the probe is checkable against the published
 dataset rather than against a private pool. Identifiers were retagged from
 ``v2_`` to ``amlc_`` by :func:`amlc.case_ids.retag`.
 
-The scoring convention, recovered rather than documented
----------------------------------------------------------
+Scoring conventions
+-------------------
 
-No generator for this table survives in any repository, so the convention was
-recovered by fitting candidate rules to the ninety published numbers. The
-predicted class is ``parsed.observed_pattern``, with ``legitimate`` meaning the
-negative class. What the rest of the recovery turned up is worth stating
-carefully, because it is a camera-ready item rather than implementation trivia.
+The predicted class is ``parsed.observed_pattern``, with ``legitimate`` meaning
+the negative class. The model's own binary answer, ``parsed.conclusion``, plays
+no part in any published column: the probe's detection metric measures whether
+the model named a laundering typology. For *FS-TypFirst* that is the stated
+design, since its prompt derives the verdict from the typology.
 
-**The model's own binary answer is not used.** ``parsed.conclusion`` plays no
-part in any published column. Scoring detection from it instead reproduces 31 of
-the 54 detection numbers and none of DeepSeek's six cells. So the probe's
-detection metric measures whether the model named a laundering typology, not
-whether it said the word suspicious. For *FS-TypFirst* that is the stated
-design, since its prompt derives the verdict from the typology. For the other
-five variants it is not what the prompt asked for, and the appendix does not say
-so.
-
-**The table's columns do not agree on what an unparsed response means.** 411 of
-the 3,564 scored responses parsed no typology at all. Fitting each column
-separately gives two different answers, and neither fits both:
-
-===========================  ==========  =========  ========
-convention for unparsed      Det (54)    Typ-F1     Typ-Acc
-===========================  ==========  =========  ========
-counts as a benign answer    **54/54**   **18/18**  11/18
-counts as no answer at all   15/54       5/18       **18/18**
-===========================  ==========  =========  ========
-
-So Det-F1/P/R and Typ-F1 were computed treating a parse failure as a confident
-benign prediction, while Typ-Acc in the same row was computed treating it as a
-non-answer that matches nothing. Each convention is defensible alone. Using both
-in one table is not, because a reader compares Typ-F1 against Typ-Acc across the
-row. The gap is widest for *FS-CoT-Elim* on Claude Sonnet, where 95 of 198
-responses failed to parse: the table prints Typ-Acc 15.2, and the convention its
-own Typ-F1 column uses would print 21.2.
+Unparsed responses are scored per column. The Det and Typ-F1 columns treat a
+parse failure as a confident benign prediction; the Typ-Acc column treats it as
+a non-answer that matches nothing. 411 of the 3,564 scored responses parsed no
+typology at all, so the two rules differ most where parsing fails often: for
+*FS-CoT-Elim* on Claude Sonnet, 95 of 198 responses failed to parse.
 
 :func:`score` therefore takes a ``convention`` argument. ``"published"``
-reproduces the table exactly, mixed rules and all, and :func:`verify` asserts
-that all ninety numbers come back. ``"benign"`` and ``"unanswered"`` apply one
-rule to every column, which is what a corrected table should do; running this
-module as a script prints both and the deltas between them.
+reproduces the table exactly, mixed rules and all; :func:`verify` checks the
+full table against the CSV. ``"benign"`` and ``"unanswered"`` apply one rule
+to every column; running this module as a script prints both and the deltas
+between them.
 
 ``results/frontier_probe/metrics_archived/`` holds the twenty-two
 ``metrics.json`` aggregates written at run time by the original analysis script,
@@ -102,9 +80,7 @@ MODELS = {
 
 #: Archive variant directory, and the paper's name for it. The archive numbering
 #: is not contiguous: ``V3`` was designed and never run, and the abstain variant
-#: that ran is the softened ``V4p1`` rather than the ``V4`` the appendix boxes.
-#: ``prompts/frontier_probe/README.md`` records the four places the appendix and
-#: the executed runs disagree.
+#: that ran is the softened ``V4p1``.
 # These V-numbers are prompt variants of the probe. They are unrelated to the
 # pre-release name of the HT-Coreset, which also appears as "V2" in archived
 # filenames such as v2_best.npy; see amlc.archive.

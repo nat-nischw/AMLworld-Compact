@@ -40,7 +40,7 @@ The default is the released coreset under ``data/coreset/<dataset>/``, whose
 weights are the repaired ones. The archived LI-Small weight vector double-counts
 almost the whole benign population, which inflates every weighted false-positive
 mass computed from it; see :mod:`amlc.coreset.ht_weights`. Point
-``--coreset-dir`` at the archived vectors to reproduce the submitted CSV.
+``--coreset-dir`` at the archived vectors to score them as they are.
 
 Usage:
     python -m amlc.coreset.compare \\
