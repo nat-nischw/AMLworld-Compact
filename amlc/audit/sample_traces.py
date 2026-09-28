@@ -43,9 +43,9 @@ name. :func:`normalise_outcome` accepts the old spelling on input.
 Sample reproducibility
 ----------------------
 Each (model, outcome) cell is drawn with a fixed ``random_state``, so the 980
-stratified picks do not depend on model order. The 20-row top-up that brings the
-sample to 1,000 draws from the pooled remainder and does depend on it; the order
-is :data:`config.LLM_MODELS`.
+possible stratified picks do not depend on model order. Cells with fewer than
+the target number of traces produce a larger top-up from the pooled remainder;
+that top-up depends on model order, which is :data:`config.LLM_MODELS`.
 
 Dropped
 -------

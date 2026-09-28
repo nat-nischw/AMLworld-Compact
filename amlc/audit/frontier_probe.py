@@ -43,17 +43,10 @@ no part in any published column: the probe's detection metric measures whether
 the model named a laundering typology. For *FS-TypFirst* that is the stated
 design, since its prompt derives the verdict from the typology.
 
-Unparsed responses are scored per column. The Det and Typ-F1 columns treat a
-parse failure as a confident benign prediction; the Typ-Acc column treats it as
-a non-answer that matches nothing. 411 of the 3,564 scored responses parsed no
-typology at all, so the two rules differ most where parsing fails often: for
-*FS-CoT-Elim* on Claude Sonnet, 95 of 198 responses failed to parse.
-
-:func:`score` therefore takes a ``convention`` argument. ``"published"``
-reproduces the table exactly, mixed rules and all; :func:`verify` checks the
-full table against the CSV. ``"benign"`` and ``"unanswered"`` apply one rule
-to every column; running this module as a script prints both and the deltas
-between them.
+All published metrics treat a response with no parsed typology as a benign
+prediction. This occurs in 249 of the 3,564 scored responses. For comparison,
+:func:`score` also supports treating such responses as unanswered; the
+published rule is checked against the CSV by :func:`verify`.
 
 ``results/frontier_probe/metrics_archived/`` holds the twenty-two
 ``metrics.json`` aggregates written at run time by the original analysis script,
@@ -118,9 +111,9 @@ FAILED_MODELS = {"claude-opus-4-7"}
 #: The published table, for :func:`verify`. Rows are (Det-F1, Det-P, Det-R,
 #: Typ-F1, Typ-Acc) in percent, as printed in ``tables/probe_frontier_apis.tex``.
 PUBLISHED = {
-    ("deepseek-v4-pro", "V0"):   (89.3, 88.8, 89.8, 20.9, 25.8),
-    ("deepseek-v4-pro", "V1"):   (89.0, 88.7, 89.2, 17.3, 20.7),
-    ("deepseek-v4-pro", "V2"):   (86.4, 90.1, 83.0, 26.5, 25.8),
+    ("deepseek-v4-pro", "V0"):   (89.3, 88.8, 89.8, 20.9, 26.3),
+    ("deepseek-v4-pro", "V1"):   (89.0, 88.7, 89.2, 17.3, 21.7),
+    ("deepseek-v4-pro", "V2"):   (86.4, 90.1, 83.0, 26.5, 28.3),
     ("deepseek-v4-pro", "V4p1"): (51.2, 90.0, 35.8, 16.1, 21.7),
     ("deepseek-v4-pro", "V7"):   (82.3, 88.8, 76.7, 21.3, 23.7),
     ("deepseek-v4-pro", "V8"):   (90.2, 89.0, 91.5, 30.3, 32.3),
@@ -128,20 +121,19 @@ PUBLISHED = {
     ("gemini-3.1-pro-preview", "V1"):   (80.7, 87.4, 75.0, 23.5, 26.3),
     ("gemini-3.1-pro-preview", "V2"):   (82.4, 90.5, 75.6, 25.5, 27.3),
     ("gemini-3.1-pro-preview", "V4p1"): (37.6, 97.6, 23.3, 11.9, 20.7),
-    ("gemini-3.1-pro-preview", "V7"):   (70.5, 88.8, 58.5, 19.5, 23.7),
+    ("gemini-3.1-pro-preview", "V7"):   (70.5, 88.8, 58.5, 19.5, 24.2),
     ("gemini-3.1-pro-preview", "V8"):   (85.5, 87.5, 83.5, 27.3, 27.8),
     ("claude-sonnet-4-6", "V0"):   (91.8, 88.8, 94.9, 12.4, 18.7),
     ("claude-sonnet-4-6", "V1"):   (91.5, 88.8, 94.3, 12.5, 18.2),
-    ("claude-sonnet-4-6", "V2"):   (90.8, 89.5, 92.0, 21.0, 25.3),
-    ("claude-sonnet-4-6", "V4p1"): (80.4, 92.6, 71.0, 18.0, 21.7),
-    ("claude-sonnet-4-6", "V7"):   (66.9, 91.2, 52.8, 17.9, 15.2),
+    ("claude-sonnet-4-6", "V2"):   (90.8, 89.5, 92.0, 21.0, 26.3),
+    ("claude-sonnet-4-6", "V4p1"): (80.4, 92.6, 71.0, 18.0, 23.7),
+    ("claude-sonnet-4-6", "V7"):   (66.9, 91.2, 52.8, 17.9, 21.2),
     ("claude-sonnet-4-6", "V8"):   (93.5, 89.6, 97.7, 21.1, 25.8),
 }
 
 #: ``pred_pattern`` is the raw parsed ``observed_pattern``, empty when the
-#: response parsed no typology. It is deliberately *not* folded onto the label
-#: space on the way out, because the published columns disagree about what an
-#: empty value means and a pre-folded table could not reproduce both.
+#: response parsed no typology. Keeping this raw value lets the scorer compare
+#: the published benign convention with an unanswered-response alternative.
 FIELDS = [
     "model", "variant", "case_id", "gold_class", "gold_label",
     "pred_pattern", "pred_conclusion", "errored",
@@ -277,9 +269,8 @@ def score(path: Path | None = None, convention: str = "published") -> dict[tuple
     """Score every cell from the predictions table.
 
     ``convention`` selects how a response that parsed no typology is treated.
-    ``"published"`` reproduces the table exactly, which means treating it as a
-    benign answer for Det and Typ-F1 and as a non-answer for Typ-Acc.
-    ``"benign"`` and ``"unanswered"`` apply one rule to every column.
+    ``"published"`` and ``"benign"`` treat it as a benign answer in every
+    metric. ``"unanswered"`` treats it as a miss in every metric.
 
     Returns ``{(model, variant): {det_f1, det_p, det_r, typ_f1, typ_acc, n,
     n_errors, n_unparsed}}``, with the wholly failed model excluded.
@@ -295,9 +286,7 @@ def score(path: Path | None = None, convention: str = "published") -> dict[tuple
         as_benign = [canonical_class(r["pred_pattern"], BENIGN) for r in rows]
         as_unanswered = [canonical_class(r["pred_pattern"], UNANSWERED) for r in rows]
 
-        if convention == "published":
-            det_pred, f1_pred, acc_pred = as_benign, as_benign, as_unanswered
-        elif convention == "benign":
+        if convention in ("published", "benign"):
             det_pred = f1_pred = acc_pred = as_benign
         else:
             det_pred = f1_pred = acc_pred = as_unanswered
@@ -373,14 +362,12 @@ def main() -> None:
           f"{(args.predictions or predictions_path()).name}")
 
     if args.convention == "published":
-        pub = got
-        for alt in ("benign", "unanswered"):
-            other = score(args.predictions, convention=alt)
-            moved = [(k, pub[k]["typ_acc"], other[k]["typ_acc"])
-                     for k in pub if abs(pub[k]["typ_acc"] - other[k]["typ_acc"]) > 0.06]
-            worst = max((abs(a - b) for _, a, b in moved), default=0.0)
-            print(f"under one consistent rule ({alt}): Typ-Acc moves in "
-                  f"{len(moved)} of {len(pub)} cells, by up to {worst:.1f} points")
+        other = score(args.predictions, convention="unanswered")
+        moved = [(k, got[k]["typ_acc"], other[k]["typ_acc"])
+                 for k in got if abs(got[k]["typ_acc"] - other[k]["typ_acc"]) > 0.06]
+        worst = max((abs(a - b) for _, a, b in moved), default=0.0)
+        print(f"treating unparsed responses as unanswered changes Typ-Acc "
+              f"in {len(moved)} of {len(got)} cells, by up to {worst:.1f} points")
 
 
 if __name__ == "__main__":

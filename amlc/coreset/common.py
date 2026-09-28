@@ -27,16 +27,17 @@ silently move the operating point of one half of the results.
 
 Token estimates
 ---------------
-The size sweeps report a token budget per subset size, and the Naive Coreset's
-562M-token figure in the paper's Naive-versus-HT table comes from that column.
-The estimate is a single measurement multiplied by the subset size: the archived
+The archived size sweeps report a mock-case token extrapolation per subset
+size. These values are retained for reproducing the original summaries but
+are not used as evaluation costs in the revised paper. The extrapolation is
+a single measurement multiplied by the subset size: the archived
 pipeline serialised one synthetic 45-edge context graph in each format and
 divided its character count by four. It never touched the real coreset, so the
 per-format character counts are constants of the serialiser, recorded here as
-:data:`MOCK_CASE_CHARS` and reproduced in every released summary JSON. Keeping
-the number rather than the measurement means constructing a coreset does not
-require the serialiser or a copy of AMLworld. Pass fresh ``chars_per_case`` to
-:func:`token_stats` if the serialiser ever changes.
+:data:`MOCK_CASE_CHARS` and reproduced in every released summary JSON. The
+released graph texts and model request logs, rather than these mock values,
+support the paper's current token accounting. Pass fresh ``chars_per_case``
+to :func:`token_stats` if the serialiser ever changes.
 """
 
 from __future__ import annotations

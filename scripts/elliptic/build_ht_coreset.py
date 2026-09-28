@@ -15,13 +15,13 @@ Outputs (all under `outputs/elliptic/coreset/`):
   B{1..7}.npz   one .npz per baseline, k draws each (default k=50)
   meta.json     full-set metrics, subset sizes, hyperparameters
 
-The 7 ablation baselines are kept identical in spirit to those in the main
-paper (Table 2):
+The 7 ablation baselines use the following Elliptic rules. B3 differs from
+the AMLworld B3 sampler in the paper's main comparison:
 
   B1  Random Uniform                   benign+illicit drawn iid, no IW
   B2  Stratified Proportional          stratified by time_step, no IW
-  B3  Keep-Ill + Random benign         retain illicit, IID benign, no IW
-  B4  HT-Coreset w/o Hard-Neg          stratified-only, no hard-neg, w/ IW
+  B3  HT selection with unit weights   retain the HT-selected nodes, no IW
+  B4  HT-Coreset w/o Hard-Neg          exclude hard nodes, weight the rest
   B5  Fogliato (Neyman allocation)     proportional minority sampling + IW
   B6  Leskovec random walk             walk-based traversal from illicit nodes
   B7  Gao stratified graph sampling    stratified by node degree

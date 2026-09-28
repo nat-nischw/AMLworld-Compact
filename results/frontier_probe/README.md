@@ -48,10 +48,10 @@ of any published column: the probe's detection metric measures whether the
 model named a laundering typology. For `FS-TypFirst` that is the stated design,
 since its prompt derives the verdict from the typology.
 
-Unparsed responses are scored per column. The Det and Typ-F1 columns treat a
-parse failure as a confident benign prediction; the Typ-Acc column treats it as
-a non-answer that matches nothing. The scorer's `--convention` flag applies
-either rule to the whole table.
+All published metrics treat a response with no parsed typology as benign;
+this occurs in 249 of the 3,564 scored responses. The scorer's
+`--convention unanswered` option shows the effect of scoring these as misses
+instead.
 
 ## Claude Opus 4.7
 

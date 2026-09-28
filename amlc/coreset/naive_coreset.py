@@ -811,7 +811,7 @@ def main() -> None:
         line = (f"{best['n_total']:,} edges, "
                 f"{best['n_illicit']:,} illicit, "
                 f"dF1={best['delta_f1']*100:.1f}%, "
-                f"{best['context']['est_tokens_total']/1e6:.0f}M tokens"
+                f"{best['context']['est_tokens_total']/1e6:.0f}M mock-case tokens"
                 if best else "no minimum found (no search was run)")
         print(f"  {ds}: full {s['n_total']:,} edges -> {line}")
 

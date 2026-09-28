@@ -189,6 +189,7 @@ GFP means **Graph Feature Preprocessor**. The primary ensemble averages
 LightGBM and XGBoost probabilities across five seeds. It retains thresholds
 0.80 for HI-Small and 0.48 for LI-Small from the original construction study;
 these operating points were selected on the full test split.
+ML and DT task comparisons at these points are exploratory.
 
 | Full baseline name | Loader ID |
 |---|---|
@@ -254,6 +255,12 @@ The [dataset card](https://huggingface.co/datasets/natnitaract/AMLworldCompactEv
 describes all columns, feature arrays, weights, and checkpoint files. Graph texts
 use two-hop neighbourhoods with a cap of 50 neighbours per hop. The released data
 contains test rows; use separate data when training and tuning a new model.
+The released graph texts contain 272.47 million characters on HI-Small and
+167.68 million on LI-Small, or roughly 68.12 million and 41.92 million
+graph-text tokens under a four-characters-per-token estimate. This excludes
+instructions, demonstrations, and generated output. Archived
+`est_tokens_total` fields in `results/coreset/` extrapolate one synthetic
+example and are not measured prompt costs.
 
 ## Repository layout
 
