@@ -44,6 +44,7 @@ def write_paper_tables(out, cells, contrasts):
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{llrrrlrl}", r"\toprule",
         r"Model & M & $F1_{\rm HT}$ & $\mathrm{SD}_{\rm run}$ & $\mathrm{SE}_{\rm samp}$ & 95\% interval & Lift & 95\% interval \\",
+        r" & & (\%) & ($10^{-3}$ pp) & ($10^{-3}$ pp) & (\%) & & \\",
         r"\midrule",
     ]
     for dataset in ("HI-Small", "LI-Small"):
@@ -81,6 +82,7 @@ def write_paper_tables(out, cells, contrasts):
         r"\setlength{\tabcolsep}{5pt}", r"\begin{tabular}{llrrlrl}",
         r"\toprule",
         r"Split & Model & $\Delta F1_{\rm HT}$ & $\mathrm{SE}_{\rm paired}$ & 95\% interval & $\Delta$Lift & 95\% interval \\",
+        r" & & (pp) & ($10^{-3}$ pp) & (pp) & & \\",
         r"\midrule",
     ]
     for row in contrasts:
