@@ -1,110 +1,137 @@
 #!/usr/bin/env python3
-"""Render Figure 1 as a publication-size vector PDF.
+"""Draw the manuscript's target-selection overview at its final column size.
 
-Run from any directory. Counts and reduction factors are the released
-HI-Small / LI-Small values in Table 1. Tokens illustrate selected target
-edges, NOT a sampled graph, and are intentionally not to scale. The four
-illicit tokens are retained in both panels; neither panel represents
-individual experimental observations.
+The symbols represent evaluation targets, not a graph being downsampled.
+Their class proportions are schematic. The actual released target counts
+are printed above them; the same illicit symbols survive selection.
+Run from any directory. No experimental outputs are recomputed.
 """
 from pathlib import Path
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+from matplotlib.patches import FancyArrowPatch, Rectangle
 
-WIDTH, HEIGHT = 3.25, 3.00
-INK = '#203442'
-MUTED = '#536571'
-TEAL = '#096F78'
-ORANGE = '#B65225'
-BENIGN = '#B7C5CE'
-RULE = '#D9E1E5'
+WIDTH_MM, HEIGHT_MM = 77, 71
+INK = '#202F39'
+MUTED = '#54636D'
+TEAL = '#086A72'
+ILLICIT = '#B65329'
+BENIGN = '#8098A7'
+RULE = '#D2DADF'
+ARROW_HEAD_PT = 7.2
 
 
 def main():
     plt.rcParams.update({
-        'font.family': 'DejaVu Sans', 'font.size': 8.6,
-        'mathtext.fontset': 'dejavusans', 'pdf.fonttype': 42,
+        'font.family': 'DejaVu Sans',
+        'font.size': 8,
+        'mathtext.fontset': 'dejavusans',
+        'pdf.fonttype': 42,
         'ps.fonttype': 42,
     })
-    fig = plt.figure(figsize=(WIDTH, HEIGHT), facecolor='white')
+    width, height = WIDTH_MM / 25.4 * 72, HEIGHT_MM / 25.4 * 72
+    fig = plt.figure(figsize=(WIDTH_MM / 25.4, HEIGHT_MM / 25.4),
+                     facecolor='white')
     ax = fig.add_axes([0, 0, 1, 1])
-    ax.set(xlim=(0, WIDTH), ylim=(0, HEIGHT))
+    ax.set(xlim=(0, width), ylim=(0, height))
     ax.set_axis_off()
 
-    def text(x, y, value, size=8.6, weight='normal', color=INK, ha='center'):
+    def text(x, y, value, size=8, weight='normal', color=INK, ha='center'):
         return ax.text(x, y, value, fontsize=size, fontweight=weight,
                        color=color, ha=ha, va='center')
 
-    def arrow(start, end, color=MUTED, lw=0.9):
+    def rule(start, end, color=RULE, lw=0.65):
+        ax.plot([start[0], end[0]], [start[1], end[1]],
+                color=color, linewidth=lw, solid_capstyle='butt')
+
+    def arrow(start, end, color=MUTED, lw=0.85):
         ax.add_patch(FancyArrowPatch(start, end, arrowstyle='-|>',
-                     mutation_scale=8, linewidth=lw, color=color,
-                     shrinkA=0, shrinkB=0))
+                     mutation_scale=ARROW_HEAD_PT, linewidth=lw, color=color,
+                     shrinkA=0, shrinkB=0, capstyle='butt', joinstyle='miter'))
 
-    def tokens(xs, ys, illicit_positions):
-        for row, y in enumerate(ys):
-            for col, x in enumerate(xs):
-                illicit = (row, col) in illicit_positions
-                ax.scatter(x, y, s=18 if illicit else 12,
-                           marker='D' if illicit else 'o',
-                           facecolor=ORANGE if illicit else BENIGN,
-                           edgecolors='none', zorder=3)
+    def token(x, y, illicit=False):
+        ax.scatter(x, y, s=15 if illicit else 10,
+                   marker='D' if illicit else 'o',
+                   color=ILLICIT if illicit else BENIGN,
+                   linewidths=0, zorder=3)
 
-    # Split labels avoid using a slash as an ambiguous pair separator.
-    # Reduction factors are rounded ratios of full-test / retained counts.
-    for x, split, reduction in [(0.80, 'HI-Small', '271'),
-                                (2.45, 'LI-Small', '611')]:
-        text(x, 2.83, split, size=9.0, weight='bold')
-        text(x, 2.58, r'$\approx$' + reduction + r'$\times$', size=18,
-             weight='bold', color=TEAL)
-    text(1.625, 2.34, 'target-count reduction', size=9.0)
-    ax.plot([0.05, 3.20], [2.19, 2.19], color=RULE, lw=0.65)
-
-    text(0.74, 2.03, 'Full test', size=9.5, weight='bold')
-    text(2.51, 2.03, 'HT-Coreset', size=9.5, weight='bold', color=TEAL)
-    text(0.74, 1.85, 'HI: 1,015,669 edges', size=8.1, color=MUTED)
-    text(0.74, 1.69, 'LI: 1,384,810 edges', size=8.1, color=MUTED)
-    text(2.51, 1.85, 'HI: 3,753 edges', size=8.1, color=MUTED)
-    text(2.51, 1.69, 'LI: 2,268 edges', size=8.1, color=MUTED)
-
-    ys = [1.52, 1.40, 1.28, 1.16]
-    # A schematic population and subset; every illicit token is retained.
-    tokens([0.18 + 0.124 * i for i in range(10)], ys,
-           {(0, 1), (1, 7), (2, 3), (3, 8)})
-    tokens([2.21, 2.51, 2.81], ys, {(i, 0) for i in range(4)})
-    arrow((1.49, 1.34), (1.94, 1.34), color=TEAL, lw=1.2)
-
-    text(1.625, 0.98, 'All illicit kept; benign sampled by stratum',
-         size=8.1, weight='bold')
-    ax.scatter(0.46, 0.79, s=17, marker='D', c=ORANGE, edgecolors='none')
-    text(0.56, 0.79, 'Illicit', size=8.0, color=MUTED, ha='left')
-    ax.scatter(1.14, 0.79, s=12, marker='o', c=BENIGN, edgecolors='none')
-    text(1.24, 0.79, 'Benign', size=8.0, color=MUTED, ha='left')
-    text(2.60, 0.79, 'Not to scale', size=7.7, color=MUTED)
-
-    # One prediction set feeds both reports; no full-test inference is shown.
-    text(1.625, 0.61, 'Predictions on AMLworld-Compact', size=8.6, weight='bold')
-    ax.plot([1.625, 1.625], [0.52, 0.48], color=MUTED, lw=0.8)
-    ax.plot([0.80, 2.45], [0.48, 0.48], color=MUTED, lw=0.8)
-    arrow((0.80, 0.48), (0.80, 0.425))
-    arrow((2.45, 0.48), (2.45, 0.425))
-
-    # Restrained emphasis: the population estimate is the primary report.
-    for x, width, fill, edge in [
-        (0.035, 1.53, '#EAF3F3', '#AACACB'),
-        (1.685, 1.53, '#F5F7F8', RULE),
+    # Exact target counts carry the scale; schematic marks explain selection.
+    text(1, 194, 'Fewer targets, full-test estimates', size=10.2,
+         weight='bold', ha='left')
+    for y, split, full, kept, reduction in [
+        (175, 'HI-Small', '1,015,669', '3,753', '271'),
+        (158, 'LI-Small', '1,384,810', '2,268', '611'),
     ]:
-        ax.add_patch(FancyBboxPatch((x, 0.035), width, 0.385,
-                     boxstyle='round,pad=0,rounding_size=0.035',
-                     facecolor=fill, edgecolor=edge, linewidth=0.65))
-    text(0.80, 0.31, 'HT-weighted', size=9.0, weight='bold', color=TEAL)
-    text(2.45, 0.31, 'Unweighted', size=9.0, weight='bold')
-    text(0.80, 0.14, 'Full-test estimates', size=8.1, color=TEAL)
-    text(2.45, 0.14, 'Subset diagnostics', size=8.1)
+        text(0, y, split, size=8.1, weight='bold', ha='left')
+        text(94, y, full, size=8.1, ha='right', color=MUTED)
+        arrow((99, y), (114, y), color=TEAL)
+        text(119, y, kept, size=8.5, weight='bold', ha='left')
+        text(width, y, '\N{ALMOST EQUAL TO}' + reduction + '\N{MULTIPLICATION SIGN}',
+             size=12.2, weight='bold', color=TEAL, ha='right')
+    rule((0, 146), (width, 146))
+
+    text(0, 135, 'HT-Coreset', size=9.1, weight='bold', color=TEAL,
+         ha='left')
+    text(width, 135, 'Target selection', size=8, color=MUTED, ha='right')
+    text(36, 121, 'Full test', size=8.2, weight='bold')
+    text(173, 121, 'AMLworld-Compact', size=8.0, weight='bold')
+
+    # Retention and sampling are separate visual lanes. All three illicit
+    # symbols are retained; the illustrative subset has six benign symbols.
+    for x in [23, 36, 49]:
+        token(x, 105, illicit=True)
+    for x in [165, 178, 191]:
+        token(x, 105, illicit=True)
+    text(107, 113, 'Keep all illicit', size=8, color=ILLICIT)
+    arrow((71, 105), (145, 105), color=ILLICIT)
+
+    for y in [88, 80, 72]:
+        for x in [9, 18, 27, 36, 45, 54, 63]:
+            token(x, y)
+        for x in [171, 185]:
+            token(x, y)
+    text(107, 91, 'Sample benign', size=8, color=MUTED)
+    arrow((71, 80), (145, 80), color=MUTED)
+    text(107, 74, 'by stratum', size=8, color=MUTED)
+
+    # All predictions are generated on the selected targets. A single shared
+    # prediction node then feeds both reporting choices, without new inference.
+    rule((207, 109), (213, 109), color=MUTED, lw=0.65)
+    rule((213, 109), (213, 70), color=MUTED, lw=0.65)
+    rule((207, 70), (213, 70), color=MUTED, lw=0.65)
+    center = width / 2
+    card_width = (width - 8) / 2
+    left = card_width / 2
+    right = width - left
+    rule((213, 70), (213, 66.5), color=MUTED, lw=0.8)
+    rule((213, 66.5), (center, 66.5), color=MUTED, lw=0.8)
+    arrow((center, 66.5), (center, 61), color=MUTED)
+    text(center, 54.5, 'One set of predictions', size=8.7, weight='bold')
+    rule((center, 47.8), (center, 43.5), color=MUTED, lw=0.8)
+    rule((left, 43.5), (right, 43.5), color=MUTED, lw=0.8)
+    # Matching vertical shafts, with 2.7 pt between each tip and its panel rule.
+    arrow((left, 43.5), (left, 36.8))
+    arrow((right, 43.5), (right, 36.8))
+
+    # Straight rules and restrained fill distinguish the primary estimate.
+    ax.add_patch(Rectangle((0, 0.8), card_width, 33.3, facecolor='#EFF6F5',
+                           edgecolor='none'))
+    rule((0, 34.1), (card_width, 34.1), color=TEAL, lw=1.15)
+    rule((width - card_width, 34.1), (width, 34.1), color=MUTED, lw=0.8)
+    text(left, 26.5, 'HT-weighted', size=9, weight='bold', color=TEAL)
+    text(right, 26.5, 'Unweighted', size=9, weight='bold')
+    text(left, 16, r'$w_e=1/\pi_e$', size=8.1, color=TEAL)
+    text(right, 16, r'$w_e=1$', size=8.1, color=MUTED)
+    text(left, 5.2, 'Full-test estimates', size=8.1, color=TEAL)
+    text(right, 5.2, 'Subset diagnostics', size=8.1)
 
     out = Path(__file__).resolve().parents[1] / 'results/figures/evaluation_overview.pdf'
-    fig.savefig(out, metadata={'Title': 'AMLworld-Compact: target selection and evaluation'})
+    fig.savefig(out, metadata={
+        'Title': 'AMLworld-Compact: fewer targets, full-test estimates',
+        'Creator': 'Matplotlib; editable figure source accompanies the paper',
+    })
     plt.close(fig)
     print(out)
 
