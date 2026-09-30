@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Draw the manuscript's target-selection overview at its final column size.
+"""Draw target retention, stratified sampling, and the two evaluation reports.
 
-The symbols represent evaluation targets, not a graph being downsampled.
-Their class proportions are schematic. The actual released target counts
-are printed above them; the same illicit symbols survive selection.
-Run from any directory. No experimental outputs are recomputed.
+All marks denote evaluation targets, not graph nodes or extracted contexts.
+The schematic keeps four illicit targets and samples eight benign targets.
+Hard-negative census applies to the released budgets; other strata are sampled.
 """
 from pathlib import Path
 
@@ -13,14 +12,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, Rectangle
 
-WIDTH_MM, HEIGHT_MM = 77, 71
-INK = '#202F39'
-MUTED = '#54636D'
-TEAL = '#086A72'
+WIDTH_MM, HEIGHT_MM = 77, 83
+INK = '#243642'
+MUTED = '#5B6B75'
+ACCENT = '#355C9A'
 ILLICIT = '#B65329'
-BENIGN = '#8098A7'
-RULE = '#D2DADF'
-ARROW_HEAD_PT = 7.2
+HARD = '#496579'
+BENIGN = '#748F9F'
+RULE = '#D6E0E4'
+STRATUM_FILL = '#F1F5F7'
 SIDE_PAD_PT = 2
 
 
@@ -38,98 +38,128 @@ def main():
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set(xlim=(0, width), ylim=(0, height))
     ax.set_axis_off()
+    labels = []
 
     def text(x, y, value, size=8, weight='normal', color=INK, ha='center'):
-        return ax.text(x, y, value, fontsize=size, fontweight=weight,
-                       color=color, ha=ha, va='center')
+        artist = ax.text(x, y, value, fontsize=size, fontweight=weight,
+                         color=color, ha=ha, va='center', linespacing=1.1)
+        labels.append(artist)
+        return artist
 
     def rule(start, end, color=RULE, lw=0.65):
         ax.plot([start[0], end[0]], [start[1], end[1]],
                 color=color, linewidth=lw, solid_capstyle='butt')
 
-    def arrow(start, end, color=MUTED, lw=0.85):
-        ax.add_patch(FancyArrowPatch(start, end, arrowstyle='-|>',
-                     mutation_scale=ARROW_HEAD_PT, linewidth=lw, color=color,
-                     shrinkA=0, shrinkB=0, capstyle='butt', joinstyle='miter'))
+    def arrow(start, end, color=MUTED, lw=0.8):
+        ax.add_patch(FancyArrowPatch(
+            start, end, arrowstyle='-|>', mutation_scale=6.8,
+            linewidth=lw, color=color, shrinkA=0, shrinkB=0,
+            capstyle='butt', joinstyle='miter'))
 
-    def token(x, y, illicit=False):
-        ax.scatter(x, y, s=15 if illicit else 10,
+    def token(x, y, illicit=False, hard=False):
+        ax.scatter(x, y, s=14 if illicit else 9.5,
                    marker='D' if illicit else 'o',
-                   color=ILLICIT if illicit else BENIGN,
+                   color=ILLICIT if illicit else HARD if hard else BENIGN,
                    linewidths=0, zorder=3)
 
-    # Exact target counts carry the scale; schematic marks explain selection.
-    text(SIDE_PAD_PT, 194, 'Fewer targets, full-test estimates', size=10.2,
+    # Counts describe actual target reduction; the selection diagram is schematic.
+    text(SIDE_PAD_PT, 227, 'Fewer targets, full-test estimates', size=10.2,
          weight='bold', ha='left')
     for y, split, full, kept, reduction in [
-        (175, 'HI-Small', '1,015,669', '3,753', '271'),
-        (158, 'LI-Small', '1,384,810', '2,268', '611'),
+        (209, 'HI-Small', '1,015,669', '3,753', '271'),
+        (192, 'LI-Small', '1,384,810', '2,268', '611'),
     ]:
         text(SIDE_PAD_PT, y, split, size=8.1, weight='bold', ha='left')
         text(94, y, full, size=8.1, ha='right', color=MUTED)
-        arrow((99, y), (114, y), color=TEAL)
+        arrow((99, y), (114, y), color=ACCENT)
         text(119, y, kept, size=8.5, weight='bold', ha='left')
-        text(width - SIDE_PAD_PT, y, '\N{ALMOST EQUAL TO}' + reduction + '\N{MULTIPLICATION SIGN}',
-             size=12.2, weight='bold', color=TEAL, ha='right')
-    rule((SIDE_PAD_PT, 146), (width - SIDE_PAD_PT, 146))
+        text(width - SIDE_PAD_PT, y,
+             '\N{ALMOST EQUAL TO}' + reduction + '\N{MULTIPLICATION SIGN}',
+             size=12.2, weight='bold', color=ACCENT, ha='right')
+    rule((SIDE_PAD_PT, 180), (width - SIDE_PAD_PT, 180))
 
-    text(SIDE_PAD_PT, 135, 'HT-Coreset', size=9.1, weight='bold', color=TEAL,
+    text(SIDE_PAD_PT, 169, 'HT-Coreset', size=9.1, weight='bold', color=ACCENT,
          ha='left')
-    text(width - SIDE_PAD_PT, 135, 'Target selection', size=8, color=MUTED, ha='right')
-    full_x, subset_x = 36, 172
-    text(full_x, 123, 'Full test', size=8.2, weight='bold')
-    text(subset_x, 123, 'AMLworld-Compact', size=8.0, weight='bold')
+    text(width - SIDE_PAD_PT, 169, 'Target selection', size=8, color=MUTED,
+         ha='right')
+    text(57, 155, 'Full test', size=8.2, weight='bold')
+    text(174, 155, 'AMLworld-Compact', size=7.8, weight='bold')
 
-    # Retention and sampling are separate visual lanes. All three illicit
-    # symbols are retained; the illustrative subset has six benign symbols.
-    for offset in [-13, 0, 13]:
-        token(full_x + offset, 105, illicit=True)
-        token(subset_x + offset, 105, illicit=True)
-    text(107, 113, 'Keep all illicit', size=8, color=ILLICIT)
-    arrow((71, 105), (145, 105), color=ILLICIT)
+    # Equal illicit counts on both sides; all hard benign targets fit here.
+    text(3, 134, 'Illicit', size=7.3, color=ILLICIT, ha='left')
+    for x in [39, 51, 63, 75]:
+        token(x, 134, illicit=True)
+    for x in [153, 167, 181, 195]:
+        token(x, 134, illicit=True)
+    text(117, 143, 'Keep all', size=7.6, color=ILLICIT)
+    arrow((90, 134), (144, 134), color=ILLICIT)
 
-    for y in [88, 80, 72]:
-        for offset in range(-27, 28, 9):
-            token(full_x + offset, y)
-        for offset in [-7, 7]:
-            token(subset_x + offset, y)
-    text(107, 91, 'Sample benign', size=8, color=MUTED)
-    arrow((71, 80), (145, 80), color=MUTED)
-    text(107, 74, 'by stratum', size=8, color=MUTED)
+    text(3, 114, 'Hard\nbenign', size=7.1, color=HARD, ha='left')
+    for x in [51, 63]:
+        token(x, 114, hard=True)
+    for x in [167, 181]:
+        token(x, 114, hard=True)
+    text(117, 123, 'Keep all*', size=7.6, color=HARD)
+    arrow((90, 114), (144, 114), color=HARD)
 
-    # All predictions are generated on the selected targets. A single shared
-    # prediction node then feeds both reporting choices, without new inference.
-    rule((207, 109), (213, 109), color=MUTED, lw=0.65)
-    rule((213, 109), (213, 66.5), color=MUTED, lw=0.8)
+    # Three visible bands are the remaining benign difficulty strata.
+    # Each source band contains ten targets; two are selected and arranged
+    # in the corresponding compact-set row. Equal marker area prevents
+    # confusion between a sampled target and its importance weight.
+    text(3, 80, 'Other\nbenign', size=7.1, color=MUTED, ha='left')
+    text(117, 103, 'Sample within strata', size=7.2, color=MUTED)
+    for y in [92, 80, 68]:
+        ax.add_patch(Rectangle((31, y - 4.8), 52, 9.6,
+                              facecolor=STRATUM_FILL, edgecolor='none'))
+        ax.add_patch(Rectangle((150, y - 4.8), 48, 9.6,
+                              facecolor=STRATUM_FILL, edgecolor='none'))
+        for x in [35, 46, 57, 68, 79]:
+            for dy in [-2.35, 2.35]:
+                token(x, y + dy)
+        for x in [167, 181]:
+            token(x, y)
+        arrow((90, y), (144, y), color=BENIGN, lw=0.7)
+
+    # One connector includes every selected target and reaches a shared
+    # prediction node. The two reports reuse those same predictions.
+    rule((204, 139), (213, 139), color=MUTED, lw=0.7)
+    rule((213, 139), (213, 60), color=MUTED, lw=0.7)
     center = width / 2
+    rule((213, 60), (center, 60), color=MUTED, lw=0.7)
+    arrow((center, 60), (center, 52.2), lw=0.7)
+    text(center, 45.5, 'One set of predictions', size=8.7, weight='bold')
+
     card_width = (width - 2 * SIDE_PAD_PT - 8) / 2
     left = SIDE_PAD_PT + card_width / 2
     right = width - left
-    rule((213, 66.5), (center, 66.5), color=MUTED, lw=0.8)
-    arrow((center, 66.5), (center, 61), color=MUTED)
-    text(center, 54.5, 'One set of predictions', size=8.7, weight='bold')
-    rule((center, 47.8), (center, 43.5), color=MUTED, lw=0.8)
-    rule((left, 43.5), (right, 43.5), color=MUTED, lw=0.8)
-    # Matching vertical shafts, with 2.7 pt between each tip and its panel rule.
-    arrow((left, 43.5), (left, 36.8))
-    arrow((right, 43.5), (right, 36.8))
+    rule((center, 39.3), (center, 37), color=MUTED, lw=0.7)
+    rule((left, 37), (right, 37), color=MUTED, lw=0.7)
+    arrow((left, 37), (left, 31.7), lw=0.7)
+    arrow((right, 37), (right, 31.7), lw=0.7)
 
-    # Straight rules and restrained fill distinguish the primary estimate.
-    ax.add_patch(Rectangle((SIDE_PAD_PT, 1.5), card_width, 32.6, facecolor='#EFF6F5',
-                           edgecolor='none'))
-    rule((SIDE_PAD_PT, 34.1), (SIDE_PAD_PT + card_width, 34.1), color=TEAL, lw=1.15)
-    rule((width - SIDE_PAD_PT - card_width, 34.1),
-         (width - SIDE_PAD_PT, 34.1), color=MUTED, lw=0.8)
-    text(left, 26.5, 'HT-weighted', size=9, weight='bold', color=TEAL)
-    text(right, 26.5, 'Unweighted', size=9, weight='bold')
-    text(left, 16, r'$w_e=1/\pi_e$', size=8.1, color=TEAL)
-    text(right, 16, r'$w_e=1$', size=8.1, color=MUTED)
-    text(left, 6.3, 'Full-test estimates', size=8.1, color=TEAL)
-    text(right, 6.3, 'Subset diagnostics', size=8.1)
+    ax.add_patch(Rectangle((SIDE_PAD_PT, 1.5), card_width, 27.5,
+                          facecolor='#EFF3FA', edgecolor='none'))
+    rule((SIDE_PAD_PT, 29), (SIDE_PAD_PT + card_width, 29), color=ACCENT, lw=1.05)
+    rule((width - SIDE_PAD_PT - card_width, 29),
+         (width - SIDE_PAD_PT, 29), color=MUTED, lw=0.7)
+    text(left, 22.4, 'HT-weighted', size=8.8, weight='bold', color=ACCENT)
+    text(right, 22.4, 'Unweighted', size=8.8, weight='bold')
+    text(left, 14, r'$w_e=1/\pi_e$', size=8, color=ACCENT)
+    text(right, 14, r'$w_e=1$', size=8, color=MUTED)
+    text(left, 5.6, 'Full-test estimates', size=7.9, color=ACCENT)
+    text(right, 5.6, 'Subset diagnostics', size=7.9)
 
+    # Check the physical figure boundary at export size, including all labels.
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    for label in labels:
+        bounds = label.get_window_extent(renderer)
+        if not (fig.bbox.x0 <= bounds.x0 and bounds.x1 <= fig.bbox.x1
+                and fig.bbox.y0 <= bounds.y0 and bounds.y1 <= fig.bbox.y1):
+            raise ValueError(f'Label outside figure: {label.get_text()}')
     out = Path(__file__).resolve().parents[1] / 'results/figures/evaluation_overview.pdf'
     fig.savefig(out, metadata={
-        'Title': 'AMLworld-Compact: fewer targets, full-test estimates',
+        'Title': 'AMLworld-Compact: retain illicit targets, sample benign strata',
         'Creator': 'Matplotlib; editable figure source accompanies the paper',
     })
     plt.close(fig)
