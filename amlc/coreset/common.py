@@ -1,7 +1,7 @@
 """Helpers shared by the two coreset constructions and by the ablation.
 
 Both constructions start from the same material: the three supervised scorers'
-probabilities on the full temporal test split, averaged into one ensemble
+probabilities on the full file-order test partition, averaged into one ensemble
 probability per edge, and a difficulty score derived from it. This module holds
 that loading step, the metric primitives, the distribution summaries the size
 sweeps report, and the Item Response Theory (IRT) eligibility check that the

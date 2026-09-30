@@ -3,9 +3,8 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# Installed as `amlcompact`, the name the paper uses; imported as `amlc`, which is
-# short enough not to be confused with the repository directory. Same distinction
-# scikit-learn/sklearn makes. The importable package is `amlc/` and there is no other.
+# The AMLworld-Compact resource uses the distribution name `amlcompact` and the
+# Python import name `amlc`.
 name = "amlcompact"
 version = "1.0.0"
 description = "HT-Coreset compression of AMLworld and an in-context evaluation of thinking-mode LLMs on transaction-graph AML detection"

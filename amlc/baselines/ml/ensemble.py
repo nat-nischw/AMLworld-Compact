@@ -33,7 +33,9 @@ EMPTY_CELL = "\u2014"
 def load_evaluation_probabilities(
     archive: Path, dataset: str, seeds: Sequence[int] = SEEDS,
 ) -> np.ndarray:
-    """Full-test mean over both temporal boosters and every requested seed.
+    """Full-test mean over the two boosters and every requested seed.
+
+    Both boosters use the published file-order training partition.
 
     Missing, malformed, or out-of-range arrays are errors. Silently dropping a
     model or seed would change the evaluator and invalidate published metrics.
@@ -88,7 +90,7 @@ def load_typ_preds(archive: Path, dataset: str, member: str,
 
 
 def load_labels(archive: Path, dataset: str) -> np.ndarray:
-    """Ground-truth labels for the temporal test split."""
+    """Ground-truth labels for the file-order test partition."""
     f = legacy_path(archive, "test_labels", dataset)
     if not f.exists():
         raise FileNotFoundError(f"No test labels at {f}")
@@ -159,7 +161,7 @@ def _score_typology(gt_typ: np.ndarray, ensemble_preds: np.ndarray,
 def score_evaluation_ensemble(
     archive: Path, dataset: str, seeds: Sequence[int] = SEEDS,
 ) -> List[dict]:
-    """Score the two temporal boosters at the inherited fixed threshold.
+    """Score the two boosters at the inherited fixed threshold.
 
     Report both the mean/std of per-seed metrics and the pooled scorer used
     for the compact-set comparisons. Typology follows the existing conditional

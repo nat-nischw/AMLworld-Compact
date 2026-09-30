@@ -21,8 +21,9 @@ it does not reach the aggregate metrics in `results/` or the supervised model
 weights trained on the data.
 
 This repository does **not** redistribute the AMLworld transaction CSVs. It
-ships coreset indices, Horvitz-Thompson weights, labels and typologies, all
-derived. `scripts/00_download_amlworld.py` fetches the originals from Kaggle
+provides code for derived artefacts; the companion dataset repository ships
+the coreset indices, Horvitz-Thompson weights, labels and typologies.
+`scripts/00_download_amlworld.py` fetches the originals from Kaggle
 under the user's own account.
 
 ## Elliptic

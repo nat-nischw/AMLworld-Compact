@@ -1,8 +1,9 @@
-"""The temporal 60/20/20 cut of AMLworld, computed in one place.
+"""The published file-order 60/20/20 cut of AMLworld.
 
-AMLworld ships each variant's transactions already ordered by timestamp, so
-the split of Altman et al. (2023) is a pair of row indices rather than a date
-comparison:
+The archived experiment partitions the released CSV by row index. It does
+not sort by timestamp: timestamps overlap across the resulting partitions,
+so this is not a strictly chronological evaluation. The historical function
+name ``temporal_boundaries`` is retained for API compatibility:
 
     train   rows [0, t1)      the first 60 per cent
     val     rows [t1, t2)     the next 20 per cent
@@ -33,7 +34,7 @@ TRAIN_RATIO = 0.6
 VAL_RATIO = 0.2
 TEST_RATIO = 0.2
 
-#: Split names, in temporal order. An edge belongs to exactly one.
+#: Split names, in file order. An edge belongs to exactly one.
 SPLITS = ("train", "val", "test")
 
 T = TypeVar("T", bound=Sequence)

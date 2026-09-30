@@ -1,9 +1,9 @@
-"""Re-inference of the GCPAL checkpoints on the temporal test split.
+"""Re-inference of the GCPAL checkpoints on the file-order test partition.
 
-The paper's third ensemble member, GCPAL+GFP, is not separately trained. It is
+The frozen construction ensemble used GCPAL+GFP as its third member. These are
 the checkpoints that :mod:`amlc.baselines.ml.gcpal` fine-tuned under the
-paper-faithful random 60/20/20 split, loaded here and run forward over the
-temporal split that LightGBM+GFP and XGBoost+GFP were trained and evaluated on.
+historical random 60/20/20 split, loaded here and run forward over the
+file-order split that LightGBM+GFP and XGBoost+GFP were trained and evaluated on.
 Without this step the three members' probability arrays index different edges
 and cannot be averaged at all.
 
@@ -20,9 +20,9 @@ is not a stale copy of the other; they are two stages.
 
 What re-inference does and does not fix. It fixes alignment: after it, all three
 members score the same 1,015,669 or 1,384,810 edges in the same order, and the
-decision threshold is retuned on the temporal validation split rather than
+decision threshold is retuned on the file-order validation partition rather than
 carried over. It does not fix leakage. Fine-tuning saw a random 60 percent of
-all edges, which includes most of the temporal test split, and no amount of
+all edges, which includes most of the file-order test partition, and no amount of
 re-inference removes that. See the note in :mod:`gcpal`.
 
 Reads
@@ -36,7 +36,7 @@ The feature matrix is rebuilt here rather than reloaded, and it has to come out
 identical to the training one or the checkpoint will not load: the same line
 graph at ``lg_k=5``, the same five edge-derived node dimensions, 84 in total.
 The one deliberate difference is that normalisation statistics come from the
-temporal training window, matching the convention the boosted trees use. Every
+file-order training partition, matching the convention the boosted trees use. Every
 checkpoint records its own ``feat_dim`` and a mismatch is skipped rather than
 forced.
 """
@@ -83,7 +83,7 @@ def run_inference(
     archive: Optional[Path] = None,
     results_dir: Optional[Path] = None,
 ) -> List[dict]:
-    """Load one dataset's checkpoints and score the temporal test split."""
+    """Load one dataset's checkpoints and score the file-order test partition."""
     import lightgbm as lgb
     import torch
     import torch.nn.functional as F
@@ -167,7 +167,7 @@ def run_inference(
     print(f"    Val:   {n_val:,} ({y_val.sum():,} illicit)")
     print(f"    Test:  {n_test:,} ({y_test.sum():,} illicit)")
 
-    # ── 6. Typology head, on the temporal train and validation illicit edges ──
+    # ── 6. Typology head, on the file-order train and validation illicit edges ──
     # Fitted on the 84-dimensional node features rather than on the raw GFP
     # matrix the training run used, because that is the matrix this stage has in
     # hand. It is a separate model from the one gcpal.py fits and it is the one
@@ -243,7 +243,7 @@ def run_inference(
         gc.collect()
         torch.cuda.empty_cache()
 
-        # Threshold retuned on the temporal validation split.
+        # Threshold retuned on the file-order validation partition.
         best_t, best_val_f1 = find_optimal_threshold(y_val, val_probs)
         oracle_t, oracle_f1 = find_optimal_threshold(y_test, te_probs)
         te_preds = (te_probs >= best_t).astype(int)

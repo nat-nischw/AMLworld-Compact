@@ -9,10 +9,11 @@ Two modes, both of which the paper reports.
     enters. The requested seed is sent to vLLM on each case request.
 
 ``supervised``
-    The boosted-tree ensemble members, trained on the temporal training split,
-    early-stopped on validation, thresholded on validation and scored on the
-    full test split. GCPAL+GFP is the third member but has its own two-stage
-    pipeline and is not driven from here.
+    LightGBM+GFP and XGBoost+GFP, trained on the file-order training partition,
+    early-stopped on validation and scored individually at validation-selected
+    thresholds. Stage 06 combines their saved probabilities and scores the
+    reported two-booster ensemble at inherited, full-test-selected thresholds.
+    GCPAL is used only in the frozen construction scorer, outside this runner.
 
 Writes, under ``--out`` (default ``paths.results()``)
     ``<model>/<condition>/<dataset>/seed_<n>.json``   per-case predictions, raw
@@ -30,7 +31,7 @@ the HT scorer can read it with ``--runs-dir`` and load labels and weights from
 the public coreset. Directory names inside it are therefore the archive's;
 everything a user types, and everything a log line says, is the paper's.
 
-The supervised half always scores the full temporal test split and the LLM half
+The supervised half always scores the full file-order test partition and the LLM half
 always scores the coreset, which is what every table reports. The released
 checkpoints are published with the dataset; a rerun that wants them can save
 from the returned model.
@@ -66,9 +67,8 @@ from .clients import MODELS, get_client
 from .methods import PredictionResult, get_method
 from .prompts import load_icl_examples
 
-#: Ensemble members this runner trains. The third, GCPAL+GFP, is a
-#: reimplemented graph network with its own pre-training and temporal-inference
-#: stages; it writes its probabilities into the same tree from its own script.
+#: The two boosted-tree evaluation members. GCPAL belongs to the separate
+#: frozen construction scorer and is not trained by this runner.
 GCPAL_MEMBER = "GCPAL+GFP"
 TRAINABLE_MEMBERS = tuple(m for m in config.ENSEMBLE_MEMBERS if m != GCPAL_MEMBER)
 
@@ -180,9 +180,9 @@ def compute_metrics(predictions: Sequence[PredictionResult],
     """Score one seed's predictions against the ground truth.
 
     Detection is scored on every case. Typology is scored only where the case
-    is illicit and carries a pattern, and a prediction with no typology counts
-    as the sentinel class rather than being skipped, so a model that never names
-    a pattern scores zero rather than being excused.
+    is illicit and carries a pattern. A benign verdict or a prediction with no
+    typology counts as the sentinel class rather than being skipped, matching
+    the postprocessed typology results reported in the paper.
     """
     from sklearn.metrics import (accuracy_score, auc, f1_score,
                                  precision_recall_curve, precision_score,
@@ -209,7 +209,7 @@ def compute_metrics(predictions: Sequence[PredictionResult],
 
         if case.label == 1 and case.typology:
             typ_true.append(case.typology)
-            typ_pred.append(pred.typology or "none")
+            typ_pred.append((pred.typology or "none") if pred.illicit else "none")
 
         llm_calls.append(pred.llm_calls)
         tokens.append(pred.total_tokens)
@@ -561,7 +561,8 @@ def run_supervised(cfg: RunConfig) -> list[dict]:
 
                 # Diagnostic only, and it is threshold selection on the test
                 # split: it separates a ranking failure from a thresholding one.
-                # No reported number uses it.
+                # It does not set this runner's per-member predictions.
+                # Stage 06 separately applies the reported ensemble thresholds.
                 oracle_threshold, oracle_f1 = find_optimal_threshold(y_test,
                                                                      test_probs)
                 print(f"    {member} {dataset} seed={seed}: "

@@ -13,7 +13,7 @@ of the AMLworld paper's Appendix C:
     <method>.json            binary detection, objective F1 at a fixed 0.5
     <method>_typology.json   eight-class typology, objective macro F1
 
-Each search runs on the temporal 60/20/20 split: fit on the first 60 percent,
+Each search uses the file-order 60/20/20 split: fit on the first 60 percent,
 score on the next 20, never touch the last 20. The detection searches early-stop
 on the validation split and record ``actual_n_rounds``, the round count that
 early stopping actually reached, because the final training run uses that rather

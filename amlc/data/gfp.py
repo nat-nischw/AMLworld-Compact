@@ -11,19 +11,18 @@ extraction is the expensive part of a rerun and its result is deterministic.
 The cache key carries the batch size, since two batch sizes give different
 features.
 
-Why the batch size is the whole story
--------------------------------------
+Streaming order and batch size
+------------------------------
 The preprocessor is a streaming engine: it keeps an in-memory graph and each
 call adds edges to it, so an edge's features describe the graph as it stood
 when that edge arrived. Feeding all five million edges in one
 ``fit_transform`` builds the whole graph first and then labels every edge with
-statistics computed from it, which lets a January transaction carry evidence
-from the following December. Under the temporal split that is leakage straight
-into the training features, and it cost roughly 10 to 15 points of F1 on
-HI-Small before it was found. The GFP paper (arXiv:2402.08593, Table 4) uses
-128 for the AML datasets, and that is the default here. ``batch_size <= 0``
-restores the single-pass behaviour and is kept only so the defect can be
-reproduced deliberately.
+statistics computed from later rows. The GFP paper (arXiv:2402.08593, Table 4)
+uses 128 for the AML datasets, and that is the default here. Smaller batches
+limit this exposure but do not establish chronological causality: the
+published loader supplies CSV row order, whose timestamps are not sorted,
+and a batch can include multiple times. ``batch_size <= 0`` restores the
+historical single-pass behaviour for reproducing that configuration.
 
 Not ported
 ----------
@@ -52,8 +51,8 @@ DEFAULT_GFP_BATCH_SIZE = 128
 class SnapMLGFP:
     """Snap ML Graph Feature Preprocessor in AMLworld's Appendix D setting.
 
-    Processes edges in temporal order, so each edge's features are computed
-    from the edges that preceded it.
+    Processes edges in supplied row order and streaming batches. This class
+    does not sort timestamps or guarantee strictly past-only features.
     """
 
     AMLWORLD_PARAMS = {
@@ -101,19 +100,18 @@ class SnapMLGFP:
         X: np.ndarray,
         batch_size: int = DEFAULT_GFP_BATCH_SIZE,
     ) -> np.ndarray:
-        """Process all edges through the preprocessor in temporal order.
+        """Process all edges through the preprocessor in supplied row order.
 
         Args:
             X: float64 array with columns
                [edge_id, src_id, dst_id, timestamp_epoch, amount].
-               Must already be sorted by timestamp (col 3).
+               The published loader supplies file order, not timestamp order.
             batch_size: edges per streaming batch. The first batch calls
                fit_transform, which resets the in-memory graph; the rest call
                transform, which appends to it. A value <= 0 processes every
-               edge in one call, which destroys temporal causality: the graph
-               is complete before any edge is featurised, so each edge sees the
-               future. That was the pre-release behaviour and it is a defect,
-               not an option worth choosing.
+               edge in one call, allowing later rows to affect earlier
+               features. Smaller batches alone do not guarantee chronological
+               causality when timestamps are unsorted or vary within a batch.
 
         Returns:
             Feature matrix, engineered columns only, raw columns stripped.
@@ -154,12 +152,15 @@ def load_amlworld_for_snapml(
     val_ratio: float = splits.VAL_RATIO,
     gfp_batch_size: int = DEFAULT_GFP_BATCH_SIZE,
 ) -> Dict:
-    """Load an AMLworld CSV, run the preprocessor, and cut the temporal split.
+    """Load an AMLworld CSV, run GFP, and cut the published file-order split.
+
+    This loader does not timestamp-sort rows. Its partitions overlap in
+    transaction time and do not establish a strictly temporal evaluation.
 
     Returns a dict with keys:
         X_train, y_train, X_val, y_val, X_test, y_test   numpy arrays
         edge_typologies  list[str | None] for *all* edges (len == n_total)
-        t1_idx, t2_idx   temporal split boundaries
+        t1_idx, t2_idx   file-order split boundaries
         n_total, n_features
         gfp_time         wall-clock seconds for the feature extraction
     """
@@ -304,7 +305,7 @@ def load_amlworld_for_snapml(
     print(f"  GFP: {X_gfp.shape[1]} + {n_extra} raw edge attrs = "
           f"{X_features.shape[1]} total features")
 
-    # ── 6. Split by temporal boundaries ──────────────────────
+    # ── 6. Split by published file-order boundaries ──────────
     X_train, X_val, X_test = splits.split_three(X_features, t1_idx, t2_idx)
     y_train, y_val, y_test = splits.split_three(y, t1_idx, t2_idx)
 

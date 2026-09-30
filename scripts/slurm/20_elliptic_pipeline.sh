@@ -10,7 +10,7 @@
 #SBATCH --nodelist=${BENCH_NODE}
 
 ###############################################################################
-# AML-ContextGraphBench — Real-data validation on the Elliptic Bitcoin Dataset
+# AMLworld-Compact — Real-data validation on the Elliptic Bitcoin Dataset
 #
 # Phases (CPU-only, ~1–2 hours total):
 #   1. Download Elliptic CSVs (PyG mirror)

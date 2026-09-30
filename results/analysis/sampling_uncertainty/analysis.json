@@ -1,15 +1,15 @@
 {
-  "created_utc": "2026-09-14T13:26:14.957512+00:00",
+  "created_utc": "2026-09-30T09:24:53.803496+00:00",
   "input_sha256": {
     "HI-Small.npz": "99f4f1957b20ab6efb5387ea8ab67979f6e1adf8c9abf5e34b2b4b2f36c7eb1f",
     "HI-Small.json": "e7725745e14ac01fdab6b8317ec74129580aef659ab5cb0ab86638a077655503",
     "LI-Small.npz": "9385832bd032b2490c42433c4aebe7aa7a359290be438494ae49f48590a84886",
     "LI-Small.json": "0d52d0b9ef1ab90b6702dca1efd1a101ce602dd115a555e88e9a3ea1d03bf378"
   },
-  "script_sha256": "7ff45c9368ab29e1fed0d8d0c5b347cf046aee4a4ab9c8d05271ac32187543a7",
+  "script_sha256": "e7931b05ceb9bc2929496cb8f2d5d42595d79b305e98138f12e7ca0729a2be12",
   "module_sha256": "1a9874dbcc9762a7dd16e717eca4f63653c1a5b2466959a918467aadb7d85481",
   "units": "JSON uses fractions for P/R/F1; summary and contrast CSVs use percentages/percentage points; per_seed.csv uses fractions; Lift is dimensionless",
-  "scope": "Conditional frozen design and realized allocation; mean of five fixed-seed metrics. No future-inference or external-population uncertainty.",
+  "scope": "Conditional frozen design and realized allocation; mean of five fixed-run metrics. No future-inference or external-population uncertainty.",
   "intervals": "Equal-tailed hypergeometric inversion with Bonferroni allocation within each cell (15 counts) or contrast (30 counts); not simultaneous across output rows.",
   "cells": [
     {

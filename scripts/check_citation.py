@@ -4,8 +4,10 @@
     python scripts/check_citation.py
     make check-citation
 
-The sibling dataset card is checked when present. Additional citations, such as
-AMLworld, are allowed. Publication dates are never inferred.
+The sibling dataset card is checked when present. Anonymous review copies may
+withhold the paper citation; identified releases must match CITATION.cff.
+Additional citations, such as AMLworld, are allowed. Publication dates are never
+inferred.
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ import yaml
 REPO = Path(__file__).resolve().parent.parent
 SOURCE = REPO / "CITATION.cff"
 CARD = REPO.parent / "amlcompact-dataset" / "README.md"
+WITHHELD_AUTHOR = "Authors withheld during review"
 
 
 def norm(text: str) -> str:
@@ -29,13 +32,23 @@ def source_fields() -> dict:
     """Read the canonical fields, retaining the CFF author order."""
     try:
         cff = yaml.safe_load(SOURCE.read_text())
-        fields = {key: norm(cff[key]) for key in ("title", "url")}
+        fields = {"title": norm(cff["title"])}
         fields["authors"] = [
+            (norm(a["name"]),) if "name" in a else
             (norm(f"{a['family-names']}, {a['given-names']}"),
              norm(f"{a['given-names']} {a['family-names']}"))
             for a in cff["authors"]]
-        if not fields["authors"] or not all(fields[key] for key in ("title", "url")):
-            raise ValueError("title, URL, and authors must be nonempty")
+        if not fields["title"] or not fields["authors"] or not all(
+                all(forms) for forms in fields["authors"]):
+            raise ValueError("title and authors must be nonempty")
+        fields["anonymous"] = fields["authors"] == [(WITHHELD_AUTHOR,)]
+        if fields["anonymous"]:
+            if cff.get("url"):
+                raise ValueError("anonymous citation must withhold its URL")
+        else:
+            fields["url"] = norm(cff["url"])
+            if not fields["url"]:
+                raise ValueError("identified citation must include a nonempty URL")
         if "year" in cff:
             fields["year"] = str(cff["year"])
         return fields
@@ -98,11 +111,17 @@ def main() -> int:
     for name, text in documents.items():
         candidates = [entry for entry in bibtex_entries(text)
                       if entry.get("title") == source["title"]
-                      or entry.get("url") == source["url"]]
+                      or ("url" in source and entry.get("url") == source["url"])]
+        if source["anonymous"] and not candidates:
+            check(f"{name}: paper citation explicitly withheld during review",
+                  bool(re.search(r"citation[^.\n]*withheld during review", text, re.I)))
+            continue
         check(f"{name}: one paper BibTeX entry", len(candidates) == 1)
         if len(candidates) != 1:
             continue
         entry = candidates[0]
+        if source["anonymous"]:
+            check(f"{name}: paper URL withheld during review", not entry.get("url"))
         for field in ("title", "url", "year"):
             if field in source:
                 check(f"{name}: {field}", entry.get(field) == source[field])
@@ -120,7 +139,7 @@ def main() -> int:
         print(f"\n{len(failures)} consistency check(s) failed; compare the fields above "
               "with CITATION.cff and the shared Uses text.")
         return 1
-    print("\nCitation fields match CITATION.cff; shared Uses text matches when present.")
+    print("\nCitation disclosure matches CITATION.cff; shared Uses text matches when present.")
     return 0
 
 

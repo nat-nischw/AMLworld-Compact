@@ -8,9 +8,9 @@ so pass `--nodelist` and the log paths on the `sbatch` command line.
 |---|---|
 | `03_train_ml_baselines.sh` | LightGBM and XGBoost, tune then train, 5 seeds |
 | `04_train_gcpal.sh` | GCPAL, the configuration that produced the released checkpoints |
-| `05_infer_gcpal_temporal.sh` | re-infer GCPAL on the temporal split |
+| `05_infer_gcpal_temporal.sh` | re-infer GCPAL on the file-order split |
 | `07_build_ht_coreset.sh` | HT-Coreset construction |
-| `07b_build_naive_coreset.sh` | Naive Coreset, only needed for the Table 10 column |
+| `07b_build_naive_coreset.sh` | Naive Coreset for the appendix comparison |
 | `08_run_ablation.sh` | the seven sampling baselines |
 | `09_compare_naive_vs_ht.sh` | Naive versus HT per model |
 | `11_serialize_coreset.sh` | serialise the coreset into typed-graph prompts |

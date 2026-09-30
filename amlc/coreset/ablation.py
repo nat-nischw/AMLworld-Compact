@@ -116,7 +116,7 @@ BASELINE_LABELS = {
 #: Draws per method.
 K_REPEATS = 50
 
-#: Fraction of the transaction file that is the temporal test split.
+#: Fraction of the transaction file that is the file-order test partition.
 TEST_SPLIT_FRACTION = 0.2
 
 
@@ -447,7 +447,7 @@ def load_test_edge_data(dataset: str, amlworld_dir: Optional[Path],
     df.columns = ["From_Bank", "From_Account", "To_Bank", "To_Account",
                   "Payment_Format"]
 
-    # The temporal split puts the last 20% of the file in the test set.
+    # The file-order split puts the last 20% of the file in the test set.
     df_test = df.iloc[int(len(df) * (1 - TEST_SPLIT_FRACTION)):].reset_index(
         drop=True)
     del df

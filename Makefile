@@ -1,4 +1,4 @@
-# AMLCompact. `make help` lists everything.
+# AMLworld-Compact. `make help` lists everything.
 #
 # Stages are numbered in pipeline order and match scripts/ and scripts/slurm/.
 # Archive reconstruction uses AMLC_ARCHIVE pointing at the original run
@@ -31,7 +31,7 @@ env:  ## Create the conda environments the cluster jobs expect
 selftest: ## Score the shipped ensemble and compare with the paper. Needs the dataset
 	$(PY) -m amlc.selftest
 
-check-citation: ## Check paper title, URL, and BibTeX across release documents
+check-citation: ## Check citation disclosure and shared Uses text across release documents
 	$(PY) $(SCRIPTS)/check_citation.py
 
 verify: ## Prove the prompt templates reproduce the executed prompts
@@ -60,20 +60,20 @@ tune: ## 02  Optuna search. Optional, data/tuned_params/ already has the results
 train-ml: ## 03  LightGBM+GFP and XGBoost+GFP over 5 seeds
 	$(PY) $(SCRIPTS)/03_train_ml_baselines.py --datasets $(DATASETS)
 
-train-gcpal: ## 04  The GCPAL graph baseline
+train-gcpal: ## 04  Historical GCPAL construction scorer (not the evaluation ensemble)
 	@for d in $(DATASETS); do $(PY) $(SCRIPTS)/04_train_gcpal.py --dataset $$d || exit 1; done
 
-infer-gcpal: ## 05  Re-infer GCPAL on the temporal split
+infer-gcpal: ## 05  Re-infer GCPAL on the file-order split
 	$(PY) $(SCRIPTS)/05_infer_gcpal_temporal.py --datasets $(DATASETS)
 
-ensemble: ## 06  Score the two temporal boosters at fixed thresholds
+ensemble: ## 06  Score the two boosters at fixed thresholds
 	$(PY) $(SCRIPTS)/06_score_ensemble.py --datasets $(DATASETS)
 
 # ── stages 07 to 12: the coreset and its prompts ───────────────────────
 coreset: ## 07  Construct the HT-Coreset
 	$(PY) $(SCRIPTS)/07_build_ht_coreset.py --datasets $(DATASETS)
 
-coreset-naive: ## 07b Construct the Naive Coreset (Table 10 only, slow)
+coreset-naive: ## 07b Construct the Naive Coreset for the appendix comparison (slow)
 	$(PY) $(SCRIPTS)/07b_build_naive_coreset.py --datasets $(DATASETS)
 
 ablation: ## 08  The seven sampling baselines
@@ -99,7 +99,7 @@ triage: ## 17  Doubt Triage over every cell
 triage-stats: ## 17b Paired DT-versus-ML statistics from the stage-17 table
 	$(PY) $(SCRIPTS)/17b_dt_stats.py
 
-deferral: ## 18  The score-only deferral baseline of Appendix G.3
+deferral: ## 18  The score-only deferral baseline in the Doubt Triage appendix
 	$(PY) $(SCRIPTS)/18_score_deferral_grid.py
 
 # ── stages 16 and 19: the four-step audit rubric ───────────────────────
@@ -117,11 +117,11 @@ iaa: ## 19c Fleiss and pairwise kappa across the four judges
 human-rating: ## 19d The three-rater human validation tables
 	$(PY) $(SCRIPTS)/19d_human_rating.py
 
-# ── stages 20 to 22: analysis and artefacts ────────────────────────────
+# ── stages 20 to 23: analysis and artefacts ────────────────────────────
 analysis: ## 20  Per-typology and error-transition analysis
 	$(PY) $(SCRIPTS)/20_error_analysis.py
 
-llm-ht: ## 23  Score HT and compact detection metrics; RUNS=path uses fresh runner output
+llm-ht: ## 23  Score HT-weighted and unweighted detection metrics; RUNS=path uses fresh output
 	$(PY) $(SCRIPTS)/23_score_llm_ht.py $(if $(RUNS),--runs-dir "$(RUNS)") $(if $(MODEL),--models $(MODEL)) $(if $(PROMPTINGS),--promptings $(PROMPTINGS)) $(if $(SEEDS),--seeds $(SEEDS)) $(foreach d,$(DATASETS),--dataset $(d)) $(if $(OUT),--out "$(OUT)")
 
 figures: analysis ## Generate the typology and error-transition plots from stage 20

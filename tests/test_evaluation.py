@@ -12,7 +12,29 @@ from amlc import hub
 from amlc.analysis import llm_ht
 from amlc.archive import legacy_path
 from amlc.llm import clients, runner
+from amlc.llm.methods import PredictionResult
 from amlc.triage.doubt_triage import load_llm_predictions
+
+
+def test_typology_scoring_requires_an_illicit_verdict():
+    """A named pattern accompanying a benign verdict is a missed detection.
+
+    The published postprocessing maps it to ``none``; that sentinel is also
+    included in the macro label union, rather than dropping the missed case.
+    """
+    cases = [runner.EvalCase("amlc_00000", "e_0", 1, "fan-out"),
+             runner.EvalCase("amlc_00001", "e_1", 1, "cycle")]
+    predictions = [
+        PredictionResult(case_id=case.case_id, method="ICL-FS", illicit=illicit,
+                         typology=case.typology, evidence_edges=[],
+                         confidence=0.8, rationale="")
+        for case, illicit in zip(cases, [True, False])
+    ]
+    result = runner.compute_metrics(predictions, cases)
+    assert result.detection_f1 == pytest.approx(2 / 3)
+    assert result.typology_macro_f1 == pytest.approx(1 / 3)
+    assert result.typology_accuracy == pytest.approx(1 / 2)
+    assert result.typology_f1_per_class == {"cycle": 0.0, "fan-out": 1.0}
 
 
 @pytest.fixture

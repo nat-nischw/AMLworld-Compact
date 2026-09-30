@@ -28,16 +28,14 @@ Writes
 The split, stated plainly
 ------------------------
 ``--random-split`` is kept because it is what produced the released checkpoints.
-Fine-tuning used a **random** 60/20/20 split of the edges, not the temporal one
-the other two ensemble members use. The consequence is direct: 609,857 of the
-1,015,669 HI-Small temporal test edges and 830,310 of the 1,384,810 LI-Small
-temporal test edges were inside GCPAL's fine-tuning set. The GCPAL+GFP row, and
-therefore every ensemble figure that includes it, is optimistic to that extent.
-The paper's own comparison against Lu and Wang requires the random split, since
-that is the protocol they report, but nothing recovers the leakage into the
-temporal test set. :mod:`amlc.baselines.ml.gcpal_infer` re-infers these
-checkpoints on the temporal split, which fixes the alignment of the probability
-arrays and does not fix this.
+Fine-tuning used a **random** 60/20/20 split of the edges, not the file-order
+partition the two evaluation boosters use. In total, 609,857 of the
+1,015,669 HI-Small test-partition edges and 830,310 of the 1,384,810 LI-Small
+test-partition edges were inside GCPAL's fine-tuning set. This overlap prevents
+an independent test evaluation of GCPAL. It remains a frozen construction
+scorer; the primary evaluation ensemble uses the two boosters.
+:mod:`amlc.baselines.ml.gcpal_infer` aligns its predictions with the file-order
+test partition but does not remove the fine-tuning overlap.
 
 Dropped configurations
 ----------------------
@@ -119,7 +117,7 @@ def build_line_graph(edge_index, k_neighbors: int = 1,
 
     Each transaction becomes a node. Two line-graph nodes are joined when their
     transactions share an account, as sender or receiver, and are within
-    ``k_neighbors`` positions of each other in the account's own time-ordered
+    ``k_neighbors`` positions of each other in the account's own file-order
     list of transactions. ``k_neighbors=1`` joins only consecutive pairs;
     ``k_neighbors=5``, the released setting, joins each transaction to its five
     nearest per shared account.
@@ -127,7 +125,7 @@ def build_line_graph(edge_index, k_neighbors: int = 1,
     Parameters
     ----------
     edge_index : Tensor
-        (2, n_edges) transaction graph, in temporal order.
+        (2, n_edges) transaction graph, in supplied row order.
     return_edge_attr : bool
         Also return the 3-dimensional edge features
         ``[log(1 + delta), is_sender_i, is_sender_j]``, which
@@ -150,7 +148,7 @@ def build_line_graph(edge_index, k_neighbors: int = 1,
     is_sender = torch.cat([torch.ones(n_edges, device=src.device),
                            torch.zeros(n_edges, device=src.device)])
 
-    # Sort by account, then by edge id, which is temporal order.
+    # Sort by account, then by edge id (file order, not timestamp order).
     sort_key = accounts.long() * (n_edges + 1) + edge_ids.long()
     sort_idx = sort_key.argsort()
     sorted_accounts = accounts[sort_idx]

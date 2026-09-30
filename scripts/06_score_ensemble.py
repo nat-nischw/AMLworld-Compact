@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Soft-vote the three members into the reported ensemble.
+"""Score the reported two-booster ensemble at fixed thresholds.
 
 Thin wrapper. The stage lives in :mod:`amlc.baselines.ml.ensemble`; this exists so the pipeline
 order is visible from `scripts/`. Arguments are passed straight through.

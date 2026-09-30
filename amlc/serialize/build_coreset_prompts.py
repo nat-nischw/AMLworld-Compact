@@ -1,11 +1,12 @@
 """Turn the HT-Coreset into the prompts the LLMs were shown.
 
-The coreset is a vector of positions into the full temporal test split. This
-stage resolves each position to its AMLworld edge, wraps that edge in its k-hop
-context graph, renders the graph as a typed graph
-(:mod:`amlc.serialize.typed_graph`) and writes one JSON line per case.
-Everything downstream -- the released evaluation table, the prompts on Hugging
-Face, the LLM runner -- consumes what this stage writes.
+The coreset is a vector of positions into the full file-order test partition.
+This stage resolves each position to its AMLworld edge, extracts context from
+its source account, renders it as a typed graph
+(:mod:`amlc.serialize.typed_graph`), and writes one JSON line per case.
+The frozen extraction can omit the focal edge after neighbour capping, and
+the typed text does not mark it. The metadata still records its identifier.
+The evaluation table and LLM runner consume these frozen inputs.
 
 Reads
     the archived run directory, through :func:`amlc.archive.legacy_path`:
@@ -92,13 +93,15 @@ class AMLworldGraph(Protocol):
     """
 
     def test_split_start(self) -> int:
-        """Row index of the first edge in the temporal test split."""
+        """Row index of the first edge in the file-order test partition."""
 
     def n_edges(self) -> int:
         """Number of edges in the variant, across all three splits."""
 
     def build_case(self, edge_id: str, case_id: str, label: int) -> Optional[Case]:
-        """The k-hop context graph around one edge, or None if it cannot be built.
+        """Context associated with one edge, or None if it cannot be built.
+
+        Neighbour capping can omit the focal edge from this context.
 
         Beyond what :class:`~amlc.serialize.typed_graph.Case` needs for
         rendering, the returned object carries ``center_edge_id``, ``label`` and
@@ -153,9 +156,9 @@ def load_draw(archive: Path, dataset: str, draw: str = "ht-coreset") -> dict:
 def edge_ids_for(subset_idx: np.ndarray, test_split_start: int) -> list[str]:
     """Coreset position -> AMLworld edge id.
 
-    Position ``j`` is the ``j``-th edge of the temporal test split, which is row
-    ``test_split_start + j`` of the transaction file, and edge ids are that row
-    number.
+    Position ``j`` is the ``j``-th edge of the file-order test partition:
+    row ``test_split_start + j`` of the transaction file. Edge ids use that
+    row number.
     """
     return [f"e_{test_split_start + int(j)}" for j in subset_idx]
 

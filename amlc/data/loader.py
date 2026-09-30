@@ -1,4 +1,4 @@
-"""AMLworld transactions to context graphs, under the temporal split.
+"""AMLworld transactions to context graphs, under the file-order split.
 
 Reads the two files AMLworld ships per variant, ``<dataset>_Trans.csv`` and
 ``<dataset>_Patterns.txt``, both located by
@@ -9,21 +9,18 @@ from here.
 
 What a case is
 --------------
-One case is one focal edge plus the context graph around it: a k-hop BFS from
-the focal edge's source account, capped at
-:data:`amlc.config.MAX_NEIGHBOURS_PER_HOP` neighbours per hop so a hub
-account cannot pull in half the graph. The paper's setting is k=2. Every edge
-inside the extracted subgraph becomes a :class:`Transaction`, and the flattened
-subgraph is what the LLM eventually sees in the prompt.
+A case records a focal edge in metadata and extracts a k-hop BFS from its
+source account, with :data:`amlc.config.MAX_NEIGHBOURS_PER_HOP` neighbours
+per account per hop. The paper uses k=2. Capping can omit the focal edge;
+the builder does not force it into the resulting graph. The typed-graph text
+also does not mark the focal edge. These frozen input defects are retained
+for reproduction, so the reported results do not isolate reasoning failures.
 
-The BFS runs over the FULL transaction graph, including edges dated after the
-focal edge. That is deliberate for test cases and is the AMLworld protocol: a
-reviewer looking at a flagged transaction has the account's whole history
-available, and the label being predicted is the focal edge's own. Training and
-validation cases are different, and :meth:`AMLworldDataset.create_train_cases`
-and :meth:`~AMLworldDataset.create_val_cases` swap in the truncated graph from
-:meth:`~AMLworldDataset.get_temporal_graph` so no training case can see a
-future edge.
+Test cases use the full transaction graph, including later-dated edges.
+Training and validation case builders use row-truncated graphs from
+:meth:`~AMLworldDataset.get_temporal_graph`. The CSV timestamps are unsorted
+and overlap across partitions, so row truncation does not guarantee past-only
+context or establish a strictly chronological evaluation.
 
 The split
 ---------
@@ -273,8 +270,8 @@ class AMLworldDataset:
         is_illicit = df["Is_Laundering"].values.astype(bool)
         typologies = df["typology"].values
 
-        # ── 7. Build graph and bookkeeping with the temporal split ──
-        print(f"  Building graph ({n_total:,} edges) with temporal split ...")
+        # ── 7. Build graph and bookkeeping with the file-order split ──
+        print(f"  Building graph ({n_total:,} edges) with file-order split ...")
 
         edge_tuples = []
         for i in tqdm(range(n_total), desc="  Indexing",
@@ -438,8 +435,9 @@ class AMLworldDataset:
     ) -> Optional[Case]:
         """Build one Case from a focal edge id.
 
-        Returns None when the edge is unknown or its subgraph is empty, and
-        both callers drop those cases rather than emitting an empty prompt.
+        Returns None when the edge is unknown or its subgraph is empty. A
+        nonempty subgraph can still omit the focal edge after neighbour capping;
+        this method does not check or repair that frozen input defect.
 
         ``k`` and ``max_neighbors_per_hop`` default to the paper's setting in
         :mod:`amlc.config`. They are parameters because the demonstration
@@ -569,7 +567,7 @@ class AMLworldDataset:
         balance_typology: bool = False,
         coreset_dir: Optional[Path] = None,
     ) -> List[Case]:
-        """Build the test cases, from the temporal test portion only.
+        """Build the test cases, from the file-order test portion only.
 
         Three ways to get them, in the order they are tried.
 
@@ -693,11 +691,11 @@ class AMLworldDataset:
         use_full_train: bool = False,
         n_workers: int = 1,
     ) -> List[Case]:
-        """Build the training cases, from the temporal train portion only.
+        """Build the training cases, from the file-order train portion only.
 
         ``use_train_graph`` swaps the full graph for the one truncated at t1
-        while the cases are built, so a training case cannot draw context from
-        an edge that had not happened yet. Leave it on.
+        while the cases are built, excluding validation and test rows. Unsorted
+        timestamps mean it can still include edges dated after the focal edge.
 
         The seed is offset from the evaluation seed so a train draw and a test
         draw at the same nominal seed do not share the sampler's state.
@@ -776,7 +774,7 @@ class AMLworldDataset:
         use_full_val: bool = False,
         n_workers: int = 1,
     ) -> List[Case]:
-        """Build the validation cases, from the temporal val portion only.
+        """Build the validation cases, from the file-order val portion only.
 
         ``use_val_graph`` truncates the graph at t2, so validation context may
         include training edges but never a test edge.
@@ -840,15 +838,15 @@ class AMLworldDataset:
         return self.val_cases
 
     # ─────────────────────────────────────────────────────────
-    #  Temporal graphs and statistics
+    #  Graphs by partition and statistics
     # ─────────────────────────────────────────────────────────
 
     def get_temporal_graph(self, split: str) -> nx.MultiDiGraph:
-        """The graph containing only edges up to a split boundary.
+        """The graph containing only edges up to a file-order split boundary.
 
         ``train`` keeps edges before t1, ``val`` keeps everything before t2,
-        and ``test`` or ``full`` returns the loaded graph itself, because a
-        test case is allowed the account's whole history.
+        and ``test`` or ``full`` returns the loaded graph itself. These are row
+        boundaries; unsorted timestamps prevent a past-only guarantee.
 
         The returned train and val graphs are fresh objects, so a caller can
         swap them in and drop them; the test graph is the loaded one and must
@@ -926,7 +924,7 @@ class _GraphSource:
         self._max_neighbours = max_neighbours
 
     def test_split_start(self) -> int:
-        """Row index of the first edge in the temporal test split."""
+        """Row index of the first edge in the file-order test partition."""
         return self._dataset._t2_idx
 
     def n_edges(self) -> int:

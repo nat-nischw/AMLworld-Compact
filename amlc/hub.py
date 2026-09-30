@@ -77,8 +77,8 @@ def load_coreset(dataset: str = "HI-Small",
                  with_ensemble_probs: bool = True) -> dict:
     """Load the released HT-Coreset for one split.
 
-    Returns indices into the full temporal test split, HT weights, labels,
-    typologies and, unless turned off, the two-temporal-booster evaluation
+    Returns indices into the full file-order test partition, HT weights, labels,
+    typologies and, unless turned off, the two-booster evaluation
     probability per row. The frozen construction scores remain a separate file.
     The weights sum to the full split size; that is asserted here because
     a coreset whose weights do not is not usable for weighted metrics.

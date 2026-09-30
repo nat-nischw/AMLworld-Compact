@@ -2,8 +2,12 @@
 
 This analysis estimates uncertainty introduced by sampling benign targets in
 the released AMLworld-Compact evaluation set. It uses the existing predictions
-for 7 models × 2 prompts × 2 splits × 5 inference seeds. No model training,
+for 7 models × 2 prompts × 2 splits × 5 archived inference runs. No model training,
 API calls, new inference, or additional benchmark draws are required.
+
+The files retain historical `seed` field names and run identifiers. The archived
+requests did not pass these values to the model API; the current runner does.
+References to seed SD below describe variation across those five archived runs.
 
 ## Reproduce the analysis
 

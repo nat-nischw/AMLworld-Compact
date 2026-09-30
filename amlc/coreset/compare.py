@@ -3,7 +3,7 @@
 The ablation compares sampling strategies on the ensemble. This module asks the
 other question: does a subset preserve each individual scorer's metrics, or only
 the ensemble's? Every scorer and seed is evaluated three times, on the full
-temporal test split, on the Naive Coreset subset (unweighted, because that
+file-order test partition, on the Naive Coreset subset (unweighted, because that
 construction has no weights) and on the HT-Coreset (weighted and unweighted).
 
 The HT-Coreset holds every scorer's precision, recall and F1 to the full-split

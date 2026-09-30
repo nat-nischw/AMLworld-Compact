@@ -73,7 +73,7 @@ CORESET_ARRAYS: tuple[str, ...] = tuple(_S["coreset_arrays"])
 # ── splits ───────────────────────────────────────────────────────────────
 DATASETS: tuple[str, ...] = tuple(_C["datasets"])
 
-#: Full temporal test split sizes. The HT weights sum to these by construction.
+#: Full file-order test partition sizes. The HT weights sum to these by construction.
 N_TEST_FULL: dict[str, int] = dict(_C["n_test_full"])
 
 #: Released coreset sizes.
@@ -84,7 +84,7 @@ SEEDS: tuple[int, ...] = tuple(_C["seeds"])
 #: Fixed evaluation thresholds, inherited without retuning from construction.
 ML_THRESHOLDS: dict[str, float] = dict(_C["ml_thresholds"])
 
-#: Primary evaluation ensemble; both members use temporal training splits.
+#: Primary evaluation ensemble; both members use file-order training partitions.
 ENSEMBLE_MEMBERS: tuple[str, ...] = tuple(_C["ensemble_members"])
 
 #: Frozen historical scorer that selected the released targets and strata.

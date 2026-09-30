@@ -4,8 +4,8 @@
 
     gbt.py          LightGBM+GFP and XGBoost+GFP, detection and typology
     gcpal.py        GCPAL, line graph over transactions, GIN, contrastive
-    gcpal_infer.py  re-inference of the GCPAL checkpoints on the temporal split
-    ensemble.py     the soft vote over the three members
+    gcpal_infer.py  re-inference of the GCPAL checkpoints on the file-order split
+    ensemble.py     the two-booster evaluation and frozen construction scores
     tuning.py       the Optuna search behind data/tuned_params/
 
 ``metrics.py`` holds the threshold sweep every one of them uses.

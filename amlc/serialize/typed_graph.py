@@ -31,7 +31,10 @@ released evaluation table carries, is the typed graph.
 The pre-release serialiser is ``graph_serializer.py``; the typed-graph branch
 here is a faithful copy of its ``_serialize_paper_format``, down to the two
 spaces and the ``:`` placement, because the released prompts are byte-compared
-against the executed ones.
+against the executed ones. This frozen format does not mark the target
+transaction, and its ``Time span`` field counts distinct timestamp strings
+rather than elapsed time. The source context can omit the target after capping;
+this serialiser does not restore it.
 
 Input is any object shaped like the pre-release ``Case``: a ``case_id`` and a
 sequence of transactions. The package does not vendor the AMLworld loader that
@@ -67,7 +70,7 @@ class Transaction(Protocol):
 
 @runtime_checkable
 class Case(Protocol):
-    """A centre edge plus its k-hop neighbourhood."""
+    """A case identifier and extracted context, which may omit its focal edge."""
 
     case_id: str
     transactions: Sequence[Transaction]

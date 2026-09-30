@@ -5,7 +5,7 @@ detector over every edge. Stage 2 is an eight-class typology head fitted only on
 the illicit edges that carry a typology label, and consulted only where stage 1
 fires. The features are IBM Snap ML Graph-Feature-Preprocessor output, 73 graph
 features plus 6 raw edge attributes, extracted once for the whole dataset by the
-data-preparation stage and sliced by temporal split.
+data-preparation stage and sliced by file-order split.
 
 Reads
     the Snap ML feature matrices and labels for one AMLworld dataset, and the
@@ -376,7 +376,7 @@ def build_pyg_link_data(dataset: str, data_path=None, num_threads: int = 32):
     ==================  =======================================================
     ``te_data``         PyG ``Data`` over all edges: node features, edge index,
                         labels
-    ``t1``, ``t2``      temporal split points at 60 and 80 percent
+    ``t1``, ``t2``      file-order split points at 60 and 80 percent
     ``n_nodes``         unique accounts, keyed bank and account together
     ``n_total``         edges
     ``gfp_feat``        (n_total, ~75) z-normalised GFP matrix plus the two

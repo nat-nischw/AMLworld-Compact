@@ -40,7 +40,7 @@ sources:
 # ── the two AMLworld splits we evaluate ──────────────────────────────────
 datasets: [HI-Small, LI-Small]
 
-# Full temporal test split sizes. The HT weights sum to these by construction,
+# Full file-order test partition sizes. The HT weights sum to these by construction,
 # and hub.load_coreset refuses to return a weight vector that does not.
 n_test_full:
   HI-Small: 1015669
@@ -60,7 +60,7 @@ ml_thresholds:
 
 seeds: [42, 123, 456, 789, 1011]
 
-# Primary evaluation: both boosters were trained on the temporal training split.
+# Primary evaluation: both boosters were trained on the file-order training partition.
 ensemble_members: [LightGBM+GFP, XGBoost+GFP]
 
 # Frozen construction provenance. Changing the evaluation ensemble must never

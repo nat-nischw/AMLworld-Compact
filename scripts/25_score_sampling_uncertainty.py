@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Design-based uncertainty for the frozen, five-seed LLM evaluation.
+"""Design-based uncertainty for the frozen, five-run LLM evaluation.
 
 Consumes portable matrices from 24_prepare_sampling_uncertainty.py. Does not
 load models, contact APIs, or draw another benchmark subset.
@@ -43,7 +43,7 @@ def write_paper_tables(out, cells, contrasts):
         r"\begin{table*}[t]", r"\centering", r"\small",
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{llrrrlrl}", r"\toprule",
-        r"Model & M & $F1_{\rm HT}$ & $\mathrm{SD}_{\rm seed}$ & $\mathrm{SE}_{\rm samp}$ & 95\% interval & Lift & 95\% interval \\",
+        r"Model & M & $F1_{\rm HT}$ & $\mathrm{SD}_{\rm run}$ & $\mathrm{SE}_{\rm samp}$ & 95\% interval & Lift & 95\% interval \\",
         r"\midrule",
     ]
     for dataset in ("HI-Small", "LI-Small"):
@@ -62,14 +62,14 @@ def write_paper_tables(out, cells, contrasts):
         lines.append(r"\midrule" if dataset == "HI-Small" else r"\bottomrule")
     lines.extend([
         r"\end{tabular}",
-        (r"\caption{Sampling uncertainty for the 28 five-seed mean LLM results. "
-        r"F1 and its interval endpoints are percentages; seed SD and linearized "
+        (r"\caption{Sampling uncertainty for the 28 five-run mean LLM results. "
+        r"F1 and its interval endpoints are percentages; run SD and linearized "
         r"sampling SE are in $10^{-3}$ percentage points. Lift is precision divided "
         r"by full-test illicit prevalence. Intervals are conservative, cellwise "
         r"95\% confidence envelopes obtained from simultaneous hypergeometric "
-        r"bounds for 15 seed--stratum counts (\Cref{app:estimation}). They condition "
+        r"bounds for 15 run--stratum counts (\Cref{app:estimation}). They condition "
         r"on the frozen design, realized allocation, and five fixed prediction "
-        r"vectors; they do not include uncertainty over future inference seeds. "
+        r"vectors; they do not include uncertainty over future inference runs. "
         r"Coverage is not simultaneous across the 28 cells. Endpoints are rounded outwards.}"),
         r"\label{tab:llm_sampling_uncertainty}", r"\end{table*}", "",
     ])
@@ -93,11 +93,11 @@ def write_paper_tables(out, cells, contrasts):
         )
     lines.extend([
         r"\bottomrule", r"\end{tabular}",
-        (r"\caption{Few-shot minus zero-shot differences in five-seed mean metrics. "
+        (r"\caption{Few-shot minus zero-shot differences in five-run mean metrics. "
         r"F1 differences and endpoints are percentage points; paired linearized SE "
         r"is in $10^{-3}$ percentage points. The SE uses same-edge covariance across "
-        r"both prompts and all seeds. Conservative 95\% envelopes use simultaneous "
-        r"bounds on 30 seed--stratum counts and do not exploit pairing. Coverage is "
+        r"both prompts and all runs. Conservative 95\% envelopes use simultaneous "
+        r"bounds on 30 run--stratum counts and do not exploit pairing. Coverage is "
         r"per comparison, not simultaneous across this table. Endpoints are rounded outwards.}"),
         r"\label{tab:llm_sampling_contrasts}", r"\end{table*}", "",
     ])
@@ -167,7 +167,7 @@ def main(argv=None):
             (Path(__file__).resolve().parent.parent / "amlc/analysis/sampling_uncertainty.py").read_bytes()
         ).hexdigest(),
         "units": "JSON uses fractions for P/R/F1; summary and contrast CSVs use percentages/percentage points; per_seed.csv uses fractions; Lift is dimensionless",
-        "scope": "Conditional frozen design and realized allocation; mean of five fixed-seed metrics. No future-inference or external-population uncertainty.",
+        "scope": "Conditional frozen design and realized allocation; mean of five fixed-run metrics. No future-inference or external-population uncertainty.",
         "intervals": "Equal-tailed hypergeometric inversion with Bonferroni allocation within each cell (15 counts) or contrast (30 counts); not simultaneous across output rows.",
         "cells": cells, "contrasts": contrasts,
     }
