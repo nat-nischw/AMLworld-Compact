@@ -9,3 +9,7 @@
 
 # Vendored prompt templates are the executed prompts; keep them byte-exact.
 prompts/** -text
+
+# Preserve generated evidence bytes used in provenance hashes.
+results/analysis/heldout_sampling/*.csv -text whitespace=cr-at-eol
+results/analysis/target_integrity/*.csv -text whitespace=cr-at-eol
