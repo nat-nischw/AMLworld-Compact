@@ -78,10 +78,9 @@ def main():
              size=12.2, weight='bold', color=ACCENT, ha='right')
     rule((SIDE_PAD_PT, 180), (width - SIDE_PAD_PT, 180))
 
-    text(SIDE_PAD_PT, 169, 'HT-Coreset', size=9.1, weight='bold', color=ACCENT,
-         ha='left')
-    text(width - SIDE_PAD_PT, 169, 'Target selection', size=8, color=MUTED,
-         ha='right')
+    # The method heading describes the whole selection process. The two
+    # data-set headings sit at the same level above their target columns.
+    text(117, 169, 'HT-Coreset', size=9.1, weight='bold', color=ACCENT)
     text(57, 155, 'Full test', size=8.2, weight='bold')
     text(174, 155, 'AMLworld-Compact', size=7.8, weight='bold')
 
