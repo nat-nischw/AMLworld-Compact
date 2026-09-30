@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "file": "cases.csv",
+      "sha256": "d86b28f30a4714fabab8a3147e61ed1c8473acb4bf05bf2a025faa5a61dba976"
+    },
+    {
+      "file": "HI-Small.npz",
+      "sha256": "99f4f1957b20ab6efb5387ea8ab67979f6e1adf8c9abf5e34b2b4b2f36c7eb1f"
+    },
+    {
+      "file": "LI-Small.npz",
+      "sha256": "9385832bd032b2490c42433c4aebe7aa7a359290be438494ae49f48590a84886"
+    }
+  ],
+  "metric_units": "fractions",
+  "scoring": "Frozen binary predictions; all requests remain in denominators.",
+  "scope": "Unweighted subset cohorts; present targets remain unmarked. These observational rates are not a corrected-prompt evaluation."
+}

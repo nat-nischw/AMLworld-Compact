@@ -1,0 +1,13 @@
+{
+  "finished_utc": "2026-09-30T18:51:47.751741+00:00",
+  "elapsed_seconds": 104.85695427423343,
+  "configurations": 36,
+  "total_draws": 18000,
+  "interval_cache": {
+    "hits": 209866,
+    "misses": 134,
+    "size": 134
+  },
+  "protocol_sha256": "b54362d6c336a5cdc6659b85c6c6202ea8d55efa5fff40977d61889042da4db3",
+  "scope": "CPU-only cached known GFP-tree transfer in two directions; fixed existing graphs and prediction vectors. No training, inference, GPU, network, LLM validation, future-seed or future-graph claims. Constructor families share GFP features; this is a constrained independence check. Label access for all-illicit census is an evaluation-sampling assumption. Budgets are all reported without choosing a winner or acceptance threshold."
+}

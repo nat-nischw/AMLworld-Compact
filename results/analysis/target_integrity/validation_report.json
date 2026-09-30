@@ -1,0 +1,192 @@
+{
+  "account_identity": "bank_account; bank prefixes are retained to disambiguate account nodes",
+  "case_integrity_csv": "cases.csv",
+  "datasets": [
+    {
+      "archive_companion_pairs_verified": 3753,
+      "cases": 3753,
+      "cases_with_replaced_context_edge": 324,
+      "dataset": "HI-Small",
+      "destination_endpoints_absent_in_archive": 324,
+      "evaluation_prompts_validated": 3753,
+      "historical_inputs_unchanged": true,
+      "input_provenance": {
+        "AMLworld/HI-Small_Trans.csv": {
+          "bytes": 475664283,
+          "sha256": "b19d39f515523373f991b689c07e11e7b0b95c17a2c27a87d91584ae16c5b040"
+        },
+        "archive/HI-Small/v2_subset/cases_json.jsonl": {
+          "bytes": 514318801,
+          "sha256": "9fb04ea6a8b4690ac2cf27ac0d3ad09e715f77a29342d023ece6dbaa152f5905"
+        },
+        "archive/HI-Small/v2_subset/cases_paper_format.jsonl": {
+          "bytes": 276134477,
+          "sha256": "616ba5110182180999085c5945a9c6592e027ec882f6fb4a57d97d013a57a249"
+        },
+        "dataset_release/data/HI-Small/test-00000-of-00001.parquet": {
+          "bytes": 19943386,
+          "sha256": "6741fa677b06468a43cc10076652e48fa53356fdb392270dd49a00d15c81cbff"
+        },
+        "dataset_release/extras/HI-Small/case_index.csv": {
+          "bytes": 185376,
+          "sha256": "de0d486fb3bca4718088e38429ad825839170902fbcd870a98fa1a49c6aa9ffd"
+        }
+      },
+      "mapping": {
+        "bytes": 8703723,
+        "path": "HI-Small_case_mapping.jsonl.gz",
+        "sha256": "392a2884576d5097bc42223c4ac5a43b5a2f027d649105eb876813a34fe46ef9"
+      },
+      "new_transactions": 2276249,
+      "original_to_new_mapping": "HI-Small_case_mapping.jsonl.gz",
+      "original_transactions": 2276249,
+      "output": {
+        "bytes": 77197528,
+        "path": "HI-Small/test-00000-of-00001.parquet",
+        "sha256": "154b16c5d79b9977c6022398a419edfcdac58c401af7e032b1db3141ecf9a7c8"
+      },
+      "parquet_roundtrip_verified": 3753,
+      "released_historical_texts_verified": 3753,
+      "source_csv_rows": 5078345,
+      "source_endpoints_absent_in_archive": 0,
+      "targets_present_in_archive": 3429,
+      "targets_restored": 324,
+      "validated_targets_against_original_csv": 3753
+    },
+    {
+      "archive_companion_pairs_verified": 2268,
+      "cases": 2268,
+      "cases_with_replaced_context_edge": 297,
+      "dataset": "LI-Small",
+      "destination_endpoints_absent_in_archive": 297,
+      "evaluation_prompts_validated": 2268,
+      "historical_inputs_unchanged": true,
+      "input_provenance": {
+        "AMLworld/LI-Small_Trans.csv": {
+          "bytes": 650422357,
+          "sha256": "f7a9940339c78b5d1476071505b5867c0f5319640b9c4279d13f531bf965319d"
+        },
+        "archive/LI-Small/v2_subset/cases_json.jsonl": {
+          "bytes": 318214752,
+          "sha256": "0ca294e0c7da3b7ebe5ec01a28b340666b3173852c1ede6353461b5a3efe9d51"
+        },
+        "archive/LI-Small/v2_subset/cases_paper_format.jsonl": {
+          "bytes": 169921134,
+          "sha256": "7dd26fe8ab9e697d0c9e1f8a517aaf334390cd17c04c5e88a535ae2409087a3c"
+        },
+        "dataset_release/data/LI-Small/test-00000-of-00001.parquet": {
+          "bytes": 13267890,
+          "sha256": "6571a597422ead48ba7f99f19aede06845dd96e7960c3ac10e747ca04db45fcf"
+        },
+        "dataset_release/extras/LI-Small/case_index.csv": {
+          "bytes": 109138,
+          "sha256": "49df682c4ef296d3c258cc038819553897f8b88dcfdde7d96a19a3b350c89918"
+        }
+      },
+      "mapping": {
+        "bytes": 5785734,
+        "path": "LI-Small_case_mapping.jsonl.gz",
+        "sha256": "c467cbd5520d12e55136ec8666aa2eed28823954ca6a2d609d0061de9b251705"
+      },
+      "new_transactions": 1407808,
+      "original_to_new_mapping": "LI-Small_case_mapping.jsonl.gz",
+      "original_transactions": 1407808,
+      "output": {
+        "bytes": 50880022,
+        "path": "LI-Small/test-00000-of-00001.parquet",
+        "sha256": "2027c3b8fcadeaf07173ef3138a7bc329d918933758d6f4c6f9ea891dec1f926"
+      },
+      "parquet_roundtrip_verified": 2268,
+      "released_historical_texts_verified": 2268,
+      "source_csv_rows": 6924049,
+      "source_endpoints_absent_in_archive": 0,
+      "targets_present_in_archive": 1971,
+      "targets_restored": 297,
+      "validated_targets_against_original_csv": 2268
+    }
+  ],
+  "historical_scores_recomputed": false,
+  "labels": "No ground-truth columns in this resource. Join original labels separately using dataset and case_id; never add them to evaluation_prompt.",
+  "limitations": [
+    "Not a rerun or re-evaluation of historical predictions; no performance claim is supported for these inputs.",
+    "Archived context may contain future transactions; this version does not repair temporal leakage or make the file-order split chronological.",
+    "The original edge count is preserved, not the original token budget; target details and identifiers increase text length.",
+    "All target attributes are verified against the original CSV. Non-target edges are verified between archived companion formats, not independently rechecked against every source CSV row.",
+    "A cap of one permits only the target edge. Both endpoints are always retained; a self-transfer has one distinct endpoint account."
+  ],
+  "model_calls": 0,
+  "new_predictions": 0,
+  "prompt_scope": "New standalone zero-shot instruction plus targeted graph; historical runners and old predictions remain tied to archived prompts.",
+  "schema": [
+    {
+      "name": "serialization_version",
+      "type": "string"
+    },
+    {
+      "name": "dataset",
+      "type": "string"
+    },
+    {
+      "name": "case_id",
+      "type": "string"
+    },
+    {
+      "name": "center_edge_id",
+      "type": "string"
+    },
+    {
+      "name": "subset_index",
+      "type": "int64"
+    },
+    {
+      "name": "ht_weight",
+      "type": "double"
+    },
+    {
+      "name": "source_csv_row_zero_based",
+      "type": "int64"
+    },
+    {
+      "name": "target_source",
+      "type": "string"
+    },
+    {
+      "name": "target_destination",
+      "type": "string"
+    },
+    {
+      "name": "original_n_transactions",
+      "type": "int64"
+    },
+    {
+      "name": "n_transactions",
+      "type": "int64"
+    },
+    {
+      "name": "original_target_present",
+      "type": "bool"
+    },
+    {
+      "name": "removed_edge_ids",
+      "type": "list<item: string>"
+    },
+    {
+      "name": "n_tokens_approx",
+      "type": "int64"
+    },
+    {
+      "name": "targeted_graph_text",
+      "type": "string"
+    },
+    {
+      "name": "evaluation_prompt",
+      "type": "string"
+    }
+  ],
+  "serialization_version": "targeted-prompts-v1",
+  "status": "validated_unevaluated_resource",
+  "target_fields": "All ten observable original CSV fields are included; binary outcome and typology are excluded.",
+  "timestamp_semantics": "Timezone-unspecified AMLworld local timestamps parsed as naive datetimes. Start, end, and elapsed seconds refer only to the included edges, not the entire source graph.",
+  "total_cases": 6021,
+  "transaction_budget_policy": "Retain original edge count. Restore a missing target by replacing the latest non-target edge; break timestamp ties by numeric edge ID. Retain both target endpoint accounts."
+}

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "cases": 6021,
+  "datasets": {
+    "HI-Small": 3753,
+    "LI-Small": 2268
+  },
+  "model_calls": 0,
+  "checks": [
+    "Complete evaluation prompt ends with the stored graph",
+    "No ground-truth fields or unresolved placeholders",
+    "Distinct edge IDs and exactly one target edge",
+    "Both target endpoint accounts explicitly declared",
+    "Per-case original transaction counts preserved",
+    "Start/end/elapsed seconds independently recomputed from serialized edge lines"
+  ],
+  "source_csv_verification": "All 6021 targets verified by the builder; see validation_report.json",
+  "method": "Independent parquet readback and regex parsing of emitted transfer lines after generation; HI-Small readback occurred before atomic directory publication, LI-Small afterward."
+}

@@ -1,0 +1,191 @@
+{
+  "archive_files": [
+    {
+      "path_relative_to_outputs": "GPT-OSS-120B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "2ee351403359b2f7fadae9a641752bd5fd03b0c919d69b1a3db7ff93ff7c74b8",
+      "bytes": 25266610,
+      "audited_rows": 128
+    },
+    {
+      "path_relative_to_outputs": "GPT-OSS-20B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "8c831864b12908f8e39e8b8efa3f4cddc6dd91bd1d0e9a773f3de9cf102abe79",
+      "bytes": 37230421,
+      "audited_rows": 128
+    },
+    {
+      "path_relative_to_outputs": "Nemotron-3-Nano-30B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "331b6d9d27671e88f7459dcd876a9174b6cfc40a23ae3774ce2234f9c9e98d93",
+      "bytes": 33641822,
+      "audited_rows": 151
+    },
+    {
+      "path_relative_to_outputs": "Nemotron-3-Super-120B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "bdc87b1d81606c9c7e7b3b28819b06380e99bbc30365fe9b183317015c4d10dc",
+      "bytes": 59983721,
+      "audited_rows": 156
+    },
+    {
+      "path_relative_to_outputs": "Qwen3.5-27B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "3bb5e57977ee8a8d0887a0914e5288c62fbac9ff4e447bdc65a8246cc8d5d544",
+      "bytes": 78082468,
+      "audited_rows": 150
+    },
+    {
+      "path_relative_to_outputs": "Qwen3.5-35B-A3B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "e318c14b22e63e244a76f53dfa1b07cff55ca6711b10771d5cddf41aa660a9d8",
+      "bytes": 178559257,
+      "audited_rows": 151
+    },
+    {
+      "path_relative_to_outputs": "Qwen3.5-397B-A17B/LLM+ICL-AML/HI-Small/seed_42.json",
+      "sha256": "4be7b5883137f01c07198e47cd9cae6402296c34692ce5610c8cf1784b1c20a8",
+      "bytes": 99642711,
+      "audited_rows": 136
+    }
+  ],
+  "definitions": {
+    "parse_keywords": [
+      "acct[_\\-]\\w+",
+      "\\bhub\\b|\\bcentral\\b",
+      "\\b(out[_\\- ]?degree|in[_\\- ]?degree|degree)\\b",
+      "\\b\\d+\\s+(transactions|edges|accounts|nodes)\\b",
+      "\\b(volume|total|sum)\\b.*\\d"
+    ],
+    "typology_names": [
+      "fan-out",
+      "fan in",
+      "fan-in",
+      "fanout",
+      "fanin",
+      "scatter-gather",
+      "scattergather",
+      "gather-scatter",
+      "gatherscatter",
+      "cycle",
+      "cyclic",
+      "stack",
+      "stacking",
+      "layering",
+      "bipartite",
+      "random",
+      "structuring",
+      "smurfing"
+    ],
+    "marker_patterns": {
+      "temporal": [
+        "\\b(temporal|timestamp|time[ \\-]?bucket|monthly|biweekly|weekly|daily|recurring|periodic|interval)\\b"
+      ],
+      "amount": [
+        "\\b(identical amount|same amount|repeated.*amount|threshold|reporting threshold|just below)\\b"
+      ],
+      "cycle": [
+        "\\b(cycle|return.*origin|loop[s]?|back[ \\-]?and[ \\-]?forth)\\b"
+      ],
+      "layering": [
+        "\\blayer(ing)?\\b",
+        "\\bmulti[\\- ]?(hop|tier|step)\\b"
+      ],
+      "rapid": [
+        "\\b(rapid|quick|fast|burst)\\b.*\\b(transfer|movement)\\b"
+      ],
+      "counterparties": [
+        "\\b(multiple|many|several).*counterpart"
+      ]
+    },
+    "canonical_typology_map": [
+      [
+        "scatter-gather",
+        "scatter-gather"
+      ],
+      [
+        "scattergather",
+        "scatter-gather"
+      ],
+      [
+        "gather-scatter",
+        "gather-scatter"
+      ],
+      [
+        "gatherscatter",
+        "gather-scatter"
+      ],
+      [
+        "fan-out",
+        "fan-out"
+      ],
+      [
+        "fanout",
+        "fan-out"
+      ],
+      [
+        "fan out",
+        "fan-out"
+      ],
+      [
+        "fan-in",
+        "fan-in"
+      ],
+      [
+        "fanin",
+        "fan-in"
+      ],
+      [
+        "fan in",
+        "fan-in"
+      ],
+      [
+        "bipartite",
+        "bipartite"
+      ],
+      [
+        "mule",
+        "bipartite"
+      ],
+      [
+        "cycle",
+        "cycle"
+      ],
+      [
+        "circular",
+        "cycle"
+      ],
+      [
+        "round-trip",
+        "cycle"
+      ],
+      [
+        "structuring",
+        "random"
+      ],
+      [
+        "smurfing",
+        "random"
+      ],
+      [
+        "random",
+        "random"
+      ],
+      [
+        "layering",
+        "stack"
+      ],
+      [
+        "stack",
+        "stack"
+      ]
+    ],
+    "prefix_chars": 8000
+  },
+  "definitions_sha256": "cf7613d2238d59ddbf905d6450c5d8935c15f318cc62ed9fdbfabeb95af93795",
+  "original_scorer_sha256": "a962d2ee9e98a047aa721a51ae1b8e76d31e34e9873eca09a53d01a5c03f4016",
+  "predefined_parser_map_source_sha256": "1895c4b2395aaaaeea6841fd99a5dacd8f03edee8cab990c6ab345e0eff95c1b",
+  "annotation_sha256": {
+    "trace_4step_annotations_n1000.csv": "836f5693251cf9a03a6349937aefb40a6d6a4554c045b4bd3a771d0cc9f65dd9",
+    "trace_4step_deepseek_n1000.csv": "9b605f6b8b95a15f0ec3e6e4c18ce871ece5d0645a4b8a6c0207685e4ef35160",
+    "trace_4step_opus_n1000.csv": "fa042ff8da44d9e253b414f61b37436170428d12d9a44de4999a630ac09516c3",
+    "trace_4step_gemini_n1000.csv": "49bad08e10e214ddcaf5b14b90d781a9185e55101203ad1667a71f87f66d8612"
+  },
+  "features_sha256": "a42a004d80e102b78b98fa58d59b2f61d117f91e6c6c951a8cf827457614a8ce",
+  "scope": "HI-Small / ICL-FS / seed 42 / frozen 1000-row audit",
+  "feature_module_sha256": "4bef58c2321c056cfdbfb490e730c1d7c7c6083814ffff7c11bfe0429b20bfb3"
+}

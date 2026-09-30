@@ -209,6 +209,70 @@ LLM table gives a HI-Small overview; the full-results appendix adds LI-Small,
 precision, output coverage, and run variation. The uncertainty table separates
 variation across inference runs from uncertainty due to sampling benign targets.
 
+### Additional checks from cached predictions and traces
+
+The held-out-family study builds sampling strata with LightGBM and evaluates
+XGBoost, then reverses their roles. It uses saved validation thresholds and
+500 draws at each fixed budget. Every comparator retains all illicit cases
+and uses HT weights. At the released sizes, hard-negative sampling has F1 RMSE
+0.00–2.58 percentage points, versus 4.44–7.41 for uniform benign sampling.
+Conservative interval widths remain 27.3–55.0 points for the hard-negative
+sampler. See the [protocol and full results](results/analysis/heldout_sampling/README.md).
+
+```bash
+python scripts/26_evaluate_heldout_sampling.py \
+  --inputs /path/to/dataset/ml_baselines --out runs/heldout_sampling
+python scripts/27_audit_scoring_sensitivity.py --out runs/audit_sensitivity
+```
+
+These commands make no model calls. The first reads the full-test probabilities
+and validation-threshold metadata shipped with the dataset. The second uses
+portable trace features shipped with the code. Its [scoring sensitivity report](results/analysis/audit_sensitivity/README.md)
+separates binary correctness, available typology references, the original benign
+Match bypass, and the judges' 8,000-character window. These checks describe
+archived outputs; they do not establish semantic grounding or causal reasoning failures.
+
+### Target-marked inputs for new evaluations
+
+A separate `targeted_prompts_v1` resource supplies the same 6,021 targets with
+an explicit target ID, the target transaction present exactly once, bank-qualified
+endpoints, and start/end/elapsed-time summaries computed from the included edges.
+Its complete `evaluation_prompt` contains no outcome labels. Load it from a local
+dataset copy:
+
+```python
+import pandas as pd
+
+prompts = pd.read_parquet(
+    "/path/to/dataset/extras/targeted_prompts_v1/HI-Small/test-00000-of-00001.parquet"
+)
+text_to_send = prompts.iloc[0]["evaluation_prompt"]
+```
+
+Send `evaluation_prompt` directly to your inference client. Join its outputs to
+the original scoring rows by dataset and `case_id`. The historical evaluation
+runner still uses the archived format; the paper's LLM scores do not evaluate
+this new version. The repair retains the edge-count budget by replacing one
+non-target edge when necessary; text length changes and has not been token-budget
+tested against the models. The original full-graph source and temporal scope
+are unchanged.
+
+The [integrity report](results/analysis/target_integrity/validation_report.json) records
+source checks and input hashes. To rebuild into new directories without inference:
+
+```bash
+python scripts/28_build_targeted_prompts.py \
+  --source-data /path/to/AMLworld_CSVs \
+  --archive-root /path/to/llm_datasets \
+  --dataset-release /path/to/dataset \
+  --out runs/targeted_prompts_v1 --analysis-out runs/target_integrity
+```
+
+The builder requires the archived JSON and paper-format graph companions and
+refuses to overwrite existing outputs. The [presence-conditioned analysis](results/analysis/target_presence/README.md)
+uses cached predictions to describe historical inputs whose target is present or
+absent; it is not a test of repaired prompts.
+
 ## Archived input defects (audit: 2026-09-28)
 
 The reported LLM results use the original graph strings. All 6,021 inputs

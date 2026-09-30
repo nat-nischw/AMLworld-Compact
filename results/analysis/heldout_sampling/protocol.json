@@ -1,0 +1,20 @@
+{
+  "protocol_version": 1,
+  "frozen_before_outcomes_utc": "2026-09-30T18:28:16Z",
+  "datasets": ["HI-Small", "LI-Small"],
+  "model_seeds": [42, 123, 456, 789, 1011],
+  "directions": [["LightGBM+GFP", "XGBoost+GFP"], ["XGBoost+GFP", "LightGBM+GFP"]],
+  "constructor": "Arithmetic mean of five constructor-family probability vectors only; tau is arithmetic mean of their saved validation thresholds, hard cutoff tau/2. No held-out probabilities or thresholds enter the design.",
+  "evaluation": "Each of five held-out-family probability vectors is thresholded at its own saved validation threshold. Population target is arithmetic mean of the five per-seed full-test metrics, not metric of pooled predictions.",
+  "benign_budget_multipliers": [2, 4, 8],
+  "draws_per_configuration": 500,
+  "samplers": ["uniform_ht", "difficulty_ht", "hard_terciles_ht"],
+  "strata": "Uniform has one benign stratum. Difficulty is 1-2*abs(pooled_constructor_p-0.5), split at its 33rd and 67th percentiles using <q33, [q33,q67), >=q67. Hard-terciles first separates constructor p>=tau/2 and splits remaining benign difficulty by the same percentiles. Empty strata are omitted.",
+  "allocation": "All illicit retained. All designs use exactly B=min(multiplier*illicit_count, benign_count). Uniform draws B. Difficulty initially assigns min(N_h,max(1,floor(B/3))) to each nonempty tercile. Hard-terciles reserves min(N_hard,max(1,floor(0.3*B)),B-number_of_nonempty_easy_strata); each nonempty easy tercile initially gets min(N_h,max(1,floor((B-hard_allocation)/3))). If the nominal positive allocations exceed B, reject the budget. Any remaining slots are assigned in proportion to each stratum's unsampled capacity using largest remainder (ties in fixed stratum order). This deterministic residual allocation replaces the released sampler's random residual fill, giving fixed n_h and known positive inclusion probabilities n_h/N_h. Reject B smaller than the number of nonempty strata. Independently SRS without replacement within each stratum.",
+  "rng": "NumPy default_rng(SeedSequence([20260930,dataset_index,direction_index,budget_multiplier,sampler_index,draw_index])); all indices zero-based in the orders above. No selection or tuning based on held-out errors.",
+  "metrics": ["precision", "recall", "f1"],
+  "summaries": ["full_population_truth", "mean_estimate", "signed_bias", "mae", "rmse", "sample_sd_ddof_1", "coverage95", "mean_envelope_width95"],
+  "envelope": "Cache exact hypergeom_count_interval(N_h,n_h,x,alpha_component). Bonferroni alpha_component=0.05/(5*number_of_noncensus_benign_strata), matching sampling_uncertainty.py. Sum component count endpoints into per-seed FP bounds; transform monotonically to P/F1; average per-seed metric endpoints. Recall exact because all illicit retained. Coverage is for each reported fixed five-seed cell separately, not simultaneous across configurations. The same simultaneous bounds are used for per-seed diagnostics.",
+  "units": "All metrics, errors, SDs, widths are fractions; coverage is proportion of 500 Monte Carlo draws. FP diagnostics are population counts.",
+  "scope": "CPU-only cached known GFP-tree transfer in two directions; fixed existing graphs and prediction vectors. No training, inference, GPU, network, LLM validation, future-seed or future-graph claims. Constructor families share GFP features; this is a constrained independence check. Label access for all-illicit census is an evaluation-sampling assumption. Budgets are all reported without choosing a winner or acceptance threshold."
+}
