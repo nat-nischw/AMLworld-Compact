@@ -10,9 +10,27 @@ The current paper uses these five PDFs:
 | [reduction_sweep.pdf](reduction_sweep.pdf) | Sampling-budget sweep. |
 | [step_heatmap_per_model.pdf](step_heatmap_per_model.pdf) | Regex audit pass rates by model. |
 
-Regenerate the overview from the code repository root with
-`python scripts/plot_evaluation_overview.py` (requires the `figures` extra).
-It is a schematic; its tokens are not individual experimental observations.
+Regenerate the manuscript figures from the code repository root (requires
+the `figures` extra):
+
+```bash
+python scripts/plot_evaluation_overview.py
+python scripts/plot_typology_anchor_main.py
+python scripts/plot_reduction_sweep.py
+python scripts/plot_typology_f1.py
+python scripts/plot_step_heatmap.py
+```
+
+The overview is a schematic; its tokens are not individual experimental
+observations. The other scripts read the released CSVs without training,
+model calls, or new sampling draws. They support `--output` for another
+destination.
+
+Figures use embedded Computer Modern Roman fonts, with ordinary labels
+at 9.5–11 pt at their intended print size. The overview and audit heatmap
+are 77 mm wide; the other three figures are 160 mm wide. These match the
+ACL column and text widths. Export uses a fixed canvas so cropping cannot
+silently reduce the font sizes when LaTeX scales the PDF to those widths.
 
 ## Supporting analysis plots
 

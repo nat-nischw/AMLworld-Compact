@@ -10,20 +10,23 @@ Import this module FIRST in any plot script:
 Design choices:
 - Okabe-Ito colorblind-safe palette as the primary qualitative scale
 - Single serif font + sizes tuned for two-column ACL layout
-- Figsize templates match the ACL columnwidth (3.3in) and textwidth (6.8in)
+- Figsize templates match the ACL columnwidth (77mm) and textwidth (160mm)
   so embedded fonts render at their native point size — no scaling, no
   font-size mismatch with body text.
 - Semantic color roles (ml/llm/dt/ours/fail/partial) so the same model
   is the same colour across every figure
 """
 
+from pathlib import Path
+
 import matplotlib as mpl
+from matplotlib import font_manager
 
 from .. import archive
 
 # ── ACL EMNLP layout dimensions (inches) ────────────────────────────────
-COL_W   = 3.30   # \columnwidth
-TEXT_W  = 6.80   # \textwidth (two columns + gutter)
+COL_W   = 77 / 25.4    # ACL columnwidth, inches
+TEXT_W  = 160 / 25.4   # ACL textwidth, inches (two columns + gutter)
 
 # ── Figsize templates (use these instead of bare tuples) ────────────────
 FIG_COL  = (COL_W,  2.4)        # single-column, default aspect
@@ -84,28 +87,54 @@ TYPOLOGY_PALETTE = [
 ]
 
 
+FONT_FAMILY = "ACL Computer Modern"
+
+
+def _register_roman_fonts():
+    """Use Matplotlib's bundled Computer Modern, an ACL-approved alternative.
+
+    A shared family name makes bold headings resolve to cmb10 instead of
+    silently reusing the regular face. No system font installation is needed.
+    """
+    if any(entry.name == FONT_FAMILY for entry in font_manager.fontManager.ttflist):
+        return
+    directory = Path(mpl.get_data_path()) / "fonts" / "ttf"
+    for file, style, weight in [("cmr10.ttf", "normal", "normal"),
+                                ("cmb10.ttf", "normal", "bold"),
+                                ("cmmi10.ttf", "italic", "normal")]:
+        font_manager.fontManager.ttflist.append(font_manager.FontEntry(
+            fname=str(directory / file), name=FONT_FAMILY, style=style,
+            weight=weight, stretch="normal"))
+
+
 def apply_style():
     """Set matplotlib rcParams for paper-grade output.
 
     Idempotent: safe to call multiple times.
     """
+    _register_roman_fonts()
     mpl.rcParams.update({
         # Typography — serif, ACL-style; sizes match ACL body 10-11pt at
         # native render size (figures must be generated at COL_W or TEXT_W
         # inches; do not generate oversize and let LaTeX scale down).
         "font.family":       "serif",
-        "font.serif":        ["Times New Roman", "DejaVu Serif"],
-        "font.size":         9,
-        "axes.titlesize":    10,
-        "axes.labelsize":    9,
-        "legend.fontsize":   8,
-        "xtick.labelsize":   8,
-        "ytick.labelsize":   8,
+        "font.serif":        [FONT_FAMILY],
+        "mathtext.fontset":   "cm",
+        "axes.formatter.use_mathtext": True,
+        "axes.unicode_minus": False,
+        "pdf.fonttype":       42,
+        "ps.fonttype":        42,
+        "font.size":         10,
+        "axes.titlesize":    11,
+        "axes.labelsize":    10,
+        "legend.fontsize":   9.5,
+        "xtick.labelsize":   9.5,
+        "ytick.labelsize":   9.5,
         # Figure & layout
         "figure.dpi":        300,
         "savefig.dpi":       300,
-        "savefig.bbox":      "tight",
-        "savefig.pad_inches": 0.05,
+        "savefig.bbox":      None,
+        "savefig.pad_inches": 0,
         # Axes styling — clean, no top/right spines
         "axes.linewidth":    0.8,
         "axes.spines.top":   False,
