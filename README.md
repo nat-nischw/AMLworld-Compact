@@ -21,7 +21,7 @@ Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsamplin
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
 is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
 
-Release 1.0 (2026-09-23). Documentation and artifacts updated 2026-09-30.
+Release 1.0 (2026-09-23). Documentation and artifacts updated 2026-10-01.
 
 **HT-Coreset** is the sampling method; **AMLworld-Compact** is the released
 evaluation set. Each set of predictions supports two reports: **HT-weighted
