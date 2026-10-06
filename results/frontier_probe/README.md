@@ -11,6 +11,24 @@ python scripts/21_score_frontier_probe.py
 which prints the table and checks every published number against
 `predictions.csv`.
 
+## Prompt variants and original runner settings
+
+| Archive variant | Paper variant | Template stem |
+|---|---|---|
+| V0 | ZS-Graph | `zs_graph_classification` |
+| V1 | ZS-Base | `zs_base` |
+| V2 | FS-Base | `fs_base` |
+| V4p1 | ZS-Abstain | `zs_abstain` |
+| V7 | FS-CoT-Elim | `fs_cot_elim` |
+| V8 | FS-TypFirst | `fs_typfirst` |
+
+Both V0 and V1 are zero-shot. Exact system/user templates and the
+instructions for each variant are in
+[`prompts/frontier_probe/`](../../prompts/frontier_probe/).
+The original runner requested at most 16,384 tokens per response.
+Gemini and Sonnet additionally requested an 8,192-token thinking budget;
+the DeepSeek runner did not set a separate thinking budget.
+
 ## What is here
 
 | path | what it is |

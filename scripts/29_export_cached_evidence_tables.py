@@ -80,7 +80,7 @@ def sampling_tables(summary):
 def audit_tables(items, conjunctions):
     main = [r"\begin{table}[!ht]", r"\centering\small", r"\setlength{\tabcolsep}{4pt}",
             r"\begin{tabular}{lrrr}", r"\toprule",
-            r"\textbf{Binary verdict} & $n$ & \textbf{Full trace} & \textbf{First 8K}" + ROW.rstrip(),
+            r"\textbf{Binary verdict} & $n$ & \textbf{Full trace} & \textbf{First 8k chars}" + ROW.rstrip(),
             r"\midrule"]
     for correct, name in [(True, "Correct"), (False, "Incorrect")]:
         cohort = items[items.binary_correct == correct]
@@ -94,14 +94,14 @@ def audit_tables(items, conjunctions):
                  r"\caption{Revised lexical checks by binary correctness in the $1{,}000$-trace audit.",
                  r"Counts require Parse, Recall, and at least two structural-marker categories for every",
                  r"verdict, removing the original benign-verdict Match bypass. Percentages use the row",
-                 r"denominator. The 8K-character window matches the API judges' text limit. These are",
+                 r"denominator. The 8k-character window matches the API judges' text limit. These are",
                  r"outcome-stratified descriptive rates, not population estimates.}",
                  r"\label{tab:audit_sensitivity}", r"\end{table}"])
     appendix = [r"\begin{table}[!ht]", r"\centering\small", r"\setlength{\tabcolsep}{3pt}",
                 r"\begin{tabular}{llrr}", r"\toprule",
-                r"\textbf{Checks} & \textbf{References} & \textbf{Full} & \textbf{First 8K}" + ROW.rstrip(),
+                r"\textbf{Checks} & \textbf{References} & \textbf{Full} & \textbf{First 8k chars}" + ROW.rstrip(),
                 r"\midrule"]
-    for rule, name in [("original_PRM", "Original PRM"),
+    for rule, name in [("original_PRM", "Original regex"),
                        ("PR_and_two_marker_categories", "No bypass")]:
         for correctness, reference in [("strict_archived", "All"),
                                         ("exclude_illicit_reference_absent", "Available")]:

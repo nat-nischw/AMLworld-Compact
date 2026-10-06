@@ -78,8 +78,10 @@ MODELS = {
 # pre-release name of the HT-Coreset, which also appears as "V2" in archived
 # filenames such as v2_best.npy; see amlc.archive.
 VARIANTS = {
-    "V0": "ICL-ZS",
-    "V1": "ICL-FS",
+    # Both baselines are zero-shot: V0 asks about the subgraph; V1 asks
+    # about the flagged transaction in that subgraph.
+    "V0": "ZS-Graph",
+    "V1": "ZS-Base",
     "V2": "FS-Base",
     "V4p1": "ZS-Abstain",
     "V7": "FS-CoT-Elim",

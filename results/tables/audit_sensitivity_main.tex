@@ -4,7 +4,7 @@
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Binary verdict} & $n$ & \textbf{Full trace} & \textbf{First 8K} \\
+\textbf{Binary verdict} & $n$ & \textbf{Full trace} & \textbf{First 8k chars} \\
 \midrule
 Correct & 470 & 397 (84.5\%) & 388 (82.6\%) \\
 Incorrect & 530 & 298 (56.2\%) & 295 (55.7\%) \\
@@ -12,7 +12,7 @@ Incorrect & 530 & 298 (56.2\%) & 295 (55.7\%) \\
 \caption{Revised lexical checks by binary correctness in the $1{,}000$-trace audit.
 Counts require Parse, Recall, and at least two structural-marker categories for every
 verdict, removing the original benign-verdict Match bypass. Percentages use the row
-denominator. The 8K-character window matches the API judges' text limit. These are
+denominator. The 8k-character window matches the API judges' text limit. These are
 outcome-stratified descriptive rates, not population estimates.}
 \label{tab:audit_sensitivity}
 \end{table}
