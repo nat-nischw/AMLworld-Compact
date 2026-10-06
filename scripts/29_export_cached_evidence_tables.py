@@ -27,9 +27,13 @@ def sampling_tables(summary):
             ["dataset", "constructor", "evaluator"], sort=False):
         label = f"{dataset}: {FAMILIES[constructor]} $\\to$ {FAMILIES[evaluator]}"
         main.append(r"\multicolumn{4}{l}{\textit{" + label + "}}" + ROW.rstrip())
+        min_rmse = block.rmse.min()
         for sampler, name in SAMPLERS.items():
             row = block[block.sampler == sampler].iloc[0]
-            main.append(f"{name} & {100*row.rmse:.2f} & {100*row.mean_width95:.1f} & "
+            rmse = f"{100*row.rmse:.2f}"
+            if row.rmse == min_rmse:
+                rmse = r"\textbf{" + rmse + "}"
+            main.append(f"{name} & {rmse} & {100*row.mean_width95:.1f} & "
                         f"{100*row.coverage95:.1f}" + ROW.rstrip())
         main.append(r"\addlinespace[2pt]")
     main.extend([r"\bottomrule\end{tabular}", r"\caption{Sampling with a held-out predictor family at the released target counts.",
@@ -39,6 +43,7 @@ def sampling_tables(summary):
                  r"RMSE and mean $95\%$ confidence-interval (CI) width concern F1 and are in percentage points;",
                  r"coverage is a percentage over $500$ draws.",
                  r"Each draw estimates the mean of five fixed, validation-thresholded seed metrics.",
+                 r"Bold marks the lowest F1 RMSE within each dataset--direction block.",
                  r"Intervals are conservative and can remain broad despite small point errors.}",
                  r"\label{tab:heldout_sampling}", r"\end{table}"])
     extra = [r"\begin{table*}[!ht]", r"\centering\small", r"\setlength{\tabcolsep}{5pt}",
