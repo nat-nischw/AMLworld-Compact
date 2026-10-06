@@ -1,4 +1,18 @@
-# Manuscript figures
+# Figures
+
+## README overview
+
+The repository README and dataset card use the [PNG overview](readme_overview.png).
+The [SVG version](readme_overview.svg) provides the vector artwork. This layout
+uses sans-serif type and horizontal panels for reading on the web.
+
+Regenerate it from the repository root with the `figures` extra installed:
+
+```bash
+python scripts/plot_readme_overview.py
+```
+
+## Manuscript figures
 
 The current paper uses these five PDFs:
 
@@ -9,9 +23,6 @@ The current paper uses these five PDFs:
 | [typology_anchor_heatmap_main.pdf](typology_anchor_heatmap_main.pdf) | Predicted labels on ground-truth-benign targets, with separate HI-Small and LI-Small panels. |
 | [reduction_sweep.pdf](reduction_sweep.pdf) | Sampling-budget sweep. |
 | [step_heatmap_per_model.pdf](step_heatmap_per_model.pdf) | Regex audit pass rates by model. |
-
-The [overview PNG](evaluation_overview.png) displays the same schematic in the
-repository README and dataset card.
 
 Regenerate the manuscript figures from the code repository root (requires
 the `figures` extra):

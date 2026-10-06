@@ -17,6 +17,8 @@ illicit test edges and samples benign edges, reducing HI-Small and LI-Small by
 271× and 611×. Each retained edge has graph features, a serialised local graph,
 and an inverse-inclusion-probability weight.
 
+![HT-Coreset selects fewer evaluation targets; the same predictions feed HT-weighted full-test estimates and unweighted subset diagnostics.](results/figures/readme_overview.png)
+
 Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsampling
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
 is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
@@ -25,12 +27,6 @@ is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitara
 evaluation set. Each set of predictions supports two reports: **HT-weighted
 (full test)** estimates and **Unweighted (subset)** diagnostics. Both use the
 same predictions on the retained rows.
-
-<p align="center">
-  <img src="results/figures/evaluation_overview.png" width="480" alt="HT-Coreset retains illicit targets, samples benign targets within strata, and scores the same predictions with HT weights or unit weights.">
-</p>
-
-*Symbols represent evaluation targets and are schematic. All hard-negative targets fit at the released budgets.*
 
 ## Install
 
