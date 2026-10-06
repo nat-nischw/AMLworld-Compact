@@ -21,7 +21,7 @@ Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsamplin
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
 is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
 
-Release 1.0 (2026-09-23). Documentation and artifacts updated 2026-10-01.
+Release 1.0 (2026-09-23). Documentation updated 2026-10-06.
 
 **HT-Coreset** is the sampling method; **AMLworld-Compact** is the released
 evaluation set. Each set of predictions supports two reports: **HT-weighted
@@ -299,7 +299,7 @@ run identifiers; the original API requests did not set those seeds.
 The published 60/20/20 train/validation/test partition uses released CSV row
 order. Transactions are broadly ordered in time, but timestamp ranges overlap
 across partitions; this is not a strictly chronological evaluation. The
-released coreset is reproduced with sampling seed **0**.
+released coreset is reproduced with sampling seed 0.
 
 GFP means **Graph Feature Preprocessor**. The primary ensemble averages
 LightGBM and XGBoost probabilities across five seeds. It retains thresholds

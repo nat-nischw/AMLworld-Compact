@@ -23,6 +23,4 @@ one exists, 0 otherwise.
 
 The senior practitioner rescored after a calibration pass. The first pass gave a Conclude
 rate of 32.7%; the adopted sheet gives 21.4%. Only the adopted sheet ships. The superseded
-sheets, the blank template and the sheet builder are retained in the authors' archive rather
-than the release, since publishing several conflicting versions of the same rater's judgement
-invites the wrong reading. The rescore is disclosed here because the difference is material.
+sheets, the blank template and the sheet builder are retained in the authors' archive.
