@@ -94,7 +94,7 @@ Use an existing vLLM server with a served model name matching a runner ID in
 [Baselines](#baselines). The hosting configurations used for the released runs are
 in [`scripts/slurm/host_vllm/`](scripts/slurm/host_vllm/). Set `--model-id` if your
 endpoint exposes a different served name. These commands use the graph inputs
-described in [Evaluation input format](#evaluation-input-format).
+described in [Evaluation limitations](#evaluation-limitations).
 
 ```bash
 python scripts/13_run_llm_eval.py \
@@ -264,7 +264,7 @@ refuses to overwrite existing outputs. The [presence-conditioned analysis](resul
 uses cached predictions to describe historical inputs whose target is present or
 absent; it is not a test of repaired prompts.
 
-## Evaluation input format
+## Evaluation limitations
 
 The reported LLM results use the original graph strings. All 6,021 inputs
 leave the target transaction unmarked and the task template retains `<ID>`.
