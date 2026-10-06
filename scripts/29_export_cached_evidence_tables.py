@@ -10,7 +10,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLERS = {"uniform_ht": "Uniform + HT", "difficulty_ht": "Terciles + HT",
-            "hard_terciles_ht": "Hard + terciles + HT"}
+            "hard_terciles_ht": "HT-Coreset"}
 FAMILIES = {"LightGBM+GFP": "LGB", "XGBoost+GFP": "XGB"}
 ROW = r" \\" + "\n"
 
@@ -19,7 +19,9 @@ def sampling_tables(summary):
     f1 = summary[summary.metric == "f1"]
     main = [r"\begin{table}[t]", r"\centering\small", r"\setlength{\tabcolsep}{3pt}",
             r"\begin{tabular}{lrrr}", r"\toprule",
-            r"\textbf{Sampler} & \textbf{RMSE} & \textbf{Width} & \textbf{Cov.}" + ROW.rstrip(),
+            r"\textbf{Sampler} & \shortstack{\textbf{F1 RMSE}\\(pp)} & "
+            r"\shortstack{\textbf{F1 CI width}\\(pp)} & "
+            r"\shortstack{\textbf{Coverage}\\(\%)}" + ROW.rstrip(),
             r"\midrule"]
     for (dataset, constructor, evaluator), block in f1[f1.benign_multiplier == 2].groupby(
             ["dataset", "constructor", "evaluator"], sort=False):
@@ -32,8 +34,10 @@ def sampling_tables(summary):
         main.append(r"\addlinespace[2pt]")
     main.extend([r"\bottomrule\end{tabular}", r"\caption{Sampling with a held-out predictor family at the released target counts.",
                  r"LGB=LightGBM; XGB=XGBoost. The arrow runs from the stratum constructor to the evaluated family.",
-                 r"All samplers retain every illicit edge and use HT weights. RMSE and mean $95\%$ interval",
-                 r"width concern F1 and are in percentage points; coverage (Cov.) is a percentage over $500$ draws.",
+                 r"All samplers retain every illicit edge and use HT weights.",
+                 r"HT-Coreset combines hard-negative retention with difficulty terciles.",
+                 r"RMSE and mean $95\%$ confidence-interval (CI) width concern F1 and are in percentage points;",
+                 r"coverage is a percentage over $500$ draws.",
                  r"Each draw estimates the mean of five fixed, validation-thresholded seed metrics.",
                  r"Intervals are conservative and can remain broad despite small point errors.}",
                  r"\label{tab:heldout_sampling}", r"\end{table}"])

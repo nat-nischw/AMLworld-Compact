@@ -4,33 +4,35 @@
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Sampler} & \textbf{RMSE} & \textbf{Width} & \textbf{Cov.} \\
+\textbf{Sampler} & \shortstack{\textbf{F1 RMSE}\\(pp)} & \shortstack{\textbf{F1 CI width}\\(pp)} & \shortstack{\textbf{Coverage}\\(\%)} \\
 \midrule
 \multicolumn{4}{l}{\textit{HI-Small: LGB $\to$ XGB}} \\
 Uniform + HT & 6.76 & 40.3 & 100.0 \\
 Terciles + HT & 6.74 & 58.7 & 99.6 \\
-Hard + terciles + HT & 0.00 & 55.0 & 100.0 \\
+HT-Coreset & 0.00 & 55.0 & 100.0 \\
 \addlinespace[2pt]
 \multicolumn{4}{l}{\textit{HI-Small: XGB $\to$ LGB}} \\
 Uniform + HT & 7.41 & 40.4 & 99.8 \\
 Terciles + HT & 7.60 & 58.3 & 99.6 \\
-Hard + terciles + HT & 1.59 & 53.2 & 100.0 \\
+HT-Coreset & 1.59 & 53.2 & 100.0 \\
 \addlinespace[2pt]
 \multicolumn{4}{l}{\textit{LI-Small: LGB $\to$ XGB}} \\
 Uniform + HT & 4.44 & 26.5 & 100.0 \\
 Terciles + HT & 4.53 & 29.7 & 100.0 \\
-Hard + terciles + HT & 0.64 & 27.5 & 100.0 \\
+HT-Coreset & 0.64 & 27.5 & 100.0 \\
 \addlinespace[2pt]
 \multicolumn{4}{l}{\textit{LI-Small: XGB $\to$ LGB}} \\
 Uniform + HT & 6.02 & 27.1 & 99.8 \\
 Terciles + HT & 5.76 & 30.4 & 100.0 \\
-Hard + terciles + HT & 2.58 & 27.3 & 100.0 \\
+HT-Coreset & 2.58 & 27.3 & 100.0 \\
 \addlinespace[2pt]
 \bottomrule\end{tabular}
 \caption{Sampling with a held-out predictor family at the released target counts.
 LGB=LightGBM; XGB=XGBoost. The arrow runs from the stratum constructor to the evaluated family.
-All samplers retain every illicit edge and use HT weights. RMSE and mean $95\%$ interval
-width concern F1 and are in percentage points; coverage (Cov.) is a percentage over $500$ draws.
+All samplers retain every illicit edge and use HT weights.
+HT-Coreset combines hard-negative retention with difficulty terciles.
+RMSE and mean $95\%$ confidence-interval (CI) width concern F1 and are in percentage points;
+coverage is a percentage over $500$ draws.
 Each draw estimates the mean of five fixed, validation-thresholded seed metrics.
 Intervals are conservative and can remain broad despite small point errors.}
 \label{tab:heldout_sampling}
