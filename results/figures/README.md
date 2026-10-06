@@ -10,6 +10,9 @@ The current paper uses these five PDFs:
 | [reduction_sweep.pdf](reduction_sweep.pdf) | Sampling-budget sweep. |
 | [step_heatmap_per_model.pdf](step_heatmap_per_model.pdf) | Regex audit pass rates by model. |
 
+The [overview PNG](evaluation_overview.png) displays the same schematic in the
+repository README and dataset card.
+
 Regenerate the manuscript figures from the code repository root (requires
 the `figures` extra):
 

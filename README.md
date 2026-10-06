@@ -21,12 +21,16 @@ Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsamplin
 for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
 is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
 
-Release 1.0 (2026-09-23). Documentation updated 2026-10-06.
-
 **HT-Coreset** is the sampling method; **AMLworld-Compact** is the released
 evaluation set. Each set of predictions supports two reports: **HT-weighted
 (full test)** estimates and **Unweighted (subset)** diagnostics. Both use the
 same predictions on the retained rows.
+
+<p align="center">
+  <img src="results/figures/evaluation_overview.png" width="480" alt="HT-Coreset retains illicit targets, samples benign targets within strata, and scores the same predictions with HT weights or unit weights.">
+</p>
+
+*Symbols represent evaluation targets and are schematic. All hard-negative targets fit at the released budgets.*
 
 ## Install
 
@@ -102,8 +106,8 @@ Parquet table. To load local prompts, use `pandas.read_parquet()` on
 Use an existing vLLM server with a served model name matching a runner ID in
 [Baselines](#baselines). The hosting configurations used for the released runs are
 in [`scripts/slurm/host_vllm/`](scripts/slurm/host_vllm/). Set `--model-id` if your
-endpoint exposes a different served name. These commands use the frozen inputs
-whose defects are documented [below](#archived-input-defects-audit-2026-09-28).
+endpoint exposes a different served name. These commands use the graph inputs
+described in [Evaluation input format](#evaluation-input-format).
 
 ```bash
 python scripts/13_run_llm_eval.py \
@@ -273,7 +277,7 @@ refuses to overwrite existing outputs. The [presence-conditioned analysis](resul
 uses cached predictions to describe historical inputs whose target is present or
 absent; it is not a test of repaired prompts.
 
-## Archived input defects (audit: 2026-09-28)
+## Evaluation input format
 
 The reported LLM results use the original graph strings. All 6,021 inputs
 leave the target transaction unmarked and the task template retains `<ID>`.
