@@ -86,7 +86,7 @@ def audit_tables(items, conjunctions):
             values.append(f"{count} ({100*count/len(cohort):.1f}\\%)")
         main.append(f"{name} & {len(cohort)} & {values[0]} & {values[1]}" + ROW.rstrip())
     main.extend([r"\bottomrule\end{tabular}",
-                 r"\caption{Textual checks by binary correctness in the $1{,}000$-trace audit.",
+                 r"\caption{Revised lexical checks by binary correctness in the $1{,}000$-trace audit.",
                  r"Counts require Parse, Recall, and at least two structural-marker categories for every",
                  r"verdict, removing the original benign-verdict Match bypass. Percentages use the row",
                  r"denominator. The 8K-character window matches the API judges' text limit. These are",
@@ -110,7 +110,7 @@ def audit_tables(items, conjunctions):
                 cells.append(f"{int(row['count'])}/{int(row.denominator)}")
             appendix.append(f"{name} & {reference} & {cells[0]} & {cells[1]}" + ROW.rstrip())
     appendix.extend([r"\bottomrule\end{tabular}",
-                     r"\caption{Traces passing the specified textual checks but failing the stated answer",
+                     r"\caption{Traces passing the specified lexical checks but failing the stated answer",
                      r"checks. All retains archived Conclude failures, including missing-reference cases;",
                      r"Available-reference rows exclude all $240$ illicit cases without a",
                      r"reference typology; benign cases remain evaluable. No-bypass rows require two",
