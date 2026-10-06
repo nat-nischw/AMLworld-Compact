@@ -108,9 +108,10 @@ python scripts/13_run_llm_eval.py \
   --out runs/gpt-oss-20b
 ```
 
-`ICL-ZS` uses the task instructions without demonstrations; `ICL-FS` adds the
-released demonstration pool. `ICL-V` is an additional supported condition and is
-not included in the baseline table below. The coreset stays fixed across seeds;
+`ICL-ZS` and `ICL-FS` share task instructions and typed graph inputs; `ICL-FS`
+adds eight illicit and four benign training demonstrations. `ICL-V` is an
+additional supported condition and is not included in the baseline table
+below. The coreset stays fixed across seeds;
 the current runner sends each requested sampling seed to vLLM. The archived
 paper runs used these numbers only as run identifiers and did not send them
 to the model API. Server versions and batching can still affect reproducibility.
@@ -122,6 +123,10 @@ and token counts in per-seed JSON files under `--out`. It also writes
 `metrics.json` beside those files and `summary_all.csv` / `summary_all.json` at
 the output root. The runner's detection metrics are unweighted compact-set
 metrics. Run the next step to obtain HT-weighted metrics.
+
+The supplementary [frontier-API probe](results/frontier_probe/) uses separate
+prompts and condensed graph inputs; its `ZS-Graph` and `ZS-Base` variants both
+have no demonstrations.
 
 ### Score saved LLM predictions
 

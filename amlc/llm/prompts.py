@@ -1,8 +1,9 @@
 """Render the in-context prompts from the shipped Jinja2 templates.
 
-The templates in ``prompts/`` are the released form of the prompts. They are
-verified byte-identical to the pre-release Python string builders that produced
-every result in the paper; ``scripts/verify_prompt_templates.py`` is the test.
+The main in-context evaluation uses these templates in ``prompts/``. They are
+verified byte-identical to the pre-release Python string builders;
+``scripts/verify_prompt_templates.py`` checks them. The supplementary frontier
+probe uses separate templates in ``prompts/frontier_probe/``.
 
     ICL-FS   preamble + 8 suspicious and 4 non-suspicious demonstrations + task
     ICL-ZS   preamble + task, no demonstrations

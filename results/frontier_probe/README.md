@@ -25,6 +25,12 @@ which prints the table and checks every published number against
 Both V0 and V1 are zero-shot. Exact system/user templates and the
 instructions for each variant are in
 [`prompts/frontier_probe/`](../../prompts/frontier_probe/).
+FS-Base and FS-CoT-Elim use eight illicit and four benign demonstrations;
+FS-TypFirst uses eight illicit demonstrations only.
+These prompts differ from the main `ICL-FS`/`ICL-ZS` protocol: they use separate
+instructions and condensed graph inputs, with account roles and computed
+structural features added in the three few-shot variants. Their results compare
+variants within this probe.
 The original runner requested at most 16,384 tokens per response.
 Gemini and Sonnet additionally requested an 8,192-token thinking budget;
 the DeepSeek runner did not set a separate thinking budget.

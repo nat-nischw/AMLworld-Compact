@@ -2,7 +2,7 @@
 """Assert the shipped Jinja2 templates reproduce the executed prompts exactly.
 
 Renders each template and compares byte-for-byte against the pre-release Python
-string builders that produced every result in the paper. A released prompt that
+string builders used for the main in-context evaluation. A released prompt that
 differs from the executed one, even by whitespace, is a silent reproducibility
 break, so this is a hard equality test rather than a similarity check.
 """

@@ -34,6 +34,17 @@ the released coreset on all 198, so the probe is checkable against the published
 dataset rather than against a private pool. Identifiers were retagged from
 ``v2_`` to ``amlc_`` by :func:`amlc.case_ids.retag`.
 
+Prompt protocols
+----------------
+
+The main ICL-FS and ICL-ZS prompts share task instructions and typed graph
+inputs; ICL-FS adds eight illicit and four benign training demonstrations.
+This probe uses separate instructions and condensed graphs. V0, V1 and V4p1
+are zero-shot. V2 and V7 have eight illicit and four benign demonstrations;
+V8 has eight illicit demonstrations only. All three few-shot variants also
+add account roles and computed structural features, so comparisons with the
+zero-shot variants change more than the demonstrations.
+
 Scoring conventions
 -------------------
 
