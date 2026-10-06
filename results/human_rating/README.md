@@ -1,9 +1,11 @@
 # Human-rating pack
 
-Three annotators independently scored the same 28-trace stratified slice with the four-step
-rubric: one NLP researcher and two AML practitioners, one junior and one senior. The slice is
-7 models x 4 outcome classes (correct-illicit, over-prediction, typology-error,
-under-prediction), one trace per cell, all HI-Small seed 42.
+Three annotators independently rated the same 28-trace stratified slice:
+one NLP researcher and two AML practitioners, one junior and one senior.
+The slice contains one HI-Small few-shot trace from run 42 per cell of
+7 models × 4 outcome classes (correct-illicit, over-prediction,
+typology-error, under-prediction). The archived API requests did not set
+this identifier as a sampling seed.
 
 | file | rater |
 |---|---|
@@ -12,15 +14,19 @@ under-prediction), one trace per cell, all HI-Small seed 42.
 | `rater_aml_practitioner_2.csv` | AML practitioner, senior |
 | `per_trace_NN_amlc_NNNNN.txt` | the trace each rater read, one file per case |
 
-All three report a Conclude pass rate of 21.4% and agree unanimously on Conclude for all 28
-traces, which is the Fleiss kappa of 1.00 the appendix cites.
+Parse, Recall, and Match are human ratings. In the adopted sheets, Conclude
+is replaced with the same parser-derived score for all three raters: one for
+a correct benign verdict, or an illicit verdict with a present, matching
+reference typology; zero otherwise. Missing illicit references count as
+failures under this archived convention.
 
-Conclude is binarised under a uniform parser-extraction rule: 1 if the extraction pipeline's
-final prediction matches ground truth on both the binary verdict and the typology label where
-one exists, 0 otherwise.
+Conclude therefore has the same 21.4% pass rate and Fleiss kappa of 1.00 in
+all three sheets. This agreement follows from the shared score and is not
+independent human validation of the answer. Human Match agreement is low
+(Fleiss kappa = 0.10).
 
 ## Sheets not included
 
-The senior practitioner rescored after a calibration pass. The first pass gave a Conclude
-rate of 32.7%; the adopted sheet gives 21.4%. Only the adopted sheet ships. The superseded
-sheets, the blank template and the sheet builder are retained in the authors' archive.
+The senior practitioner rescored after a calibration pass. Only the adopted
+sheets ship. Superseded sheets, the blank template, and the sheet builder
+remain in the authors' archive.

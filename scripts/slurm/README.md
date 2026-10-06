@@ -18,7 +18,7 @@ so pass `--nodelist` and the log paths on the `sbatch` command line.
 | `14_run_intervention.sh` | the ICL-V prompt intervention |
 | `15_rerun_thinking.sh` | re-run cases whose reasoning trace was truncated |
 | `17_run_doubt_triage.sh` | Doubt Triage over every cell |
-| `18_score_deferral_grid.sh` | the score-only deferral baseline of Appendix G.3 |
+| `18_score_deferral_grid.sh` | the score-only deferral baseline of Appendix G.2 |
 | `20_elliptic_pipeline.sh` | Elliptic download, ML, coreset, evaluation |
 | `21_elliptic_llm_eval.sh` | Elliptic LLM evaluation (never run for the paper) |
 | `check_traces.py` | trace completeness check |

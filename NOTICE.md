@@ -38,11 +38,13 @@ or serialisations are shipped.
 
 ## Prior work reused
 
-- The typed-graph serialisation and the ICL-FS and ICL-ZS prompt text follow
-  the protocol of Pirmorad et al. (2025). `prompts/icl_fs.j2` and
-  `prompts/icl_zs.j2` are that protocol; `prompts/icl_v.j2` adds this paper's
-  verification step and is the only prompt contribution here.
-- The Graph-Feature-Preprocessor is IBM Snap ML.
+- The main typed-graph serialisation, task wording, and answer format follow
+  Pirmorad et al. (2025). `prompts/icl_fs.j2` uses demonstrations from our
+  training partition with adapted explanations; `prompts/icl_zs.j2` omits
+  those demonstrations. `prompts/icl_v.j2` adds the verification step.
+  Separate supplementary probe templates are documented in
+  [`prompts/frontier_probe/`](prompts/frontier_probe/README.md).
+- Graph Feature Preprocessor (GFP) is provided by IBM Snap ML.
 - The GCPAL baseline is a reimplementation of Lu et al. (2024); no official
   code was available.
 - Baseline B5 implements Fogliato et al. (ECCV 2024).

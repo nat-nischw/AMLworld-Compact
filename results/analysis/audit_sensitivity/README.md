@@ -1,6 +1,11 @@
-# Offline audit scoring sensitivity
+# Lexical-check sensitivity
 
-This is a descriptive reanalysis of the frozen 1,000 model/case audit rows: HI-Small, ICL-FS, seed 42, seven models. The sample was stratified by model and prediction outcome and underrepresents correct benign predictions. Rates describe this audit slice; they are not benchmark prevalence estimates, population-weighted error rates, or causal evidence about reasoning stages. No new model calls or semantic judgements were made.
+These lexical checks use the frozen 1,000 HI-Small few-shot model/case
+records from run 42 across seven models. The original API requests did not
+set a sampling seed. The sample was stratified by model and prediction
+outcome and underrepresents correct benign predictions. Rates describe
+this audit slice; they do not estimate population error rates or establish
+causal reasoning stages. No new model calls or semantic judgements were made.
 
 Reproduce all reports using only the released annotation CSVs and compact features:
 
@@ -31,6 +36,22 @@ The archive must contain `<model>/LLM+ICL-AML/HI-Small/seed_42.json`. The script
 - Every rate CSV row includes its integer numerator and denominator. A zero denominator has an empty rate. `ALL` rows pool the selected audit cases without weighting. `outcome` preserves archived classes; `error_class` splits missing-reference flagged/missed cases from typology errors and under-predictions; `reference_group` separates reference availability. `binary_outcome` conditions on binary correctness (470 correct, 530 incorrect). Every grouping is also reported separately by model. These overlapping grouping tables must not be summed.
 
 ## Overall checks
+
+`original_PRM` names the original regex Parse/Recall/Match conjunction,
+labelled "Original regex" in the paper. Raw CSV keys are unchanged.
+The revised checks use `PR_and_two_marker_categories`: Parse and Recall
+must pass, and at least two structural-marker categories must match for
+every verdict, including benign verdicts.
+
+The paper reports these revised-check rates conditional on binary correctness:
+
+| Binary verdict | Records | Full trace passes | First 8k chars passes |
+|---|---:|---:|---:|
+| Correct | 470 | 397 (84.5%) | 388 (82.6%) |
+| Incorrect | 530 | 298 (56.2%) | 295 (55.7%) |
+
+The conjunction table below instead divides joint pass-and-error counts by
+all eligible records under each correctness convention.
 
 Rows: 1000. Binary-correct: 470/1000. Typed-correct: 183/456. Illicit reference absent: 240/1000. Truncated at 8,000 characters: 400/1000. Empty reasoning traces: 148/1000.
 

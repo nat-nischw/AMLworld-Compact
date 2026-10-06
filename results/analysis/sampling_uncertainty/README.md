@@ -7,7 +7,7 @@ API calls, new inference, or additional benchmark draws are required.
 
 The files retain historical `seed` field names and run identifiers. The archived
 requests did not pass these values to the model API; the current runner does.
-References to seed SD below describe variation across those five archived runs.
+The paper calls this variation run SD; cached files retain seed-based field names.
 
 ## Reproduce the analysis
 
@@ -46,12 +46,12 @@ Each split has three input files:
 
 | File | Contents |
 | --- | --- |
-| `inputs/{split}.npz` | Binary predictions, labels, target IDs, stratum IDs, weights, cell names, and inference seeds. Loads with `allow_pickle=False`. |
+| `inputs/{split}.npz` | Binary predictions, labels, target IDs, stratum IDs, weights, cell names, and inference run identifiers. Loads with `allow_pickle=False`. |
 | `inputs/{split}.json` | Stratum population and sample sizes, source SHA256s, preparation-script/output hashes, and per-run validation. |
 | `inputs/{split}_strata.csv` | One row per target, with its case/center-edge IDs, full-test index, label, stratum, population/sample sizes, and weight. |
 
 Prediction tensors have shape `(3753, 14, 5)` for HI-Small and `(2268, 14, 5)`
-for LI-Small. Axes are released target position, model/prompting cell, and seed.
+for LI-Small. Axes are released target position, model/prompting cell, and run.
 Cells follow `LLM_MODELS` order, with `ICL-FS` then `ICL-ZS` for each model;
 the `models`, `promptings`, and `seeds` arrays record the actual ordering.
 
@@ -72,7 +72,7 @@ contain no reasoning traces or raw response text.
 
 ## Estimand and uncertainty
 
-The estimand is the **mean of five per-seed metrics**, not a metric computed
+The estimand is the **mean of five per-run metrics**, not a metric computed
 after averaging predictions. The analysis conditions on the construction
 strata, realized sample allocation, fixed per-target contexts, and the five
 fixed prediction vectors. Within each sampled stratum, the conditional design
@@ -84,16 +84,16 @@ the sampled easy-benign strata contribute target-sampling uncertainty to the
 false-positive total. The calculation uses finite-population corrections and
 within-stratum sample covariance. Ratio linearization gives sampling SEs for
 precision, F1, and precision lift. Same-target covariance is retained across
-all five seeds and, for paired FS–ZS differences, across both prompts.
+all five runs and, for paired FS–ZS differences, across both prompts.
 
-- **Seed SD** is the descriptive standard deviation of the five metrics,
+- **Run SD** is the descriptive standard deviation of the five metrics,
   using `ddof=1`.
 - **Sampling SE** conditions on those five prediction vectors. It is reported
-  separately from seed SD; it is neither divided by an extra `sqrt(5)` nor
-  combined with seed SD into a total uncertainty estimate.
+  separately from run SD; it is neither divided by an extra `sqrt(5)` nor
+  combined with run SD into a total uncertainty estimate.
 - **95% intervals** are conservative confidence envelopes from equal-tailed
   hypergeometric count inversion. Bonferroni allocation covers the 15
-  seed–stratum counts within each cell (`5 seeds × 3 sampled strata`). Paired
+  run–stratum counts within each cell (`5 runs × 3 sampled strata`). Paired
   contrasts cover 30 counts across their two cells. Endpoints are transformed
   to metrics and averaged; contrasts subtract the joint endpoints.
 
@@ -105,11 +105,11 @@ least 95% **per cell or per contrast**, not simultaneous across all 28 cells or
 all 14 contrasts in the tables. No table-wide ranking claim follows from them.
 
 Recall has zero target-sampling SE under these conditions because illicit
-targets are censused; its inference-seed variation remains. The deterministic
+targets are censused; its between-run variation remains. The deterministic
 predict-all rule has known predictions throughout the population, so its
 subtraction introduces no additional sampling uncertainty.
 
-These results do not measure variation over future inference seeds, changing
+These results do not measure variation over future inference runs, changing
 contexts, reconstructed coresets, future graphs, or real banking populations.
 They do not replace direct full-versus-coreset LLM validation or experiments
 on independent coreset draws.
@@ -118,8 +118,8 @@ on independent coreset draws.
 
 | Artifact | Contents and units |
 | --- | --- |
-| `summary.csv` | 28 five-seed means, seed SDs, sampling SEs, confidence envelopes, and comparisons with predict-all. P/R/F1 are percentages; their SDs, SEs, and differences are percentage points. |
-| `per_seed.csv` | 140 per-seed results. P/R/F1, their SEs, and endpoints are fractions; confusion totals and FP uncertainty are counts. Bounds use the allocation for the parent five-seed cell. |
+| `summary.csv` | 28 five-run means, run SDs, sampling SEs, confidence envelopes, and comparisons with predict-all. P/R/F1 are percentages; their SDs, SEs, and differences are percentage points. |
+| `per_seed.csv` | 140 per-seed results. P/R/F1, their SEs, and endpoints are fractions; confusion totals and FP uncertainty are counts. Bounds use the allocation for the parent five-run cell. |
 | `fs_zs_contrasts.csv` | 14 FS-minus-ZS comparisons with paired SEs and conservative envelopes. P/F1 differences and their uncertainty are percentage points. |
 | `analysis.json` | Full results, covariance matrices, sampled-stratum positive counts, interval error allocations, and predict-all references. P/R/F1 use fractions; confusion quantities use counts. |
 | Optional `.tex` tables | Manuscript tables with F1 as percentages and SD/SE in units of `10^-3` percentage points. Interval endpoints are rounded outwards. |

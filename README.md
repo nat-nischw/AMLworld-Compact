@@ -13,8 +13,9 @@
 
 The AMLworld-Compact evaluation set provides importance-weighted subsets of AMLworld for evaluating
 transaction classification and laundering-typology prediction. HT-Coreset retains all
-illicit test edges and samples benign edges, reducing HI-Small and LI-Small by
-271× and 611×. Each retained edge has graph features, a serialised local graph,
+illicit test edges and samples benign edges, reducing evaluation-target counts
+by 271× on HI-Small and 611× on LI-Small. Each retained edge has graph
+features, a serialised local graph,
 and an inverse-inclusion-probability weight.
 
 ![HT-Coreset selects fewer evaluation targets; the same predictions feed HT-weighted full-test estimates and unweighted subset diagnostics.](results/figures/readme_overview.png)
@@ -197,7 +198,7 @@ python scripts/25_score_sampling_uncertainty.py \
 The [analysis notes](results/analysis/sampling_uncertainty/README.md) describe
 the inputs, units, and conditional confidence intervals. In the paper, the main
 LLM table gives a HI-Small overview; the full-results appendix adds LI-Small,
-precision, output coverage, and run variation. The uncertainty table separates
+precision, recorded-token ratio, and run variation. The uncertainty table separates
 variation across inference runs from uncertainty due to sampling benign targets.
 
 ### Additional checks from cached predictions and traces
@@ -245,8 +246,7 @@ the original scoring rows by dataset and `case_id`. The historical evaluation
 runner still uses the archived format; the paper's LLM scores do not evaluate
 this new version. The repair retains the edge-count budget by replacing one
 non-target edge when necessary; text length changes and has not been token-budget
-tested against the models. The original full-graph source and temporal scope
-are unchanged.
+tested against the models. The source graph and data partitions are unchanged.
 
 The [integrity report](results/analysis/target_integrity/validation_report.json) records
 source checks and input hashes. To rebuild into new directories without inference:
@@ -271,12 +271,12 @@ leave the target transaction unmarked and the task template retains `<ID>`.
 In 324/3,753 HI-Small and 297/2,268 LI-Small cases, the target
 transaction itself is absent from the graph after neighbor capping. These
 include 128 HI and 181 LI illicit targets. The `Time span` field counts distinct
-timestamps rather than elapsed time. Results therefore describe this incomplete
-input protocol; they do not isolate model reasoning failures.
+timestamps rather than elapsed time. These results describe the evaluated input
+format and do not isolate input effects from model reasoning errors.
 
-Keep these inputs for reproducing the reported experiment. A corrected evaluation
-must explicitly preserve and mark the target edge, correct the time summary,
-and rerun inference. Changing a template does not correct existing predictions.
+Use the original inputs to reproduce the reported experiment. Evaluating the
+target-marked version requires new inference with its complete
+`evaluation_prompt`; saved predictions apply to the original version.
 
 Published typology scores use archived postprocessed labels. The live parser
 does not reproduce every historical free-text fallback; use the archived labels
@@ -292,7 +292,8 @@ order. Transactions are broadly ordered in time, but timestamp ranges overlap
 across partitions; this is not a strictly chronological evaluation. The
 released coreset is reproduced with sampling seed 0.
 
-GFP means Graph Feature Preprocessor. The primary ensemble averages
+GFP means Graph Feature Preprocessor. Each booster uses 73 GFP signals and
+6 raw transaction attributes (79 inputs). The primary ensemble averages
 LightGBM and XGBoost probabilities across five seeds. It retains thresholds
 0.80 for HI-Small and 0.48 for LI-Small from the original construction study;
 these operating points were selected on the full test split.
@@ -310,7 +311,8 @@ coincide because all edges contributing to its TP, FP, and FN counts are retaine
 with weight one. This exact equality does not extend to arbitrary predictors.
 
 The frozen sampling design originally used a third scorer, Graph Contrastive
-Pre-training for Anti-money Laundering + GFP (GCPAL+GFP). Its random fine-tuning
+Pre-training for Anti-money Laundering + GFP (GCPAL+GFP). It adds five
+line-graph-derived features, giving 84 inputs. Its random fine-tuning
 split overlaps the test partition. We preserve that construction history and
 its original inclusion weights, while the primary evaluation ensemble uses only
 the two boosters trained on the file-order partition. GCPAL checkpoints remain available as
