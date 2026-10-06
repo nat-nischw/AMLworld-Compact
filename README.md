@@ -1,7 +1,7 @@
 # AMLworld-Compact
 
 <!-- dataset id: natnitaract/AMLworldCompactEval. If it ever changes, update it
-     in: this badge, the two links below (intro and Dataset section),
+     in: this badge and the Dataset section link,
      pyproject [project.urls] Dataset, and amlc/config.yaml sources.dataset_repo. -->
 
 [![CI](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml)
@@ -12,21 +12,12 @@
 [Dataset](#dataset) · [Citation](#citation)
 
 The AMLworld-Compact evaluation set provides importance-weighted subsets of AMLworld for evaluating
-transaction classification and laundering-typology prediction. It retains all
+transaction classification and laundering-typology prediction. HT-Coreset retains all
 illicit test edges and samples benign edges, reducing HI-Small and LI-Small by
 271× and 611×. Each retained edge has graph features, a serialised local graph,
 and an inverse-inclusion-probability weight.
 
 ![HT-Coreset selects fewer evaluation targets; the same predictions feed HT-weighted full-test estimates and unweighted subset diagnostics.](results/figures/readme_overview.png)
-
-Code and evaluation tools for *AMLworld-Compact: Importance-Weighted Downsampling
-for LLM Evaluation and Error Diagnosis*. The Python package is `amlc`; the dataset
-is [`natnitaract/AMLworldCompactEval`](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval).
-
-**HT-Coreset** is the sampling method; **AMLworld-Compact** is the released
-evaluation set. Each set of predictions supports two reports: **HT-weighted
-(full test)** estimates and **Unweighted (subset)** diagnostics. Both use the
-same predictions on the retained rows.
 
 ## Install
 
@@ -128,8 +119,8 @@ configuration. Each selected combination evaluates every row in that split.
 The runner saves per-case verdicts, typologies, responses, available reasoning,
 and token counts in per-seed JSON files under `--out`. It also writes
 `metrics.json` beside those files and `summary_all.csv` / `summary_all.json` at
-the output root. **The runner's detection metrics are unweighted compact-set
-metrics.** Run the next step to obtain HT-weighted metrics.
+the output root. The runner's detection metrics are unweighted compact-set
+metrics. Run the next step to obtain HT-weighted metrics.
 
 ### Score saved LLM predictions
 
@@ -277,7 +268,7 @@ absent; it is not a test of repaired prompts.
 
 The reported LLM results use the original graph strings. All 6,021 inputs
 leave the target transaction unmarked and the task template retains `<ID>`.
-In **324/3,753 HI-Small** and **297/2,268 LI-Small** cases, the target
+In 324/3,753 HI-Small and 297/2,268 LI-Small cases, the target
 transaction itself is absent from the graph after neighbor capping. These
 include 128 HI and 181 LI illicit targets. The `Time span` field counts distinct
 timestamps rather than elapsed time. Results therefore describe this incomplete
@@ -301,7 +292,7 @@ order. Transactions are broadly ordered in time, but timestamp ranges overlap
 across partitions; this is not a strictly chronological evaluation. The
 released coreset is reproduced with sampling seed 0.
 
-GFP means **Graph Feature Preprocessor**. The primary ensemble averages
+GFP means Graph Feature Preprocessor. The primary ensemble averages
 LightGBM and XGBoost probabilities across five seeds. It retains thresholds
 0.80 for HI-Small and 0.48 for LI-Small from the original construction study;
 these operating points were selected on the full test split.
@@ -313,13 +304,13 @@ ML and DT task comparisons at these points are exploratory.
 | XGBoost + Graph Feature Preprocessor | `XGBoost+GFP` |
 
 The released ensemble's HT-weighted P / R / F1 (%) is
-**84.8449 / 56.8345 / 68.0708** on HI-Small and
-**60.1695 / 18.7831 / 28.6290** on LI-Small. Its full-split and coreset values
+84.8449 / 56.8345 / 68.0708 on HI-Small and
+60.1695 / 18.7831 / 28.6290 on LI-Small. Its full-split and coreset values
 coincide because all edges contributing to its TP, FP, and FN counts are retained
 with weight one. This exact equality does not extend to arbitrary predictors.
 
-The frozen sampling design originally used a third scorer, **Graph Contrastive
-Pre-training for Anti-money Laundering + GFP (GCPAL+GFP)**. Its random fine-tuning
+The frozen sampling design originally used a third scorer, Graph Contrastive
+Pre-training for Anti-money Laundering + GFP (GCPAL+GFP). Its random fine-tuning
 split overlaps the test partition. We preserve that construction history and
 its original inclusion weights, while the primary evaluation ensemble uses only
 the two boosters trained on the file-order partition. GCPAL checkpoints remain available as
@@ -341,7 +332,7 @@ with coreset rows.
 | NVIDIA Nemotron-3-Super-120B-A12B | `Nemotron-3-Super-120B` | `nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8` |
 | Qwen3.5-397B-A17B | `Qwen3.5-397B-A17B` | `Qwen/Qwen3.5-397B-A17B-FP8` |
 
-The following values are **HT-weighted detection F1 (%)**, averaged over five stochastic runs
+The following values are HT-weighted detection F1 (%), averaged over five stochastic runs
 for each model and prompting condition. ZS means `ICL-ZS`; FS means `ICL-FS`.
 
 | Model | HI-Small ZS | HI-Small FS | LI-Small ZS | LI-Small FS |
