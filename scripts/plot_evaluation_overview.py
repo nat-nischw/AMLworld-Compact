@@ -121,7 +121,7 @@ def main():
     # in the corresponding compact-set row. Equal marker area prevents
     # confusion between a sampled target and its importance weight.
     text(3, 91.5, 'Other\nbenign', size=9.5, color=MUTED, ha='left')
-    text(117, 114.5, 'Sample in 3 strata', size=9.5, color=MUTED)
+    text(117, 114.5, '3 difficulty strata', size=9.5, color=MUTED)
     for y in [103.5, 91.5, 79.5]:
         ax.add_patch(Rectangle((31, y - 4.8), 52, 9.6,
                               facecolor=STRATUM_FILL, edgecolor='none'))
@@ -133,6 +133,12 @@ def main():
         for x in [167, 181]:
             token(x, y)
         arrow((90, y), (144, y), color=BENIGN, lw=0.7)
+
+    # Group only the three other-benign bands; the high-score stratum above
+    # remains separate. Leave clearance from each sampling arrow's shaft.
+    rule((83.5, 108.3), (86.5, 108.3), color=BENIGN)
+    rule((86.5, 108.3), (86.5, 74.7), color=BENIGN)
+    rule((83.5, 74.7), (86.5, 74.7), color=BENIGN)
 
     # A bracket collects every selected row. Its connection to the model
     # prediction node stays outside both panel headings and the row labels.
