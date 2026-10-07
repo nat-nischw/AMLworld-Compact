@@ -421,7 +421,7 @@ questions about the code or the dataset.
 
 ```bibtex
 @misc{nitarach2026amlcompact,
-  title  = {AMLworld-Compact: Importance-Weighted Downsampling for LLM Evaluation and Error Diagnosis},
+  title  = {AMLworld-Compact: Importance-Weighted Downsampling for Cost-Effective LLM Evaluation and Error Diagnosis},
   author = {Nitarach, Natapong and Ngampornsukswadi, Phume and
             Taveekitworachai, Pittawat and Nonesung, Surapon and
             Sirichotedumrong, Warit and Halverson, Duncan and

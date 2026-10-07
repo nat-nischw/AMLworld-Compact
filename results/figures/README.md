@@ -18,7 +18,7 @@ The current paper uses these five PDFs:
 
 | File | Content |
 | --- | --- |
-| [evaluation_overview.pdf](evaluation_overview.pdf) | HT-Coreset selection and the two reports from the same predictions: HT-weighted full-test estimates and unweighted subset diagnostics. |
+| [evaluation_overview.pdf](evaluation_overview.pdf) | Panel (a) shows HT-Coreset target selection; panel (b) shows model predictions feeding HT-weighted full-test estimates and unweighted subset diagnostics. |
 | [typology_f1_hi_small.pdf](typology_f1_hi_small.pdf) | Typology F1 on HI-Small. |
 | [typology_anchor_heatmap_main.pdf](typology_anchor_heatmap_main.pdf) | Predicted labels on ground-truth-benign targets, with separate HI-Small and LI-Small panels. |
 | [reduction_sweep.pdf](reduction_sweep.pdf) | Sampling-budget sweep. |
