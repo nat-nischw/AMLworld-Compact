@@ -108,8 +108,8 @@ def main():
     text(117, 154.5, 'Keep all', size=9.5, color=ILLICIT)
     arrow((90, 145.5), (144, 145.5), color=ILLICIT)
 
-    text(3, 125.5, 'Hard\nbenign', size=9.5, color=HARD, ha='left')
-    for x in [51, 63]:
+    text(3, 125.5, 'High-score\nbenign', size=9.5, color=HARD, ha='left')
+    for x in [63, 75]:
         token(x, 125.5, hard=True)
     for x in [167, 181]:
         token(x, 125.5, hard=True)
@@ -121,7 +121,7 @@ def main():
     # in the corresponding compact-set row. Equal marker area prevents
     # confusion between a sampled target and its importance weight.
     text(3, 91.5, 'Other\nbenign', size=9.5, color=MUTED, ha='left')
-    text(117, 114.5, 'Sample by difficulty', size=9.5, color=MUTED)
+    text(117, 114.5, 'Sample in 3 strata', size=9.5, color=MUTED)
     for y in [103.5, 91.5, 79.5]:
         ax.add_patch(Rectangle((31, y - 4.8), 52, 9.6,
                               facecolor=STRATUM_FILL, edgecolor='none'))
