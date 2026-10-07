@@ -153,6 +153,10 @@ prompting, dataset, and seed selections to the prediction files you generated.
 
 ### Metrics and reporting
 
+Both reports score the same targets selected by HT-Coreset and the same
+predictions. HT-weighted scoring uses the released `ht_weight`; unweighted
+scoring sets every weight to one.
+
 For binary labels `y`, predictions `p`, and weights `w`, the scorer computes
 `TP = sum(w * (y == 1) * (p == 1))`, with analogous weighted FP and FN counts.
 Precision is `TP / (TP + FP)`, recall is `TP / (TP + FN)`, and F1 is
