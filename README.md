@@ -1,11 +1,11 @@
 # AMLworld-Compact
 
-<!-- dataset id: natnitaract/AMLworldCompactEval. If it ever changes, update it
+<!-- dataset id: typhoon-ai/AMLworldCompactEval. If it ever changes, update it
      in: this badge and the Dataset section link,
      pyproject [project.urls] Dataset, and amlc/config.yaml sources.dataset_repo. -->
 
 [![CI](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml/badge.svg)](https://github.com/nat-nischw/AMLworld-Compact/actions/workflows/ci.yml)
-[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-AMLworldCompactEval-yellow)](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
+[![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20dataset-AMLworldCompactEval-yellow)](https://huggingface.co/datasets/typhoon-ai/AMLworldCompactEval)
 [![Code MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
 
 [Install](#install) · [Evaluation](#evaluation) · [Baselines](#baselines) ·
@@ -369,7 +369,7 @@ are available as `subset_*` columns in the same file.
 | Evaluation targets retained | 3,753 | 2,268 |
 | Illicit rows with a known typology | 791 | 174 |
 
-The [dataset card](https://huggingface.co/datasets/natnitaract/AMLworldCompactEval)
+The [dataset card](https://huggingface.co/datasets/typhoon-ai/AMLworldCompactEval)
 describes all columns, feature arrays, weights, and checkpoint files. The 1:2
 illicit-to-benign ratio is the most aggressive downsampling setting tested in
 the reported sweep. Graph texts
@@ -424,8 +424,8 @@ questions about the code or the dataset.
 ## Acknowledgments
 
 This work began at SCB 10X. We thank
-[Oravee Smithiphol](https://huggingface.co/ornsmith) for connecting our team
-with Scotiabank.
+[Oravee Smithiphol](https://th.linkedin.com/in/ornsmith) for introducing our
+team to Phume Ngampornsukswadi at Scotiabank.
 
 We also thank Duncan Halverson for his feedback on an earlier draft and the
 members of the [Typhoon team](https://opentyphoon.ai/).
