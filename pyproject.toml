@@ -62,7 +62,6 @@ dev = ["amlcompact[data,figures,hub]", "pytest>=7.4", "ruff>=0.1"]
 [project.urls]
 Repository = "https://github.com/nat-nischw/AMLworld-Compact"
 Dataset = "https://huggingface.co/datasets/natnitaract/AMLworldCompactEval"
-Paper = "https://openreview.net/forum?id=VouFZFf8Ph"
 
 [tool.setuptools.packages.find]
 include = ["amlc*"]

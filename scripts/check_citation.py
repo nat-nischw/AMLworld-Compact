@@ -6,6 +6,7 @@
 
 The sibling dataset card is checked when present. Anonymous review copies may
 withhold the paper citation; identified releases must match CITATION.cff.
+An identified paper under review may omit its URL until a preprint is available.
 Additional citations, such as AMLworld, are allowed. Publication dates are never
 inferred.
 """
@@ -46,9 +47,13 @@ def source_fields() -> dict:
             if cff.get("url"):
                 raise ValueError("anonymous citation must withhold its URL")
         else:
-            fields["url"] = norm(cff["url"])
-            if not fields["url"]:
-                raise ValueError("identified citation must include a nonempty URL")
+            url = norm(cff.get("url") or "")
+            if url:
+                fields["url"] = url
+            elif re.search(r"\bunder review\b", cff.get("message", ""), re.I):
+                fields["note"] = "Under review"
+            else:
+                raise ValueError("identified citation must include a URL or state that it is under review")
         if "year" in cff:
             fields["year"] = str(cff["year"])
         return fields
@@ -62,7 +67,7 @@ def bibtex_entries(text: str) -> list[dict[str, str]]:
     for block in re.findall(r"```bibtex\s*\n(.*?)```", text, re.S | re.I):
         for entry in re.split(r"@\w+\s*[{(]", block)[1:]:
             fields = {}
-            for match in re.finditer(r"\b(title|url|author|year)\s*=\s*", entry, re.I):
+            for match in re.finditer(r"\b(title|url|author|year|note)\s*=\s*", entry, re.I):
                 value = entry[match.end():]
                 if value.startswith("{"):
                     depth = 0
@@ -120,9 +125,9 @@ def main() -> int:
         if len(candidates) != 1:
             continue
         entry = candidates[0]
-        if source["anonymous"]:
+        if "url" not in source:
             check(f"{name}: paper URL withheld during review", not entry.get("url"))
-        for field in ("title", "url", "year"):
+        for field in ("title", "url", "year", "note"):
             if field in source:
                 check(f"{name}: {field}", entry.get(field) == source[field])
         authors = re.split(r"\s+and\s+", entry.get("author", ""))

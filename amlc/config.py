@@ -65,7 +65,7 @@ CORESET_DIR: str | None = _env("AMLC_CORESET_DIR", _S["coreset_dir"])
 KAGGLE_DATASET: str = _env("AMLC_KAGGLE_DATASET", _S["kaggle_dataset"])
 
 CODE_REPO: str = _S["code_repo"]
-PAPER_URL: str = _S["paper"]
+PAPER_URL: str | None = _S["paper"]
 
 #: Per-split array filenames the coreset loader needs. The dataset's layout.
 CORESET_ARRAYS: tuple[str, ...] = tuple(_S["coreset_arrays"])

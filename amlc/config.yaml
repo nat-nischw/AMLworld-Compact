@@ -28,7 +28,8 @@ sources:
   kaggle_dataset: ealtman2019/ibm-transactions-for-anti-money-laundering-aml
   # The code and the paper record, used in citations and error messages.
   code_repo: https://github.com/nat-nischw/AMLworld-Compact
-  paper: https://openreview.net/forum?id=VouFZFf8Ph
+  # Paper under review; add its URL when the preprint is available.
+  paper: null
   # The per-split arrays hub.load_coreset needs. This is the dataset's layout
   # contract: rename one on the Hub and the loader must be told here.
   coreset_arrays:

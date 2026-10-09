@@ -421,17 +421,23 @@ asset-specific terms.
 Open a [GitHub issue](https://github.com/nat-nischw/AMLworld-Compact/issues) for
 questions about the code or the dataset.
 
+## Acknowledgments
+
+We thank Duncan Halverson for his feedback on an earlier draft and the members of the [Typhoon team](https://opentyphoon.ai/).
+
 ## Citation
+
+Paper: Under review.
 
 ```bibtex
 @misc{nitarach2026amlcompact,
   title  = {AMLworld-Compact: Importance-Weighted Downsampling for Cost-Effective LLM Evaluation and Error Diagnosis},
   author = {Nitarach, Natapong and Ngampornsukswadi, Phume and
             Taveekitworachai, Pittawat and Nonesung, Surapon and
-            Sirichotedumrong, Warit and Halverson, Duncan and
+            Sirichotedumrong, Warit and
             Pipatanakul, Kunat},
   year   = {2026},
-  url    = {https://openreview.net/forum?id=VouFZFf8Ph}
+  note   = {Under review}
 }
 ```
 
