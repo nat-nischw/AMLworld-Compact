@@ -423,7 +423,12 @@ questions about the code or the dataset.
 
 ## Acknowledgments
 
-We thank Duncan Halverson for his feedback on an earlier draft and the members of the [Typhoon team](https://opentyphoon.ai/).
+This work began at SCB 10X. We thank
+[Oravee Smithiphol](https://huggingface.co/ornsmith) for connecting our team
+with Scotiabank.
+
+We also thank Duncan Halverson for his feedback on an earlier draft and the
+members of the [Typhoon team](https://opentyphoon.ai/).
 
 ## Citation
 
