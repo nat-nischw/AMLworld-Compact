@@ -1,12 +1,17 @@
-"""GCPAL: a GIN over the line graph of the transaction graph, third ensemble member.
+"""GCPAL reproduction with a GIN encoder and a transaction line-graph input.
 
-A reimplementation of Lu and Wang (2024), "Graph Contrastive Pre-training for
-Anti-money Laundering", Int. J. Comput. Intell. Syst. 17:307. No official code
-exists, so this follows the paper's description: each transaction becomes a node
-in a line graph, two line-graph nodes are joined when their transactions share an
-account and sit within ``lg_k`` positions of each other in time, and the task is
-node classification with a two-layer GIN encoder and an ``MLP(H || X)``
-classifier, after two-view or three-view contrastive pre-training.
+Lu and Wang (2024), "Graph Contrastive Pre-training for Anti-money Laundering",
+Int. J. Comput. Intell. Syst. 17:307, introduce a transaction-node
+classification and contrastive pre-training framework. This reproduction
+retains its GIN encoder (Xu et al., 2019, "How Powerful Are Graph Neural
+Networks?") and an ``MLP(H || X)`` classifier after contrastive pre-training.
+
+We adapt AMLworld's transaction edges to this node-classification setup:
+each transaction becomes a node in a line graph. Two such nodes are joined
+when their transactions share an account and lie within ``lg_k`` positions
+of each other in time. The line-graph construction and this temporal-window
+rule are this repository's choices, not specifications from Lu and Wang.
+The implementation supports two-view and three-view contrastive pre-training.
 
 Node features are the 79 Snap ML GFP dimensions plus 5 dimensions aggregated
 from the line-graph edges, 84 in total. The aggregation is this repository's
