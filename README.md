@@ -423,12 +423,13 @@ questions about the code or the dataset.
 
 ## Acknowledgments
 
-This work began at SCB 10X. We thank
+This work was initiated at SCB 10X in late 2025, following the release of our
+earlier work, [FinCoT](https://arxiv.org/abs/2506.16123). We are grateful to
 [Oravee Smithiphol](https://th.linkedin.com/in/ornsmith) for introducing our
-team to Phume Ngampornsukswadi at Scotiabank.
-
-We also thank Duncan Halverson for his feedback on an earlier draft and the
-members of the [Typhoon team](https://opentyphoon.ai/).
+team to Phume Ngampornsukswadi, whose interest in FinCoT led to this
+collaboration. We also thank the members of the
+[Typhoon team](https://opentyphoon.ai/) for their support, and Duncan Halverson
+for contributing to the early stages of this work.
 
 ## Citation
 
