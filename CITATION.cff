@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software or dataset, please cite the paper. Under review."
+message: "If you use this software or dataset, please cite the preprint."
 title: "AMLworld-Compact: Importance-Weighted Downsampling for Cost-Effective LLM Evaluation and Error Diagnosis"
 authors:
   - family-names: Nitarach
@@ -21,4 +21,5 @@ authors:
     given-names: Kunat
     affiliation: "SCB DataX, SCBX Group"
 year: 2026
+url: "https://arxiv.org/abs/2610.13627"
 repository-code: "https://github.com/nat-nischw/AMLworld-Compact"

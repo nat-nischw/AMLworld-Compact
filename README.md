@@ -433,7 +433,7 @@ for contributing to the early stages of this work.
 
 ## Citation
 
-Paper: Under review.
+Paper: [arXiv:2610.13627](https://arxiv.org/abs/2610.13627). Under review.
 
 ```bibtex
 @misc{nitarach2026amlworldcompactimportanceweighteddownsamplingcosteffective,

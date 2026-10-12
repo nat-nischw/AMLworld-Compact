@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 # The AMLworld-Compact resource uses the distribution name `amlcompact` and the
 # Python import name `amlc`.
 name = "amlcompact"
-version = "1.0.0"
+version = "1.0.1"
 description = "HT-Coreset compression of AMLworld and an in-context evaluation of thinking-mode LLMs on transaction-graph AML detection"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -17,7 +17,6 @@ authors = [
   { name = "Pittawat Taveekitworachai" },
   { name = "Surapon Nonesung" },
   { name = "Warit Sirichotedumrong" },
-  { name = "Duncan Halverson" },
   { name = "Kunat Pipatanakul" },
 ]
 keywords = ["anti-money-laundering", "graph-reasoning", "llm-evaluation", "coreset", "horvitz-thompson"]
@@ -62,6 +61,7 @@ dev = ["amlcompact[data,figures,hub]", "pytest>=7.4", "ruff>=0.1"]
 [project.urls]
 Repository = "https://github.com/nat-nischw/AMLworld-Compact"
 Dataset = "https://huggingface.co/datasets/typhoon-ai/AMLworldCompactEval"
+Paper = "https://arxiv.org/abs/2610.13627"
 
 [tool.setuptools.packages.find]
 include = ["amlc*"]
