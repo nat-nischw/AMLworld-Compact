@@ -436,14 +436,14 @@ for contributing to the early stages of this work.
 Paper: Under review.
 
 ```bibtex
-@misc{nitarach2026amlcompact,
-  title  = {AMLworld-Compact: Importance-Weighted Downsampling for Cost-Effective LLM Evaluation and Error Diagnosis},
-  author = {Nitarach, Natapong and Ngampornsukswadi, Phume and
-            Taveekitworachai, Pittawat and Nonesung, Surapon and
-            Sirichotedumrong, Warit and
-            Pipatanakul, Kunat},
-  year   = {2026},
-  note   = {Under review}
+@misc{nitarach2026amlworldcompactimportanceweighteddownsamplingcosteffective,
+      title={AMLworld-Compact: Importance-Weighted Downsampling for Cost-Effective LLM Evaluation and Error Diagnosis}, 
+      author={Natapong Nitarach and Phume Ngampornsukswadi and Pittawat Taveekitworachai and Surapon Nonesung and Warit Sirichotedumrong and Kunat Pipatanakul},
+      year={2026},
+      eprint={2610.13627},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2610.13627}, 
 }
 ```
 
