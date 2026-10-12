@@ -459,6 +459,3 @@ Please also cite AMLworld, the source dataset:
   year      = {2023}
 }
 ```
-
-Paper metadata is maintained in [CITATION.cff](CITATION.cff). Run
-`make check-citation` to check the README citation against that file.
